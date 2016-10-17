@@ -1,0 +1,709 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+  <link href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css"/>
+
+
+
+
+  <link href="//fonts.googleapis.com/css?family=Lato:300,400,700,400italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+
+
+
+<link href="/vendors/font-awesome/css/font-awesome.min.css?v=4.4.0" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=0.5.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="java,i/o," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=0.5.0" />
+
+
+
+
+
+
+<meta name="description" content="原文：http://howtodoinjava.com/core-java/io/how-java-io-works-internally-at-lower-level/
+
+这篇文章主要讨论I/O操作在底层使如何工作的。主要介绍Java层的I/O操作是如何映射到机器层的，已经在我们的应用运行的时候硬件都做了那些事情。这里我假定大家在读这篇文章的时候已经熟悉了进本的I/O操作，比如使用Java I">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Java I/O 在底层是如何工作的？">
+<meta property="og:url" content="http://localhost/2016/09/29/how-java-io-works/index.html">
+<meta property="og:site_name" content="Simple">
+<meta property="og:description" content="原文：http://howtodoinjava.com/core-java/io/how-java-io-works-internally-at-lower-level/
+
+这篇文章主要讨论I/O操作在底层使如何工作的。主要介绍Java层的I/O操作是如何映射到机器层的，已经在我们的应用运行的时候硬件都做了那些事情。这里我假定大家在读这篇文章的时候已经熟悉了进本的I/O操作，比如使用Java I">
+<meta property="og:image" content="http://localhost/data-buffering-at-os-level.png">
+<meta property="og:image" content="http://localhost/virtual-memory-architechture.png">
+<meta property="og:updated_time" content="2016-10-17T07:32:03.311Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Java I/O 在底层是如何工作的？">
+<meta name="twitter:description" content="原文：http://howtodoinjava.com/core-java/io/how-java-io-works-internally-at-lower-level/
+
+这篇文章主要讨论I/O操作在底层使如何工作的。主要介绍Java层的I/O操作是如何映射到机器层的，已经在我们的应用运行的时候硬件都做了那些事情。这里我假定大家在读这篇文章的时候已经熟悉了进本的I/O操作，比如使用Java I">
+<meta name="twitter:image" content="http://localhost/data-buffering-at-os-level.png">
+
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    scheme: 'Muse',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: 0,
+      author: 'Author'
+    }
+  };
+</script>
+
+  <title> Java I/O 在底层是如何工作的？ | Simple </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="en">
+
+  
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">Simple</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+  <p class="site-subtitle">Simpe Life & Simpe Career</p>
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-home fa-fw"></i> <br />
+            
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-archive fa-fw"></i> <br />
+            
+            Archives
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-tags fa-fw"></i> <br />
+            
+            Tags
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                Java I/O 在底层是如何工作的？
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">Posted on</span>
+            <time itemprop="dateCreated" datetime="2016-09-29T23:39:53+08:00" content="2016-09-29">
+              2016-09-29
+            </time>
+          </span>
+
+          
+
+          
+            
+          
+
+          
+
+          
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <blockquote>
+<p>原文：<a href="http://howtodoinjava.com/core-java/io/how-java-io-works-internally-at-lower-level/" target="_blank" rel="external">http://howtodoinjava.com/core-java/io/how-java-io-works-internally-at-lower-level/</a></p>
+</blockquote>
+<p>这篇文章主要讨论I/O操作在底层使如何工作的。主要介绍Java层的I/O操作是如何映射到机器层的，已经在我们的应用运行的时候硬件都做了那些事情。这里我假定大家在读这篇文章的时候已经熟悉了进本的I/O操作，比如使用Java I/O 的API来读写文件，因为本文不会涉及这些内容。</p>
+<p>文章目录</p>
+<ul>
+<li><a href="#缓冲区处理与内核空间、用户空间">缓冲区处理与内核空间、用户空间</a></li>
+<li><a href="#虚拟内存">虚拟内存</a></li>
+<li><a href="#内存分页">内存分页</a></li>
+<li><a href="#面向文件/块的I/O">面向文件/块的I/O</a></li>
+<li><a href="#文件锁">文件锁</a></li>
+<li><a href="#面向流的I/O">面向流的I/O</a></li>
+</ul>
+<h1 id="缓冲区处理与内核空间、用户空间"><a href="#缓冲区处理与内核空间、用户空间" class="headerlink" title="缓冲区处理与内核空间、用户空间"></a>缓冲区处理与内核空间、用户空间</h1><p>缓冲区与缓冲区的操作是所以I/O的基础。<strong>“输入/输入”这个词的意义无非就是将数据移入与移出缓冲区。</strong>要时刻牢记这一点。通常，进程通过操作系统执行I/O操作，写操作就是将缓冲区内的数据清空，读操作是用数据填充缓冲区。这就是对I/O宏观上的总结。操作系统控制的机器在执行这些数据传输的时候可能相当的负责，但从概念上来说却是很简单的，接下来本文中将讨论其中的一小部分。</p>
+<p><img src="data-buffering-at-os-level.png" alt="data buffering at os level"></p>
+<p>上面这张图展示了数据块是如何一步步的从硬盘读入到用户进程的内存中的。首先，用户进程通过<code>read()</code>系统调用请求数据来填充到它的缓冲区，内核收到这个系统调用，会向硬盘控制器发出一个读取硬盘数据的指令。硬盘控制器可以通过DMA可以直接往内核内存缓冲区写数据，不需要主CPU的任何协助。一旦硬盘控制器将内核内存缓冲区填满之后，内核就将数据冲内核这个临时缓冲区Copy到特定的内存缓冲区。</p>
+<p>需要值得注意的一点是，内核会尝试缓存或者提前拉取数据，这样用户进程请求的数据可能已经存在在内核空间里面了。如果请求的数据已经在内核空间，那么只需要将数据从内核空间Copy到用户空间，如果没有，用户进程将被挂起，内核负责将数据从硬盘读入到内核空间。</p>
+<h1 id="虚拟内存"><a href="#虚拟内存" class="headerlink" title="虚拟内存"></a>虚拟内存</h1><p>之前你可能已经听过<code>虚拟内存</code>这个词很多次了，</p>
+<p>现代所有的操作系统都使用了虚拟内存。虚拟内存意味着，操作系统使用的是人工的虚拟的内存地址而不是真实的物理内存地址。使用虚拟内存有两大好处：</p>
+<ul>
+<li>多个虚拟内存地址可以指向物理内存的同一位置</li>
+<li>虚拟内存空间可以大于实际物理内存可用空间</li>
+</ul>
+<p>上面一节中提到的将数据从内核空间Copy到用户空间看起来像是无用功，为什么不直接告诉硬盘控制器直接将数据发送到用户空间？通过虚拟内存可以实现这一点，具体实现是使用了上面的第一条好处。</p>
+<p>将内核空间地址映射为用户空间使用的虚拟地址对应的物理地址，DMA（只能操作实际的物理内存地址）就可以只往内存中填充一个缓冲区，实现同时对于内核和用户空间都是可见的。</p>
+<p><img src="virtual-memory-architechture.png" alt="virtual memory architechture"></p>
+<p>这样的话就减少了一次内核空间与用户空间内存之间的拷贝，但有个前提条件是内核和用户缓冲区的内存页是对齐的。缓冲区的大小也必须是磁盘控制器使用的块的大小的整数倍。操作系统将内存空间划分为许多固定大小的页。这些页的大小是磁盘块大小的整数倍，通常是块大小的2的幂次方倍。一般内存页大小为1024byte，2048byte或者4096byte。虚拟内存页与物理内存页大小通常是一致的。</p>
+<h1 id="内存分页"><a href="#内存分页" class="headerlink" title="内存分页"></a>内存分页</h1><p>为了实现虚拟内存的第二个好处（地址空间大于实际物理内存），必须对内存进行分页处理（通常指的是内存交换）。为了能够使物理内存有足够的空间作为虚拟内存使用，一些虚拟内存的页必须放到磁盘上存储起来。</p>
+<h1 id="面向文件-块的I-O"><a href="#面向文件-块的I-O" class="headerlink" title="面向文件/块的I/O"></a>面向文件/块的I/O</h1><h1 id="文件锁"><a href="#文件锁" class="headerlink" title="文件锁"></a>文件锁</h1><h1 id="面向流的I-O"><a href="#面向流的I-O" class="headerlink" title="面向流的I/O"></a>面向流的I/O</h1>
+      
+    </div>
+
+    <div>
+      
+        
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/java/" rel="tag">#java</a>
+          
+            <a href="/tags/i-o/" rel="tag">#i/o</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2016/09/29/Deep-Understanding-Volley/" rel="next" title="深入理解Volley">
+                <i class="fa fa-chevron-left"></i> 深入理解Volley
+              </a>
+            
+          </div>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel ">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/default_avatar.jpg"
+               alt="KangZongZhan" />
+          <p class="site-author-name" itemprop="name">KangZongZhan</p>
+          <p class="site-description motion-element" itemprop="description"></p>
+        </div>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">25</span>
+              <span class="site-state-item-name">posts</span>
+            </a>
+          </div>
+
+          
+            <div class="site-state-item site-state-categories">
+              
+                <span class="site-state-item-count">1</span>
+                <span class="site-state-item-name">categories</span>
+              
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/tags">
+                <span class="site-state-item-count">5</span>
+                <span class="site-state-item-name">tags</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        <div class="links-of-blogroll motion-element">
+          
+        </div>
+
+      </section>
+
+      
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc-indicator-top post-toc-indicator">
+            <i class="fa fa-angle-double-up"></i>
+          </div>
+          <div class="post-toc">
+            
+              
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#缓冲区处理与内核空间、用户空间"><span class="nav-number">1.</span> <span class="nav-text">缓冲区处理与内核空间、用户空间</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#虚拟内存"><span class="nav-number">2.</span> <span class="nav-text">虚拟内存</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#内存分页"><span class="nav-number">3.</span> <span class="nav-text">内存分页</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#面向文件-块的I-O"><span class="nav-number">4.</span> <span class="nav-text">面向文件/块的I/O</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#文件锁"><span class="nav-number">5.</span> <span class="nav-text">文件锁</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#面向流的I-O"><span class="nav-number">6.</span> <span class="nav-text">面向流的I/O</span></a></li></ol></div>
+            
+          </div>
+          <div class="post-toc-indicator-bottom post-toc-indicator">
+            <i class="fa fa-angle-double-down"></i>
+          </div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2016</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">KangZongZhan</span>
+</div>
+
+<div class="powered-by">
+  Powered by <a class="theme-link" href="http://hexo.io">Hexo</a>
+</div>
+
+<div class="theme-info">
+  Theme -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Muse
+  </a>
+</div>
+
+
+
+      </div>
+    </footer>
+
+    <div class="back-to-top">
+      <i class="fa fa-arrow-up"></i>
+    </div>
+  </div>
+
+  
+
+
+  
+
+
+
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  <script type="text/javascript" src="/vendors/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js"></script>
+
+  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js"></script>
+
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=0.5.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=0.5.0"></script>
+
+
+
+  
+  
+
+  
+  
+<script type="text/javascript" src="/js/src/scrollspy.js?v=0.5.0"></script>
+
+<script type="text/javascript" id="sidebar.toc.highlight">
+  $(document).ready(function () {
+    var tocSelector = '.post-toc';
+    var $tocSelector = $(tocSelector);
+    var activeCurrentSelector = '.active-current';
+
+    $tocSelector
+      .on('activate.bs.scrollspy', function () {
+        var $currentActiveElement = $(tocSelector + ' .active').last();
+
+        removeCurrentActiveClass();
+        $currentActiveElement.addClass('active-current');
+
+        $tocSelector[0].scrollTop = $currentActiveElement.position().top;
+      })
+      .on('clear.bs.scrollspy', function () {
+        removeCurrentActiveClass();
+      });
+
+    function removeCurrentActiveClass () {
+      $(tocSelector + ' ' + activeCurrentSelector)
+        .removeClass(activeCurrentSelector.substring(1));
+    }
+
+    function processTOC () {
+      getTOCMaxHeight();
+      toggleTOCOverflowIndicators();
+    }
+
+    function getTOCMaxHeight () {
+      var height = $('.sidebar').height() -
+                   $tocSelector.position().top -
+                   $('.post-toc-indicator-bottom').height();
+
+      $tocSelector.css('height', height);
+
+      return height;
+    }
+
+    function toggleTOCOverflowIndicators () {
+      tocOverflowIndicator(
+        '.post-toc-indicator-top',
+        $tocSelector.scrollTop() > 0 ? 'show' : 'hide'
+      );
+
+      tocOverflowIndicator(
+        '.post-toc-indicator-bottom',
+        $tocSelector.scrollTop() >= $tocSelector.find('ol').height() - $tocSelector.height() ? 'hide' : 'show'
+      )
+    }
+
+    $(document).on('sidebar.motion.complete', function () {
+      processTOC();
+    });
+
+    $('body').scrollspy({ target: tocSelector });
+    $(window).on('resize', function () {
+      if ( $('.sidebar').hasClass('sidebar-active') ) {
+        processTOC();
+      }
+    });
+
+    onScroll($tocSelector);
+
+    function onScroll (element) {
+      element.on('mousewheel DOMMouseScroll', function (event) {
+          var oe = event.originalEvent;
+          var delta = oe.wheelDelta || -oe.detail;
+
+          this.scrollTop += ( delta < 0 ? 1 : -1 ) * 30;
+          event.preventDefault();
+
+          toggleTOCOverflowIndicators();
+      });
+    }
+
+    function tocOverflowIndicator (indicator, action) {
+      var $indicator = $(indicator);
+      var opacity = action === 'show' ? 1 : 0;
+      $indicator.velocity ?
+        $indicator.velocity('stop').velocity({
+          opacity: opacity
+        }, { duration: 100 }) :
+        $indicator.stop().animate({
+          opacity: opacity
+        }, 100);
+    }
+
+  });
+</script>
+
+<script type="text/javascript" id="sidebar.nav">
+  $(document).ready(function () {
+    var html = $('html');
+    var TAB_ANIMATE_DURATION = 200;
+    var hasVelocity = $.isFunction(html.velocity);
+
+    $('.sidebar-nav li').on('click', function () {
+      var item = $(this);
+      var activeTabClassName = 'sidebar-nav-active';
+      var activePanelClassName = 'sidebar-panel-active';
+      if (item.hasClass(activeTabClassName)) {
+        return;
+      }
+
+      var currentTarget = $('.' + activePanelClassName);
+      var target = $('.' + item.data('target'));
+
+      hasVelocity ?
+        currentTarget.velocity('transition.slideUpOut', TAB_ANIMATE_DURATION, function () {
+          target
+            .velocity('stop')
+            .velocity('transition.slideDownIn', TAB_ANIMATE_DURATION)
+            .addClass(activePanelClassName);
+        }) :
+        currentTarget.animate({ opacity: 0 }, TAB_ANIMATE_DURATION, function () {
+          currentTarget.hide();
+          target
+            .stop()
+            .css({'opacity': 0, 'display': 'block'})
+            .animate({ opacity: 1 }, TAB_ANIMATE_DURATION, function () {
+              currentTarget.removeClass(activePanelClassName);
+              target.addClass(activePanelClassName);
+            });
+        });
+
+      item.siblings().removeClass(activeTabClassName);
+      item.addClass(activeTabClassName);
+    });
+
+    $('.post-toc a').on('click', function (e) {
+      e.preventDefault();
+      var targetSelector = NexT.utils.escapeSelector(this.getAttribute('href'));
+      var offset = $(targetSelector).offset().top;
+      hasVelocity ?
+        html.velocity('stop').velocity('scroll', {
+          offset: offset  + 'px',
+          mobileHA: false
+        }) :
+        $('html, body').stop().animate({
+          scrollTop: offset
+        }, 500);
+    });
+
+    // Expand sidebar on post detail page by default, when post has a toc.
+    NexT.motion.middleWares.sidebar = function () {
+      var $tocContent = $('.post-toc-content');
+
+      if (CONFIG.sidebar.display === 'post' || CONFIG.sidebar.display === 'always') {
+        if ($tocContent.length > 0 && $tocContent.html().trim().length > 0) {
+          NexT.utils.displaySidebar();
+        }
+      }
+    };
+  });
+</script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=0.5.0"></script>
+
+
+
+  
+
+
+
+  
+
+
+
+  
+  
+  
+
+  
+
+
+</body>
+</html>

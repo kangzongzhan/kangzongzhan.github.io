@@ -1,0 +1,690 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+  <link href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css"/>
+
+
+
+
+  <link href="//fonts.googleapis.com/css?family=Lato:300,400,700,400italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+
+
+
+<link href="/vendors/font-awesome/css/font-awesome.min.css?v=4.4.0" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=0.5.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="java," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=0.5.0" />
+
+
+
+
+
+
+<meta name="description" content="1. ThreadLocal的使用ThreadLocal类可以让你创建的变量只被同一个线程进行读和写操作。因此，尽管有两个线程同时执行一段相同的代码，而且这段代码又有一个指向同一个ThreadLocal变量的引用，但是这两个线程依然不能看到彼此的ThreadLocal变量域。ThreadLocal的使用方法也特别简单：
+123ThreadLocal&amp;lt;String&amp;gt; strThreadL">
+<meta property="og:type" content="article">
+<meta property="og:title" content="ThreadLocal的实现">
+<meta property="og:url" content="http://localhost/2016/08/24/ThreadLocal/index.html">
+<meta property="og:site_name" content="Simple">
+<meta property="og:description" content="1. ThreadLocal的使用ThreadLocal类可以让你创建的变量只被同一个线程进行读和写操作。因此，尽管有两个线程同时执行一段相同的代码，而且这段代码又有一个指向同一个ThreadLocal变量的引用，但是这两个线程依然不能看到彼此的ThreadLocal变量域。ThreadLocal的使用方法也特别简单：
+123ThreadLocal&amp;lt;String&amp;gt; strThreadL">
+<meta property="og:updated_time" content="2016-09-04T04:26:23.757Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="ThreadLocal的实现">
+<meta name="twitter:description" content="1. ThreadLocal的使用ThreadLocal类可以让你创建的变量只被同一个线程进行读和写操作。因此，尽管有两个线程同时执行一段相同的代码，而且这段代码又有一个指向同一个ThreadLocal变量的引用，但是这两个线程依然不能看到彼此的ThreadLocal变量域。ThreadLocal的使用方法也特别简单：
+123ThreadLocal&amp;lt;String&amp;gt; strThreadL">
+
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    scheme: 'Muse',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: 0,
+      author: 'Author'
+    }
+  };
+</script>
+
+  <title> ThreadLocal的实现 | Simple </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="en">
+
+  
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">Simple</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+  <p class="site-subtitle">Simpe Life & Simpe Career</p>
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-home fa-fw"></i> <br />
+            
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-archive fa-fw"></i> <br />
+            
+            Archives
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-tags fa-fw"></i> <br />
+            
+            Tags
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                ThreadLocal的实现
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">Posted on</span>
+            <time itemprop="dateCreated" datetime="2016-08-24T20:11:50+08:00" content="2016-08-24">
+              2016-08-24
+            </time>
+          </span>
+
+          
+
+          
+            
+          
+
+          
+
+          
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h1 id="1-ThreadLocal的使用"><a href="#1-ThreadLocal的使用" class="headerlink" title="1. ThreadLocal的使用"></a>1. ThreadLocal的使用</h1><p>ThreadLocal类可以让你创建的变量只被同一个线程进行读和写操作。因此，尽管有两个线程同时执行一段相同的代码，而且这段代码又有一个指向同一个ThreadLocal变量的引用，但是这两个线程依然不能看到彼此的ThreadLocal变量域。<br>ThreadLocal的使用方法也特别简单：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">ThreadLocal&lt;String&gt; strThreadLocal = <span class="keyword">new</span> ThreadLocal&lt;String&gt;(); <span class="comment">// 声明ThreadLocal对象</span></div><div class="line">strThreadLocal.set(<span class="string">"My thread id is:"</span> + Thread.currentThread().getId() ); <span class="comment">// 存储</span></div><div class="line">String str = strThreadLocal.get(); <span class="comment">// 获取</span></div></pre></td></tr></table></figure>
+<p>通过ThreadLocal<t>可以很方便的让线程拥有自己的”私有对象”。下面来看看它是怎么为线程创造出来的这个”私有对象”。整个实现主要涉及到Thread，ThreadLocalMap以及ThreadLcal, 他们的具体分工如下：</t></p>
+<p>Thread：”私有对象”，即泛型对象T实际存储位置。<br>ThreadLocalMap：程序中可以有多个ThreadLocal<t>对象，这就意味着，Thread对象中要存储多个对象T，ThreadLocalMap就是对象T在Thread中存储的数据结构<br>ThreadLocal：线程中获取”私有对象”的中介。</t></p>
+<h1 id="2-ThreadLocal"><a href="#2-ThreadLocal" class="headerlink" title="2. ThreadLocal"></a>2. ThreadLocal</h1><h2 id="2-1-set-get-的实现"><a href="#2-1-set-get-的实现" class="headerlink" title="2.1 set() get()的实现"></a>2.1 set() get()的实现</h2><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">set</span><span class="params">(T value)</span> </span>&#123;</div><div class="line">    Thread t = Thread.currentThread(); <span class="comment">// 获取当前线程</span></div><div class="line">    ThreadLocalMap map = getMap(t); <span class="comment">// 拿到当前线程中的ThreadLocalMap对象</span></div><div class="line">    <span class="keyword">if</span> (map != <span class="keyword">null</span>)</div><div class="line">        map.set(<span class="keyword">this</span>, value); <span class="comment">// 如果ThreadLocalMap已经存在，则以该ThreadLocal对象为Key存储。</span></div><div class="line">    <span class="keyword">else</span></div><div class="line">        createMap(t, value); <span class="comment">// 如果ThreadLocalMap还未创建，创建并存储</span></div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">public</span> T <span class="title">get</span><span class="params">()</span> </span>&#123;</div><div class="line">    Thread t = Thread.currentThread();</div><div class="line">    ThreadLocalMap map = getMap(t);</div><div class="line">    <span class="keyword">if</span> (map != <span class="keyword">null</span>) &#123;</div><div class="line">        ThreadLocalMap.Entry e = map.getEntry(<span class="keyword">this</span>); <span class="comment">// 获取Map的Entry</span></div><div class="line">        <span class="keyword">if</span> (e != <span class="keyword">null</span>)</div><div class="line">            <span class="keyword">return</span> (T)e.value; <span class="comment">// 获取存储的对象</span></div><div class="line">    &#125;</div><div class="line">    <span class="keyword">return</span> setInitialValue(); <span class="comment">// 返回默认值。通过复写initialValue方法设置默认值。</span></div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>可以看出set get方法就是往ThreadLocalMap存与取。</p>
+<h1 id="3-ThreadLocalMap"><a href="#3-ThreadLocalMap" class="headerlink" title="3. ThreadLocalMap"></a>3. ThreadLocalMap</h1><p>ThreadLocalMap可以说是一个自定义的HashMap。那么为什么不直接用HashMap作为存储结构呢？因为会出现内存泄露。<br>因为对象的存储位置是Thread这个对象中，一旦对象使用的生命周期小于Thread的生命周期就会导致，对象无法被GC回收，内存泄露。</p>
+<h2 id="使用弱引用作为Map的Entry"><a href="#使用弱引用作为Map的Entry" class="headerlink" title="使用弱引用作为Map的Entry"></a>使用弱引用作为Map的Entry</h2><p>为了防止内存泄露，Entry采用了很巧妙的一种办法，让Entry实现为ThreadLocal的弱引用，已ThreadLocal对象为Key，内部包裹一个Value对象。<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">static</span> <span class="class"><span class="keyword">class</span> <span class="title">Entry</span> <span class="keyword">extends</span> <span class="title">WeakReference</span>&lt;<span class="title">ThreadLocal</span>&gt; </span>&#123;</div><div class="line">    <span class="comment">/** The value associated with this ThreadLocal. */</span></div><div class="line">    Object value;</div><div class="line"></div><div class="line">    Entry(ThreadLocal k, Object v) &#123;</div><div class="line">        <span class="keyword">super</span>(k);</div><div class="line">        value = v;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>这样当除了ThreadLocalMap以外如果没有其他引用到ThreadLocal对象的话，那么在GC发生的时候，弱引用Entry所指向的ThreadLocal对象就会被回收。<br>而且以Entry.get()得到ThreadLocal对象作为Key， Entry.value作为当前线程，对应该key的ThreadLocal的线程“私有对象”。</p>
+<h2 id="3-1-hashcode的计算"><a href="#3-1-hashcode的计算" class="headerlink" title="3.1 hashcode的计算"></a>3.1 hashcode的计算</h2><p>hash算法的宗旨就是尽量的将较多的key均匀分布在有限的槽中。在ThreadLocalMap中的key是ThreadLocal，自然hashcode的计算就落到的ThreadLocal身上。<br>结合考虑ThreadLocal使用的常见场景，ThreadLocal对象都会被连续的添加到每个线程的ThreadLocalMap中，所以设计者采用了一种“自增”的实现方法。自增的起始值是0x61c88647。也就是说第一个被new出来的ThreadLocal对象的hashcode为0x61c88647，第二被new出来的ThreadLocal对象的hashcode就是0x61c88648，以此类推。而且这种实现方法在那些并不常见的场景中效果也是很好的。</p>
+<h2 id="3-2-一维存储结构"><a href="#3-2-一维存储结构" class="headerlink" title="3.2 一维存储结构"></a>3.2 一维存储结构</h2><p>注意到Entry的实现与HashMap中不同，没有Entry.next，所以其无法实现HashMap的那种二维存储，只能是一维存储结构。<br>那么在发生hash冲突的时候，解决办法也就是简单的后移。贴上ThreadLocalMap 的set 与 get 方法</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">set</span><span class="params">(ThreadLocal key, Object value)</span> </span>&#123;</div><div class="line"></div><div class="line">    <span class="comment">// We don't use a fast path as with get() because it is at</span></div><div class="line">    <span class="comment">// least as common to use set() to create new entries as</span></div><div class="line">    <span class="comment">// it is to replace existing ones, in which case, a fast</span></div><div class="line">    <span class="comment">// path would fail more often than not.</span></div><div class="line"></div><div class="line">    Entry[] tab = table;</div><div class="line">    <span class="keyword">int</span> len = tab.length;</div><div class="line">    <span class="keyword">int</span> i = key.threadLocalHashCode &amp; (len-<span class="number">1</span>); <span class="comment">// hashcode 与 数组长度结合初步计算出存储位置</span></div><div class="line"></div><div class="line">    <span class="keyword">for</span> (Entry e = tab[i];</div><div class="line">         e != <span class="keyword">null</span>;</div><div class="line">         e = tab[i = nextIndex(i, len)]) &#123; <span class="comment">// 查看该位置是否已经存储了Entry</span></div><div class="line">        ThreadLocal k = e.get();</div><div class="line"></div><div class="line">        <span class="keyword">if</span> (k == key) &#123; <span class="comment">// 如果该位置存放的key value与要设的一直，直接return</span></div><div class="line">            e.value = value;</div><div class="line">            <span class="keyword">return</span>;</div><div class="line">        &#125;</div><div class="line"></div><div class="line">        <span class="keyword">if</span> (k == <span class="keyword">null</span>) &#123; <span class="comment">// 如果该位置存放的ThreadLocal已经被回收，替换它</span></div><div class="line">            replaceStaleEntry(key, value, i);</div><div class="line">            <span class="keyword">return</span>;</div><div class="line">        &#125;</div><div class="line">                             <span class="comment">// 不是以上情况，就查看下一个位置是否能够存储 </span></div><div class="line">    &#125;</div><div class="line"></div><div class="line">    tab[i] = <span class="keyword">new</span> Entry(key, value); <span class="comment">// 找到合适位置存储</span></div><div class="line">    <span class="keyword">int</span> sz = ++size;</div><div class="line">    <span class="keyword">if</span> (!cleanSomeSlots(i, sz) &amp;&amp; sz &gt;= threshold) <span class="comment">// 是否要扩充</span></div><div class="line">        rehash();</div><div class="line">&#125;</div><div class="line"></div><div class="line"></div><div class="line"><span class="function"><span class="keyword">private</span> Entry <span class="title">getEntry</span><span class="params">(ThreadLocal key)</span> </span>&#123;</div><div class="line">    <span class="keyword">int</span> i = key.threadLocalHashCode &amp; (table.length - <span class="number">1</span>);</div><div class="line">    Entry e = table[i];</div><div class="line">    <span class="keyword">if</span> (e != <span class="keyword">null</span> &amp;&amp; e.get() == key) <span class="comment">//当前Entry不为空， 且key相等说明命中</span></div><div class="line">        <span class="keyword">return</span> e;</div><div class="line">    <span class="keyword">else</span></div><div class="line">        <span class="keyword">return</span> getEntryAfterMiss(key, i, e); <span class="comment">//没有命中继续再找</span></div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">private</span> Entry <span class="title">getEntryAfterMiss</span><span class="params">(ThreadLocal key, <span class="keyword">int</span> i, Entry e)</span> </span>&#123;</div><div class="line">    Entry[] tab = table;</div><div class="line">    <span class="keyword">int</span> len = tab.length;</div><div class="line"></div><div class="line">    <span class="keyword">while</span> (e != <span class="keyword">null</span>) &#123;</div><div class="line">        ThreadLocal k = e.get();</div><div class="line">        <span class="keyword">if</span> (k == key) <span class="comment">// 命中返回</span></div><div class="line">            <span class="keyword">return</span> e;</div><div class="line">        <span class="keyword">if</span> (k == <span class="keyword">null</span>) <span class="comment">// ThreadLocal已经被回收，将当前Slot消去</span></div><div class="line">            expungeStaleEntry(i);</div><div class="line">        <span class="keyword">else</span></div><div class="line">            i = nextIndex(i, len); <span class="comment">// 没有命中，挪到下一个</span></div><div class="line">        e = tab[i];</div><div class="line">    &#125;</div><div class="line">    <span class="keyword">return</span> <span class="keyword">null</span>;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<h1 id="4-Thread"><a href="#4-Thread" class="headerlink" title="4. Thread"></a>4. Thread</h1><p>Thread是ThreadLocalMap的载体，结合其实际作用，不难想象。也没有太多好说的。</p>
+
+      
+    </div>
+
+    <div>
+      
+        
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/java/" rel="tag">#java</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2016/08/24/Handler-Looper-MessageQueue/" rel="next" title="Android的消息机制">
+                <i class="fa fa-chevron-left"></i> Android的消息机制
+              </a>
+            
+          </div>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2016/09/27/transmitting-network-data-using-volley/" rel="prev" title="Volley官方教程翻译（一）：使用Volley来完成网络数据请求">
+                Volley官方教程翻译（一）：使用Volley来完成网络数据请求 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel ">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/default_avatar.jpg"
+               alt="KangZongZhan" />
+          <p class="site-author-name" itemprop="name">KangZongZhan</p>
+          <p class="site-description motion-element" itemprop="description"></p>
+        </div>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">25</span>
+              <span class="site-state-item-name">posts</span>
+            </a>
+          </div>
+
+          
+            <div class="site-state-item site-state-categories">
+              
+                <span class="site-state-item-count">1</span>
+                <span class="site-state-item-name">categories</span>
+              
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/tags">
+                <span class="site-state-item-count">5</span>
+                <span class="site-state-item-name">tags</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        <div class="links-of-blogroll motion-element">
+          
+        </div>
+
+      </section>
+
+      
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc-indicator-top post-toc-indicator">
+            <i class="fa fa-angle-double-up"></i>
+          </div>
+          <div class="post-toc">
+            
+              
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#1-ThreadLocal的使用"><span class="nav-number">1.</span> <span class="nav-text">1. ThreadLocal的使用</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#2-ThreadLocal"><span class="nav-number">2.</span> <span class="nav-text">2. ThreadLocal</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#2-1-set-get-的实现"><span class="nav-number">2.1.</span> <span class="nav-text">2.1 set() get()的实现</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#3-ThreadLocalMap"><span class="nav-number">3.</span> <span class="nav-text">3. ThreadLocalMap</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#使用弱引用作为Map的Entry"><span class="nav-number">3.1.</span> <span class="nav-text">使用弱引用作为Map的Entry</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-1-hashcode的计算"><span class="nav-number">3.2.</span> <span class="nav-text">3.1 hashcode的计算</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-2-一维存储结构"><span class="nav-number">3.3.</span> <span class="nav-text">3.2 一维存储结构</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#4-Thread"><span class="nav-number">4.</span> <span class="nav-text">4. Thread</span></a></li></ol></div>
+            
+          </div>
+          <div class="post-toc-indicator-bottom post-toc-indicator">
+            <i class="fa fa-angle-double-down"></i>
+          </div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2016</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">KangZongZhan</span>
+</div>
+
+<div class="powered-by">
+  Powered by <a class="theme-link" href="http://hexo.io">Hexo</a>
+</div>
+
+<div class="theme-info">
+  Theme -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Muse
+  </a>
+</div>
+
+
+
+      </div>
+    </footer>
+
+    <div class="back-to-top">
+      <i class="fa fa-arrow-up"></i>
+    </div>
+  </div>
+
+  
+
+
+  
+
+
+
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  <script type="text/javascript" src="/vendors/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js"></script>
+
+  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js"></script>
+
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=0.5.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=0.5.0"></script>
+
+
+
+  
+  
+
+  
+  
+<script type="text/javascript" src="/js/src/scrollspy.js?v=0.5.0"></script>
+
+<script type="text/javascript" id="sidebar.toc.highlight">
+  $(document).ready(function () {
+    var tocSelector = '.post-toc';
+    var $tocSelector = $(tocSelector);
+    var activeCurrentSelector = '.active-current';
+
+    $tocSelector
+      .on('activate.bs.scrollspy', function () {
+        var $currentActiveElement = $(tocSelector + ' .active').last();
+
+        removeCurrentActiveClass();
+        $currentActiveElement.addClass('active-current');
+
+        $tocSelector[0].scrollTop = $currentActiveElement.position().top;
+      })
+      .on('clear.bs.scrollspy', function () {
+        removeCurrentActiveClass();
+      });
+
+    function removeCurrentActiveClass () {
+      $(tocSelector + ' ' + activeCurrentSelector)
+        .removeClass(activeCurrentSelector.substring(1));
+    }
+
+    function processTOC () {
+      getTOCMaxHeight();
+      toggleTOCOverflowIndicators();
+    }
+
+    function getTOCMaxHeight () {
+      var height = $('.sidebar').height() -
+                   $tocSelector.position().top -
+                   $('.post-toc-indicator-bottom').height();
+
+      $tocSelector.css('height', height);
+
+      return height;
+    }
+
+    function toggleTOCOverflowIndicators () {
+      tocOverflowIndicator(
+        '.post-toc-indicator-top',
+        $tocSelector.scrollTop() > 0 ? 'show' : 'hide'
+      );
+
+      tocOverflowIndicator(
+        '.post-toc-indicator-bottom',
+        $tocSelector.scrollTop() >= $tocSelector.find('ol').height() - $tocSelector.height() ? 'hide' : 'show'
+      )
+    }
+
+    $(document).on('sidebar.motion.complete', function () {
+      processTOC();
+    });
+
+    $('body').scrollspy({ target: tocSelector });
+    $(window).on('resize', function () {
+      if ( $('.sidebar').hasClass('sidebar-active') ) {
+        processTOC();
+      }
+    });
+
+    onScroll($tocSelector);
+
+    function onScroll (element) {
+      element.on('mousewheel DOMMouseScroll', function (event) {
+          var oe = event.originalEvent;
+          var delta = oe.wheelDelta || -oe.detail;
+
+          this.scrollTop += ( delta < 0 ? 1 : -1 ) * 30;
+          event.preventDefault();
+
+          toggleTOCOverflowIndicators();
+      });
+    }
+
+    function tocOverflowIndicator (indicator, action) {
+      var $indicator = $(indicator);
+      var opacity = action === 'show' ? 1 : 0;
+      $indicator.velocity ?
+        $indicator.velocity('stop').velocity({
+          opacity: opacity
+        }, { duration: 100 }) :
+        $indicator.stop().animate({
+          opacity: opacity
+        }, 100);
+    }
+
+  });
+</script>
+
+<script type="text/javascript" id="sidebar.nav">
+  $(document).ready(function () {
+    var html = $('html');
+    var TAB_ANIMATE_DURATION = 200;
+    var hasVelocity = $.isFunction(html.velocity);
+
+    $('.sidebar-nav li').on('click', function () {
+      var item = $(this);
+      var activeTabClassName = 'sidebar-nav-active';
+      var activePanelClassName = 'sidebar-panel-active';
+      if (item.hasClass(activeTabClassName)) {
+        return;
+      }
+
+      var currentTarget = $('.' + activePanelClassName);
+      var target = $('.' + item.data('target'));
+
+      hasVelocity ?
+        currentTarget.velocity('transition.slideUpOut', TAB_ANIMATE_DURATION, function () {
+          target
+            .velocity('stop')
+            .velocity('transition.slideDownIn', TAB_ANIMATE_DURATION)
+            .addClass(activePanelClassName);
+        }) :
+        currentTarget.animate({ opacity: 0 }, TAB_ANIMATE_DURATION, function () {
+          currentTarget.hide();
+          target
+            .stop()
+            .css({'opacity': 0, 'display': 'block'})
+            .animate({ opacity: 1 }, TAB_ANIMATE_DURATION, function () {
+              currentTarget.removeClass(activePanelClassName);
+              target.addClass(activePanelClassName);
+            });
+        });
+
+      item.siblings().removeClass(activeTabClassName);
+      item.addClass(activeTabClassName);
+    });
+
+    $('.post-toc a').on('click', function (e) {
+      e.preventDefault();
+      var targetSelector = NexT.utils.escapeSelector(this.getAttribute('href'));
+      var offset = $(targetSelector).offset().top;
+      hasVelocity ?
+        html.velocity('stop').velocity('scroll', {
+          offset: offset  + 'px',
+          mobileHA: false
+        }) :
+        $('html, body').stop().animate({
+          scrollTop: offset
+        }, 500);
+    });
+
+    // Expand sidebar on post detail page by default, when post has a toc.
+    NexT.motion.middleWares.sidebar = function () {
+      var $tocContent = $('.post-toc-content');
+
+      if (CONFIG.sidebar.display === 'post' || CONFIG.sidebar.display === 'always') {
+        if ($tocContent.length > 0 && $tocContent.html().trim().length > 0) {
+          NexT.utils.displaySidebar();
+        }
+      }
+    };
+  });
+</script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=0.5.0"></script>
+
+
+
+  
+
+
+
+  
+
+
+
+  
+  
+  
+
+  
+
+
+</body>
+</html>

@@ -1,0 +1,722 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+  <link href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css"/>
+
+
+
+
+  <link href="//fonts.googleapis.com/css?family=Lato:300,400,700,400italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+
+
+
+<link href="/vendors/font-awesome/css/font-awesome.min.css?v=4.4.0" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=0.5.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="android,volley," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=0.5.0" />
+
+
+
+
+
+
+<meta name="description" content="学习完了官方教程之后我们就学会如何在项目中使用Volley了，享受其带给我们的便捷。但作为一个有追求的程序猿我们决不能停留在使用的阶段，我们要去探索其中的奥秘，去学习优秀框架的设计思想，具体实现方法，甚至是学习作者的优秀编码习惯。如何深入学习Volley呢？官方教程中声称Volley有八大优点，我们来探索一下这八大优点究竟是什么，在代码中是如何实现的。
+自动调度网络请求通过教程了解到，当需要执行一">
+<meta property="og:type" content="article">
+<meta property="og:title" content="深入理解Volley">
+<meta property="og:url" content="http://localhost/2016/09/29/Deep-Understanding-Volley/index.html">
+<meta property="og:site_name" content="Simple">
+<meta property="og:description" content="学习完了官方教程之后我们就学会如何在项目中使用Volley了，享受其带给我们的便捷。但作为一个有追求的程序猿我们决不能停留在使用的阶段，我们要去探索其中的奥秘，去学习优秀框架的设计思想，具体实现方法，甚至是学习作者的优秀编码习惯。如何深入学习Volley呢？官方教程中声称Volley有八大优点，我们来探索一下这八大优点究竟是什么，在代码中是如何实现的。
+自动调度网络请求通过教程了解到，当需要执行一">
+<meta property="og:image" content="http://localhost/2016/09/27/sending-a-simple-request/volley-request.png">
+<meta property="og:updated_time" content="2016-10-17T07:32:03.311Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="深入理解Volley">
+<meta name="twitter:description" content="学习完了官方教程之后我们就学会如何在项目中使用Volley了，享受其带给我们的便捷。但作为一个有追求的程序猿我们决不能停留在使用的阶段，我们要去探索其中的奥秘，去学习优秀框架的设计思想，具体实现方法，甚至是学习作者的优秀编码习惯。如何深入学习Volley呢？官方教程中声称Volley有八大优点，我们来探索一下这八大优点究竟是什么，在代码中是如何实现的。
+自动调度网络请求通过教程了解到，当需要执行一">
+<meta name="twitter:image" content="http://localhost/2016/09/27/sending-a-simple-request/volley-request.png">
+
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    scheme: 'Muse',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: 0,
+      author: 'Author'
+    }
+  };
+</script>
+
+  <title> 深入理解Volley | Simple </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="en">
+
+  
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">Simple</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+  <p class="site-subtitle">Simpe Life & Simpe Career</p>
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-home fa-fw"></i> <br />
+            
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-archive fa-fw"></i> <br />
+            
+            Archives
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-tags fa-fw"></i> <br />
+            
+            Tags
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                深入理解Volley
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">Posted on</span>
+            <time itemprop="dateCreated" datetime="2016-09-29T20:49:53+08:00" content="2016-09-29">
+              2016-09-29
+            </time>
+          </span>
+
+          
+
+          
+            
+          
+
+          
+
+          
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>学习完了官方教程之后我们就学会如何在项目中使用Volley了，享受其带给我们的便捷。但作为一个有追求的程序猿我们决不能停留在使用的阶段，我们要去探索其中的奥秘，去学习优秀框架的设计思想，具体实现方法，甚至是学习作者的优秀编码习惯。<br>如何深入学习Volley呢？官方教程中声称Volley有八大优点，我们来探索一下这八大优点究竟是什么，在代码中是如何实现的。</p>
+<h1 id="自动调度网络请求"><a href="#自动调度网络请求" class="headerlink" title="自动调度网络请求"></a>自动调度网络请求</h1><p>通过教程了解到，当需要执行一个请求的时候，只需要将其添加到<code>RequestQueue</code>中，然后就是等待响应了。<br>那么中间Volley都做了那些事情呢，官方给的Request一生这张图做了详细介绍。<br><img src="/2016/09/27/sending-a-simple-request/volley-request.png" alt="Request的一生" title="Request的一生"></p>
+<p>自动调度要分两个部分：自动 和 调度</p>
+<h2 id="自动"><a href="#自动" class="headerlink" title="自动"></a>自动</h2><p>Volley内部有一个CacheDispatcher以及多个NetworkDispatcher，它们继承自Thread类，它们的业务实现是从各自的请求队列里不断拿Request并执行。所以我们只需要将我们的请求添加到RequestQueue中，这两类Dispatcher线程就会自动的去执行请求。</p>
+<p>在RequestQueue的start()方法里创建与开启Dispatcher线程：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">start</span><span class="params">()</span> </span>&#123;</div><div class="line">    stop();  <span class="comment">// Make sure any currently running dispatchers are stopped.</span></div><div class="line">    <span class="comment">// Create the cache dispatcher and start it.</span></div><div class="line">    mCacheDispatcher = <span class="keyword">new</span> CacheDispatcher(mCacheQueue, mNetworkQueue, mCache, mDelivery);</div><div class="line">    mCacheDispatcher.start();</div><div class="line"></div><div class="line">    <span class="comment">// Create network dispatchers (and corresponding threads) up to the pool size.</span></div><div class="line">    <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; mDispatchers.length; i++) &#123;</div><div class="line">        NetworkDispatcher networkDispatcher = <span class="keyword">new</span> NetworkDispatcher(mNetworkQueue, mNetwork,</div><div class="line">                mCache, mDelivery);</div><div class="line">        mDispatchers[i] = networkDispatcher;</div><div class="line">        networkDispatcher.start();</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>一个RequestQueue只有一个CacheDispatched，与多个NetworkDispatcher，NetworkDispatcher数量可自定义，默认为4个。<br>因为一个RequestQueue中包含了多个thread, 这也是推荐使用单例的原因之一，过多的RequestQueue就会导致thread过多，因为thread调度问题导致性能下降。</p>
+<h2 id="调度"><a href="#调度" class="headerlink" title="调度"></a>调度</h2><p>调度就是RequestQueue中同时有多个请求时，先执行哪个后执行哪个。<br>Volley将请求分为四个优先级：LOW、NORMAL、HIGH、IMMEDIATE，优先度以此增加，默认为NORMAL。<br>优先级高的先执行，同一优先级按照FIFO的顺序执行。<br>这种调度顺序在添加到RequestQueue的时候就被安排好了。<br>RequestQueue.add()方法根据是否使用缓存将Request添加到缓存的或者网络请求的PriorityBlockingQueue中。<br>来看一下PriorityBlockingQueue.add()的实现</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">add</span><span class="params">(E e)</span> </span>&#123;</div><div class="line">	<span class="keyword">return</span> offer(e);</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">offer</span><span class="params">(E e)</span> </span>&#123;</div><div class="line">    <span class="keyword">if</span> (e == <span class="keyword">null</span>)</div><div class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> NullPointerException();</div><div class="line">    <span class="keyword">final</span> ReentrantLock lock = <span class="keyword">this</span>.lock;</div><div class="line">    lock.lock();</div><div class="line">    <span class="keyword">int</span> n, cap;</div><div class="line">    Object[] array;</div><div class="line">    <span class="keyword">while</span> ((n = size) &gt;= (cap = (array = queue).length))</div><div class="line">        tryGrow(array, cap);</div><div class="line">    <span class="keyword">try</span> &#123;</div><div class="line">        Comparator&lt;? <span class="keyword">super</span> E&gt; cmp = comparator;</div><div class="line">        <span class="keyword">if</span> (cmp == <span class="keyword">null</span>) <span class="comment">// Volley默认没有设置comparator</span></div><div class="line">            siftUpComparable(n, e, array);</div><div class="line">        <span class="keyword">else</span></div><div class="line">            siftUpUsingComparator(n, e, array, cmp);</div><div class="line">        size = n + <span class="number">1</span>;</div><div class="line">        notEmpty.signal();</div><div class="line">    &#125; <span class="keyword">finally</span> &#123;</div><div class="line">        lock.unlock();</div><div class="line">    &#125;</div><div class="line">    <span class="keyword">return</span> <span class="keyword">true</span>;</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="keyword">private</span> <span class="keyword">static</span> &lt;T&gt; <span class="function"><span class="keyword">void</span> <span class="title">siftUpComparable</span><span class="params">(<span class="keyword">int</span> k, T x, Object[] array)</span> </span>&#123;</div><div class="line">    Comparable&lt;? <span class="keyword">super</span> T&gt; key = (Comparable&lt;? <span class="keyword">super</span> T&gt;) x;</div><div class="line">    <span class="keyword">while</span> (k &gt; <span class="number">0</span>) &#123;</div><div class="line">        <span class="keyword">int</span> parent = (k - <span class="number">1</span>) &gt;&gt;&gt; <span class="number">1</span>;</div><div class="line">        Object e = array[parent];</div><div class="line">        <span class="keyword">if</span> (key.compareTo((T) e) &gt;= <span class="number">0</span>)</div><div class="line">            <span class="keyword">break</span>;</div><div class="line">        array[k] = e;</div><div class="line">        k = parent;</div><div class="line">    &#125;</div><div class="line">    array[k] = key;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>PriorityBlockingQueue.add()方法保证了首先按照优先级排序，优先级一致的情况下按照FIFO的顺序。</p>
+<p>可以通过重写Request的getPriority()方法自定义请求优先级。注：ImageRequest被重写默认为LOW优先级。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="meta">@Override</span></div><div class="line"><span class="function"><span class="keyword">public</span> Priority <span class="title">getPriority</span><span class="params">()</span> </span>&#123;</div><div class="line">    <span class="keyword">return</span> Priority.LOW;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<h1 id="多并发网络连接"><a href="#多并发网络连接" class="headerlink" title="多并发网络连接"></a>多并发网络连接</h1><p>上面<a href="">自动</a>小节提到，每一个RequestQueue中包含多个NetworkDispatcher（默认是4个），每一个NetworkDispatcher都是一个负责网络请求的线程。因此Volley能够同时处理多个网络请求。</p>
+<h1 id="具有标准缓存一致性的，透明的，内存、硬盘响应缓存"><a href="#具有标准缓存一致性的，透明的，内存、硬盘响应缓存" class="headerlink" title="具有标准缓存一致性的，透明的，内存、硬盘响应缓存"></a>具有标准缓存一致性的，透明的，内存、硬盘响应缓存</h1><p>所谓透明的内存硬盘响应缓存的意思是，在我们使用的时候根本就没有感觉到有缓存的存在，完全由Volley负责为我们完成。<br>Volley默认提供了硬盘响应缓存DiskBasedCache，当然用户可以通过实现Cache接口自定义自己的缓存，比如内存硬盘双缓存。</p>
+<p>默认Request是使用缓存的，可以通过Request.setShouldCache(boolean)来设置是否使用缓存。</p>
+<h2 id="每个响应存储为一个文件"><a href="#每个响应存储为一个文件" class="headerlink" title="每个响应存储为一个文件"></a>每个响应存储为一个文件</h2><p>DiskBasedCache将每个响应生成一个文件，保存到磁盘上，在内存中保存着每一个磁盘缓存的响应头。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">synchronized</span> <span class="keyword">void</span> <span class="title">put</span><span class="params">(String key, Entry entry)</span> </span>&#123;</div><div class="line">    pruneIfNeeded(entry.data.length); <span class="comment">// *(1)如果剩余空间不足，删除一些原来的缓存</span></div><div class="line">    File file = getFileForKey(key); <span class="comment">// *(2)根据URL获取要缓存到的文件对象</span></div><div class="line">    <span class="keyword">try</span> &#123;</div><div class="line">        FileOutputStream fos = <span class="keyword">new</span> FileOutputStream(file);</div><div class="line">        CacheHeader e = <span class="keyword">new</span> CacheHeader(key, entry);</div><div class="line">        e.writeHeader(fos); <span class="comment">// 输出响应头</span></div><div class="line">        fos.write(entry.data); <span class="comment">// 输出响应体</span></div><div class="line">        fos.close();</div><div class="line">        putEntry(key, e);</div><div class="line">        <span class="keyword">return</span>;</div><div class="line">    &#125; <span class="keyword">catch</span> (IOException e) &#123;</div><div class="line">    &#125;</div><div class="line">    <span class="keyword">boolean</span> deleted = file.delete();</div><div class="line">    <span class="keyword">if</span> (!deleted) &#123;</div><div class="line">        VolleyLog.d(<span class="string">"Could not clean up file %s"</span>, file.getAbsolutePath());</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>*(1) 删除缓存的规则只是按照FIFO规则来的，跟缓存的命中率没有关系。直到删到能存下当前响应为止。<br>*(2) 通过URL这个key生成文件名的时候Volley是这么实现的：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">private</span> String <span class="title">getFilenameForKey</span><span class="params">(String key)</span> </span>&#123;</div><div class="line">    <span class="keyword">int</span> firstHalfLength = key.length() / <span class="number">2</span>;</div><div class="line">    String localFilename = String.valueOf(key.substring(<span class="number">0</span>, firstHalfLength).hashCode());</div><div class="line">    localFilename += String.valueOf(key.substring(firstHalfLength).hashCode());</div><div class="line">    <span class="keyword">return</span> localFilename;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>将URL从中间隔断，分别计算hashcode，然后在将两个hashcode拼接起来。猜想这样做大概是为了降低hash冲突的概率吧。</p>
+<p>响应头的输出严格按照特定的顺序：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">writeHeader</span><span class="params">(OutputStream os)</span> </span>&#123;</div><div class="line">    <span class="keyword">try</span> &#123;</div><div class="line">        writeInt(os, CACHE_MAGIC); <span class="comment">// 版本号，与java序列化的serialVersionUID功能一致</span></div><div class="line">        writeString(os, key); <span class="comment">// 缓存的唯一标志，即URL</span></div><div class="line">        writeString(os, etag == <span class="keyword">null</span> ? <span class="string">""</span> : etag); <span class="comment">// etag 缓存一致性使用</span></div><div class="line">        writeLong(os, serverDate); <span class="comment">// 服务器生成该响应的时间</span></div><div class="line">        writeLong(os, ttl); <span class="comment">// [Time to Live](https://en.wikipedia.org/wiki/Time_to_live)</span></div><div class="line">        writeLong(os, softTtl);</div><div class="line">        writeStringStringMap(responseHeaders, os); <span class="comment">// 输出Header中的其他键值对</span></div><div class="line">        os.flush();</div><div class="line">        <span class="keyword">return</span> <span class="keyword">true</span>;</div><div class="line">    &#125; <span class="keyword">catch</span> (IOException e) &#123;</div><div class="line">        VolleyLog.d(<span class="string">"%s"</span>, e.toString());</div><div class="line">        <span class="keyword">return</span> <span class="keyword">false</span>;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>总的来说将响应序列化到磁盘，响应内容的输出是严格按照特定的格式与顺序的，所以在读缓存的时候也要严格按照这种格式与顺序。</p>
+<h1 id="支持请求优先级"><a href="#支持请求优先级" class="headerlink" title="支持请求优先级"></a>支持请求优先级</h1><p>见<a href="">调度</a></p>
+<h1 id="取消请求接口"><a href="#取消请求接口" class="headerlink" title="取消请求接口"></a>取消请求接口</h1><p>RequestQueue中有三个集合是用来保存Request的：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">private</span> <span class="keyword">final</span> Set&lt;Request&gt; mCurrentRequests = <span class="keyword">new</span> HashSet&lt;Request&gt;();</div><div class="line"><span class="keyword">private</span> <span class="keyword">final</span> PriorityBlockingQueue&lt;Request&gt; mCacheQueue = <span class="keyword">new</span> PriorityBlockingQueue&lt;Request&gt;();</div><div class="line"><span class="keyword">private</span> <span class="keyword">final</span> PriorityBlockingQueue&lt;Request&gt; mNetworkQueue = <span class="keyword">new</span> PriorityBlockingQueue&lt;Request&gt;();</div></pre></td></tr></table></figure>
+<p>通过RequestQueue.add()添加的所有请求都会被添加到mCurrentRequests Set中，mCurrentRequests是所有请求的集合，如果请求需要缓存处理就会被添加到mCacheQueue中，如果请求不需要缓存处理或者缓存处理不了就会添加到mNetworkQueue。<br>mCacheQueue被CacheDispatcher提取，mNetworkQueue被NetworkDispatcher提取。</p>
+<p>Volley提供了通过Tag来取消请求的接口，方便大家合理的取消一个或者多个请求。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">cancelAll</span><span class="params">(<span class="keyword">final</span> Object tag)</span> </span>&#123;</div><div class="line">    <span class="keyword">if</span> (tag == <span class="keyword">null</span>) &#123;</div><div class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> IllegalArgumentException(<span class="string">"Cannot cancelAll with a null tag"</span>);</div><div class="line">    &#125;</div><div class="line">    cancelAll(<span class="keyword">new</span> RequestFilter() &#123;</div><div class="line">        <span class="meta">@Override</span></div><div class="line">        <span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">apply</span><span class="params">(Request&lt;?&gt; request)</span> </span>&#123;</div><div class="line">            <span class="keyword">return</span> request.getTag() == tag;</div><div class="line">        &#125;</div><div class="line">    &#125;);</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">cancelAll</span><span class="params">(RequestFilter filter)</span> </span>&#123;</div><div class="line">    <span class="keyword">synchronized</span> (mCurrentRequests) &#123;</div><div class="line">        <span class="keyword">for</span> (Request&lt;?&gt; request : mCurrentRequests) &#123;</div><div class="line">            <span class="keyword">if</span> (filter.apply(request)) &#123;</div><div class="line">                request.cancel();</div><div class="line">            &#125;</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>在mCurrentRequests这个所有请求的集合中，遍历带有tag的请求，然后取消。</p>
+<h1 id="方便定制。比如说：重试和退避请求"><a href="#方便定制。比如说：重试和退避请求" class="headerlink" title="方便定制。比如说：重试和退避请求"></a>方便定制。比如说：重试和退避请求</h1><p>该特性说的是Volley提供了一套默认机制，以及方便的替换自定义方法。retry 与 backoff机制便是其中之一。</p>
+<p>Volley中使用的不管是Request还是RetryPolicy都提供了接口或者基类，我们只需要实现或者集成就可以方便的定制复合我们业务逻辑的特性。</p>
+<p>提到了retry 与 backoff， 下面就叙述一下其实现</p>
+<h2 id="Retry-and-Backoff"><a href="#Retry-and-Backoff" class="headerlink" title="Retry and Backoff"></a>Retry and Backoff</h2><p>retry即当请求发生超时或者连接异常的时候，再一次执行该请求。backoff，翻译为退避方法，即在retry请求是，超时时间应如何处理。<br>Retry机制的接口定义为：RetryPolicy</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">RetryPolicy</span> </span>&#123;</div><div class="line">	<span class="comment">// 获取当前超时时间</span></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">getCurrentTimeout</span><span class="params">()</span></span>;</div><div class="line">    <span class="comment">// 获取当前已retry次数</span></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">getCurrentRetryCount</span><span class="params">()</span></span>;</div><div class="line">    <span class="comment">// 执行retry</span></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">retry</span><span class="params">(VolleyError error)</span> <span class="keyword">throws</span> VolleyError</span>;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>默认实现为：DefaultRetryPolicy，其中有三个重要的属性：mCurrentTimeoutMs、mMaxNumRetries、mBackoffMultiplier，分别是当前请求超时时间、最多retry次数、backoff算法的乘数。默认值分别为2500、1、1。</p>
+<p>DefaultRetryPolicy的retry方法实现：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div></pre></td><td class="code"><pre><div class="line"><span class="meta">@Override</span></div><div class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">retry</span><span class="params">(VolleyError error)</span> <span class="keyword">throws</span> VolleyError </span>&#123;</div><div class="line">    mCurrentRetryCount++;</div><div class="line">    mCurrentTimeoutMs += (mCurrentTimeoutMs * mBackoffMultiplier);</div><div class="line">    <span class="keyword">if</span> (!hasAttemptRemaining()) &#123;</div><div class="line">        <span class="keyword">throw</span> error;</div><div class="line">    &#125;</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">protected</span> <span class="keyword">boolean</span> <span class="title">hasAttemptRemaining</span><span class="params">()</span> </span>&#123;</div><div class="line">    <span class="keyword">return</span> mCurrentRetryCount &lt;= mMaxNumRetries;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>在每次执行retry的时候，超时时间都会变化，具体方法为：mCurrentTimeoutMs += (mCurrentTimeoutMs * mBackoffMultiplier);<br>按照默认值首次执行请求超时时间为：2500。2500时间内没有完成请求的话，将发生一次retry，超时时长就被重置为：5000。如果这个5000毫秒内也有收到响应的话，因为最多retry次数就1次，就不会再执行这个请求了，这个请求就失败了。</p>
+<p>retry请求是连续执行，并不是再次把请求放入请求队列中。<br>具体位于BasicNetwork的performRequest中：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line">public NetworkResponse performRequest(Request&lt;?&gt; request) throws VolleyError &#123;</div><div class="line">	...</div><div class="line">	while(true)&#123;</div><div class="line">		try&#123;</div><div class="line">			httpResponse = mHttpStack.performRequest(request, headers);</div><div class="line">		&#125;catch(TimeoutException e)&#123;</div><div class="line">			attemptRetryOnException(request, new TimeoutError()); // 执行retry方法，判断retry次数是否达到最大值，重新计算timeout时间</div><div class="line">		&#125;</div><div class="line">		...</div><div class="line">	&#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+
+      
+    </div>
+
+    <div>
+      
+        
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/android/" rel="tag">#android</a>
+          
+            <a href="/tags/volley/" rel="tag">#volley</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2016/09/28/implementing-a-custom-request/" rel="next" title="Volley官方教程翻译（五）：自定义Request">
+                <i class="fa fa-chevron-left"></i> Volley官方教程翻译（五）：自定义Request
+              </a>
+            
+          </div>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2016/09/29/how-java-io-works/" rel="prev" title="Java I/O 在底层是如何工作的？">
+                Java I/O 在底层是如何工作的？ <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel ">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/default_avatar.jpg"
+               alt="KangZongZhan" />
+          <p class="site-author-name" itemprop="name">KangZongZhan</p>
+          <p class="site-description motion-element" itemprop="description"></p>
+        </div>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">25</span>
+              <span class="site-state-item-name">posts</span>
+            </a>
+          </div>
+
+          
+            <div class="site-state-item site-state-categories">
+              
+                <span class="site-state-item-count">1</span>
+                <span class="site-state-item-name">categories</span>
+              
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/tags">
+                <span class="site-state-item-count">5</span>
+                <span class="site-state-item-name">tags</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        <div class="links-of-blogroll motion-element">
+          
+        </div>
+
+      </section>
+
+      
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc-indicator-top post-toc-indicator">
+            <i class="fa fa-angle-double-up"></i>
+          </div>
+          <div class="post-toc">
+            
+              
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#自动调度网络请求"><span class="nav-number">1.</span> <span class="nav-text">自动调度网络请求</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#自动"><span class="nav-number">1.1.</span> <span class="nav-text">自动</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#调度"><span class="nav-number">1.2.</span> <span class="nav-text">调度</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#多并发网络连接"><span class="nav-number">2.</span> <span class="nav-text">多并发网络连接</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#具有标准缓存一致性的，透明的，内存、硬盘响应缓存"><span class="nav-number">3.</span> <span class="nav-text">具有标准缓存一致性的，透明的，内存、硬盘响应缓存</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#每个响应存储为一个文件"><span class="nav-number">3.1.</span> <span class="nav-text">每个响应存储为一个文件</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#支持请求优先级"><span class="nav-number">4.</span> <span class="nav-text">支持请求优先级</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#取消请求接口"><span class="nav-number">5.</span> <span class="nav-text">取消请求接口</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#方便定制。比如说：重试和退避请求"><span class="nav-number">6.</span> <span class="nav-text">方便定制。比如说：重试和退避请求</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Retry-and-Backoff"><span class="nav-number">6.1.</span> <span class="nav-text">Retry and Backoff</span></a></li></ol></li></ol></div>
+            
+          </div>
+          <div class="post-toc-indicator-bottom post-toc-indicator">
+            <i class="fa fa-angle-double-down"></i>
+          </div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2016</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">KangZongZhan</span>
+</div>
+
+<div class="powered-by">
+  Powered by <a class="theme-link" href="http://hexo.io">Hexo</a>
+</div>
+
+<div class="theme-info">
+  Theme -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Muse
+  </a>
+</div>
+
+
+
+      </div>
+    </footer>
+
+    <div class="back-to-top">
+      <i class="fa fa-arrow-up"></i>
+    </div>
+  </div>
+
+  
+
+
+  
+
+
+
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  <script type="text/javascript" src="/vendors/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js"></script>
+
+  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js"></script>
+
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=0.5.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=0.5.0"></script>
+
+
+
+  
+  
+
+  
+  
+<script type="text/javascript" src="/js/src/scrollspy.js?v=0.5.0"></script>
+
+<script type="text/javascript" id="sidebar.toc.highlight">
+  $(document).ready(function () {
+    var tocSelector = '.post-toc';
+    var $tocSelector = $(tocSelector);
+    var activeCurrentSelector = '.active-current';
+
+    $tocSelector
+      .on('activate.bs.scrollspy', function () {
+        var $currentActiveElement = $(tocSelector + ' .active').last();
+
+        removeCurrentActiveClass();
+        $currentActiveElement.addClass('active-current');
+
+        $tocSelector[0].scrollTop = $currentActiveElement.position().top;
+      })
+      .on('clear.bs.scrollspy', function () {
+        removeCurrentActiveClass();
+      });
+
+    function removeCurrentActiveClass () {
+      $(tocSelector + ' ' + activeCurrentSelector)
+        .removeClass(activeCurrentSelector.substring(1));
+    }
+
+    function processTOC () {
+      getTOCMaxHeight();
+      toggleTOCOverflowIndicators();
+    }
+
+    function getTOCMaxHeight () {
+      var height = $('.sidebar').height() -
+                   $tocSelector.position().top -
+                   $('.post-toc-indicator-bottom').height();
+
+      $tocSelector.css('height', height);
+
+      return height;
+    }
+
+    function toggleTOCOverflowIndicators () {
+      tocOverflowIndicator(
+        '.post-toc-indicator-top',
+        $tocSelector.scrollTop() > 0 ? 'show' : 'hide'
+      );
+
+      tocOverflowIndicator(
+        '.post-toc-indicator-bottom',
+        $tocSelector.scrollTop() >= $tocSelector.find('ol').height() - $tocSelector.height() ? 'hide' : 'show'
+      )
+    }
+
+    $(document).on('sidebar.motion.complete', function () {
+      processTOC();
+    });
+
+    $('body').scrollspy({ target: tocSelector });
+    $(window).on('resize', function () {
+      if ( $('.sidebar').hasClass('sidebar-active') ) {
+        processTOC();
+      }
+    });
+
+    onScroll($tocSelector);
+
+    function onScroll (element) {
+      element.on('mousewheel DOMMouseScroll', function (event) {
+          var oe = event.originalEvent;
+          var delta = oe.wheelDelta || -oe.detail;
+
+          this.scrollTop += ( delta < 0 ? 1 : -1 ) * 30;
+          event.preventDefault();
+
+          toggleTOCOverflowIndicators();
+      });
+    }
+
+    function tocOverflowIndicator (indicator, action) {
+      var $indicator = $(indicator);
+      var opacity = action === 'show' ? 1 : 0;
+      $indicator.velocity ?
+        $indicator.velocity('stop').velocity({
+          opacity: opacity
+        }, { duration: 100 }) :
+        $indicator.stop().animate({
+          opacity: opacity
+        }, 100);
+    }
+
+  });
+</script>
+
+<script type="text/javascript" id="sidebar.nav">
+  $(document).ready(function () {
+    var html = $('html');
+    var TAB_ANIMATE_DURATION = 200;
+    var hasVelocity = $.isFunction(html.velocity);
+
+    $('.sidebar-nav li').on('click', function () {
+      var item = $(this);
+      var activeTabClassName = 'sidebar-nav-active';
+      var activePanelClassName = 'sidebar-panel-active';
+      if (item.hasClass(activeTabClassName)) {
+        return;
+      }
+
+      var currentTarget = $('.' + activePanelClassName);
+      var target = $('.' + item.data('target'));
+
+      hasVelocity ?
+        currentTarget.velocity('transition.slideUpOut', TAB_ANIMATE_DURATION, function () {
+          target
+            .velocity('stop')
+            .velocity('transition.slideDownIn', TAB_ANIMATE_DURATION)
+            .addClass(activePanelClassName);
+        }) :
+        currentTarget.animate({ opacity: 0 }, TAB_ANIMATE_DURATION, function () {
+          currentTarget.hide();
+          target
+            .stop()
+            .css({'opacity': 0, 'display': 'block'})
+            .animate({ opacity: 1 }, TAB_ANIMATE_DURATION, function () {
+              currentTarget.removeClass(activePanelClassName);
+              target.addClass(activePanelClassName);
+            });
+        });
+
+      item.siblings().removeClass(activeTabClassName);
+      item.addClass(activeTabClassName);
+    });
+
+    $('.post-toc a').on('click', function (e) {
+      e.preventDefault();
+      var targetSelector = NexT.utils.escapeSelector(this.getAttribute('href'));
+      var offset = $(targetSelector).offset().top;
+      hasVelocity ?
+        html.velocity('stop').velocity('scroll', {
+          offset: offset  + 'px',
+          mobileHA: false
+        }) :
+        $('html, body').stop().animate({
+          scrollTop: offset
+        }, 500);
+    });
+
+    // Expand sidebar on post detail page by default, when post has a toc.
+    NexT.motion.middleWares.sidebar = function () {
+      var $tocContent = $('.post-toc-content');
+
+      if (CONFIG.sidebar.display === 'post' || CONFIG.sidebar.display === 'always') {
+        if ($tocContent.length > 0 && $tocContent.html().trim().length > 0) {
+          NexT.utils.displaySidebar();
+        }
+      }
+    };
+  });
+</script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=0.5.0"></script>
+
+
+
+  
+
+
+
+  
+
+
+
+  
+  
+  
+
+  
+
+
+</body>
+</html>

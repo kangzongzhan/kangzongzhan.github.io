@@ -1,0 +1,711 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+  <link href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css"/>
+
+
+
+
+  <link href="//fonts.googleapis.com/css?family=Lato:300,400,700,400italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+
+
+
+<link href="/vendors/font-awesome/css/font-awesome.min.css?v=4.4.0" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=0.5.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="android,volley," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=0.5.0" />
+
+
+
+
+
+
+<meta name="description" content="原文连接：https://developer.android.com/training/volley/request-custom.html
+
+如果Volley自带的JsonRequest、StringRequest等不能满足我们的需求，那么我就需要自定义Request了。
+实现一个Request在toolbox中Volley已经帮我们实现好了常用的Request。如果你的请求响应是String">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Volley官方教程翻译（五）：自定义Request">
+<meta property="og:url" content="http://localhost/2016/09/28/implementing-a-custom-request/index.html">
+<meta property="og:site_name" content="Simple">
+<meta property="og:description" content="原文连接：https://developer.android.com/training/volley/request-custom.html
+
+如果Volley自带的JsonRequest、StringRequest等不能满足我们的需求，那么我就需要自定义Request了。
+实现一个Request在toolbox中Volley已经帮我们实现好了常用的Request。如果你的请求响应是String">
+<meta property="og:updated_time" content="2016-09-29T02:20:32.757Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Volley官方教程翻译（五）：自定义Request">
+<meta name="twitter:description" content="原文连接：https://developer.android.com/training/volley/request-custom.html
+
+如果Volley自带的JsonRequest、StringRequest等不能满足我们的需求，那么我就需要自定义Request了。
+实现一个Request在toolbox中Volley已经帮我们实现好了常用的Request。如果你的请求响应是String">
+
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    scheme: 'Muse',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: 0,
+      author: 'Author'
+    }
+  };
+</script>
+
+  <title> Volley官方教程翻译（五）：自定义Request | Simple </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="en">
+
+  
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">Simple</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+  <p class="site-subtitle">Simpe Life & Simpe Career</p>
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-home fa-fw"></i> <br />
+            
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-archive fa-fw"></i> <br />
+            
+            Archives
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-tags fa-fw"></i> <br />
+            
+            Tags
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                Volley官方教程翻译（五）：自定义Request
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">Posted on</span>
+            <time itemprop="dateCreated" datetime="2016-09-28T10:27:51+08:00" content="2016-09-28">
+              2016-09-28
+            </time>
+          </span>
+
+          
+
+          
+            
+          
+
+          
+
+          
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <blockquote>
+<p>原文连接：<a href="https://developer.android.com/training/volley/request-custom.html" target="_blank" rel="external">https://developer.android.com/training/volley/request-custom.html</a></p>
+</blockquote>
+<p>如果Volley自带的JsonRequest、StringRequest等不能满足我们的需求，那么我就需要自定义Request了。</p>
+<h2 id="实现一个Request"><a href="#实现一个Request" class="headerlink" title="实现一个Request"></a>实现一个Request</h2><p>在toolbox中Volley已经帮我们实现好了常用的Request。如果你的请求响应是String、Json抑或Image的话，你大概不需要去实现Request。<br>如果你真的需要实现一个自己的Request的话。你只需要做如下的事情：</p>
+<ul>
+<li><p>继承<code>Request&lt;T&gt;</code>类，这里泛型<code>&lt;T&gt;</code>是你期待的解析后的请求的响应类型。比如，如果你希望将响应解析为字符串的话，只需要继承<code>Request&lt;String&gt;</code>就可以了。这里你可以参考toolbox里面的<code>StringRequest</code>和<code>ImageRequest</code>，参考以下如何继承<code>Request&lt;T&gt;</code>.</p>
+</li>
+<li><p>实现<code>parseNetworkResponse()</code>和<code>deliverResponse()</code>这两个抽象方法，下面详细介绍这两个方法。</p>
+</li>
+</ul>
+<h3 id="parseNetworkResponse"><a href="#parseNetworkResponse" class="headerlink" title="parseNetworkResponse"></a>parseNetworkResponse</h3><p>Volley用<code>Response&lt;T&gt;</code>封装<code>Request&lt;T&gt;</code>所指定类型(String、Json)的响应。如下是<code>parseNetworkResponse()</code>的一个实现示例：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div></pre></td><td class="code"><pre><div class="line"><span class="meta">@Override</span></div><div class="line"><span class="function"><span class="keyword">protected</span> Response&lt;T&gt; <span class="title">parseNetworkResponse</span><span class="params">(</span></span></div><div class="line">        NetworkResponse response) &#123;</div><div class="line">    <span class="keyword">try</span> &#123;</div><div class="line">        String json = <span class="keyword">new</span> String(response.data,</div><div class="line">        HttpHeaderParser.parseCharset(response.headers));</div><div class="line">    <span class="keyword">return</span> Response.success(gson.fromJson(json, clazz),</div><div class="line">    HttpHeaderParser.parseCacheHeaders(response));</div><div class="line">    &#125;</div><div class="line">    <span class="comment">// 错误处理</span></div><div class="line">...</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>流程说明：</p>
+<ul>
+<li>方法<code>parseNetworkResponse()</code>的参数为<code>NetworkResponse</code>，其内容包括二进制格式的响应负载、HTTP状态码以及响应头。</li>
+<li>实现的方法必须的返回结果必须是<code>Response&lt;T&gt;</code>。如果解析成功返回结果中将包含指定类型的响应对象以及缓存的元数据，如果失败结果里就是失败的信息。</li>
+</ul>
+<p>如果你的协议中缓存的要求与标准缓存不同，你可以自定义自己的缓存实现。不过大多数请求都可以按照如下写法：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">return</span> Response.success(myDecodedObject,</div><div class="line">        HttpHeaderParser.parseCacheHeaders(response));</div></pre></td></tr></table></figure>
+<p>Volley只会在工作线程调用<code>parseNetworkResponse()</code>方法。这一点保证了诸如将JPEG图片解析为一个Bitmap对象这样的耗时操作不会阻塞UI线程。</p>
+<h3 id="deliverResponse"><a href="#deliverResponse" class="headerlink" title="deliverResponse"></a>deliverResponse</h3><p>Volley会将<code>parseNetworkResponse()</code>方法返回的对象转移到主线程调用。大多数请求都会在这里调用回调接口。示例：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">deliverResponse</span><span class="params">(T response)</span> </span>&#123;</div><div class="line">        listener.onResponse(response);</div></pre></td></tr></table></figure>
+<h2 id="Example-GsonRequest"><a href="#Example-GsonRequest" class="headerlink" title="Example: GsonRequest"></a>Example: GsonRequest</h2><p>Gson库使用反射技术，能够把Json字符串转换成Java对象，也可以反过来将Java对象转换成Json字符串。Java对象的属性与Json的key需要对应起来，Gson才能够进行填充。如下是使用Gson解析请求响应结果的完整实现示例：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">GsonRequest</span>&lt;<span class="title">T</span>&gt; <span class="keyword">extends</span> <span class="title">Request</span>&lt;<span class="title">T</span>&gt; </span>&#123;</div><div class="line">    <span class="keyword">private</span> <span class="keyword">final</span> Gson gson = <span class="keyword">new</span> Gson();</div><div class="line">    <span class="keyword">private</span> <span class="keyword">final</span> Class&lt;T&gt; clazz;</div><div class="line">    <span class="keyword">private</span> <span class="keyword">final</span> Map&lt;String, String&gt; headers;</div><div class="line">    <span class="keyword">private</span> <span class="keyword">final</span> Listener&lt;T&gt; listener;</div><div class="line"></div><div class="line">    <span class="comment">/**</span></div><div class="line">     * 构造一个GET请求，其返回结果是解析自JSON字符串的对象</div><div class="line">     *</div><div class="line">     * <span class="doctag">@param</span> url 请求的URL</div><div class="line">     * <span class="doctag">@param</span> clazz 解析JSON字符串后生成该类的对象</div><div class="line">     * <span class="doctag">@param</span> headers Map of request headers</div><div class="line">     */</div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="title">GsonRequest</span><span class="params">(String url, Class&lt;T&gt; clazz, Map&lt;String, String&gt; headers,</span></span></div><div class="line">            Listener&lt;T&gt; listener, ErrorListener errorListener) &#123;</div><div class="line">        <span class="keyword">super</span>(Method.GET, url, errorListener);</div><div class="line">        <span class="keyword">this</span>.clazz = clazz;</div><div class="line">        <span class="keyword">this</span>.headers = headers;</div><div class="line">        <span class="keyword">this</span>.listener = listener;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="meta">@Override</span></div><div class="line">    <span class="function"><span class="keyword">public</span> Map&lt;String, String&gt; <span class="title">getHeaders</span><span class="params">()</span> <span class="keyword">throws</span> AuthFailureError </span>&#123;</div><div class="line">        <span class="keyword">return</span> headers != <span class="keyword">null</span> ? headers : <span class="keyword">super</span>.getHeaders();</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="meta">@Override</span></div><div class="line">    <span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">deliverResponse</span><span class="params">(T response)</span> </span>&#123;</div><div class="line">        listener.onResponse(response);</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="meta">@Override</span></div><div class="line">    <span class="function"><span class="keyword">protected</span> Response&lt;T&gt; <span class="title">parseNetworkResponse</span><span class="params">(NetworkResponse response)</span> </span>&#123;</div><div class="line">        <span class="keyword">try</span> &#123;</div><div class="line">            String json = <span class="keyword">new</span> String(</div><div class="line">                    response.data,</div><div class="line">                    HttpHeaderParser.parseCharset(response.headers));</div><div class="line">            <span class="keyword">return</span> Response.success(</div><div class="line">                    gson.fromJson(json, clazz),</div><div class="line">                    HttpHeaderParser.parseCacheHeaders(response));</div><div class="line">        &#125; <span class="keyword">catch</span> (UnsupportedEncodingException e) &#123;</div><div class="line">            <span class="keyword">return</span> Response.error(<span class="keyword">new</span> ParseError(e));</div><div class="line">        &#125; <span class="keyword">catch</span> (JsonSyntaxException e) &#123;</div><div class="line">            <span class="keyword">return</span> Response.error(<span class="keyword">new</span> ParseError(e));</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>Volley已经帮我们实现好了<code>JsonArrayRequest</code>和<code>JsonArrayObject</code>，可以方便使用。详情请参见<a href="使用标准请求">使用标准请求</a>。</p>
+
+      
+    </div>
+
+    <div>
+      
+        
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/android/" rel="tag">#android</a>
+          
+            <a href="/tags/volley/" rel="tag">#volley</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2016/09/28/making-a-standard-request/" rel="next" title="Volley官方教程翻译（四）：使用标准请求">
+                <i class="fa fa-chevron-left"></i> Volley官方教程翻译（四）：使用标准请求
+              </a>
+            
+          </div>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2016/09/29/Deep-Understanding-Volley/" rel="prev" title="深入理解Volley">
+                深入理解Volley <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel ">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/default_avatar.jpg"
+               alt="KangZongZhan" />
+          <p class="site-author-name" itemprop="name">KangZongZhan</p>
+          <p class="site-description motion-element" itemprop="description"></p>
+        </div>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">25</span>
+              <span class="site-state-item-name">posts</span>
+            </a>
+          </div>
+
+          
+            <div class="site-state-item site-state-categories">
+              
+                <span class="site-state-item-count">1</span>
+                <span class="site-state-item-name">categories</span>
+              
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/tags">
+                <span class="site-state-item-count">5</span>
+                <span class="site-state-item-name">tags</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        <div class="links-of-blogroll motion-element">
+          
+        </div>
+
+      </section>
+
+      
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc-indicator-top post-toc-indicator">
+            <i class="fa fa-angle-double-up"></i>
+          </div>
+          <div class="post-toc">
+            
+              
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#实现一个Request"><span class="nav-number">1.</span> <span class="nav-text">实现一个Request</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#parseNetworkResponse"><span class="nav-number">1.1.</span> <span class="nav-text">parseNetworkResponse</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#deliverResponse"><span class="nav-number">1.2.</span> <span class="nav-text">deliverResponse</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Example-GsonRequest"><span class="nav-number">2.</span> <span class="nav-text">Example: GsonRequest</span></a></li></ol></div>
+            
+          </div>
+          <div class="post-toc-indicator-bottom post-toc-indicator">
+            <i class="fa fa-angle-double-down"></i>
+          </div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2016</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">KangZongZhan</span>
+</div>
+
+<div class="powered-by">
+  Powered by <a class="theme-link" href="http://hexo.io">Hexo</a>
+</div>
+
+<div class="theme-info">
+  Theme -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Muse
+  </a>
+</div>
+
+
+
+      </div>
+    </footer>
+
+    <div class="back-to-top">
+      <i class="fa fa-arrow-up"></i>
+    </div>
+  </div>
+
+  
+
+
+  
+
+
+
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  <script type="text/javascript" src="/vendors/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js"></script>
+
+  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js"></script>
+
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=0.5.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=0.5.0"></script>
+
+
+
+  
+  
+
+  
+  
+<script type="text/javascript" src="/js/src/scrollspy.js?v=0.5.0"></script>
+
+<script type="text/javascript" id="sidebar.toc.highlight">
+  $(document).ready(function () {
+    var tocSelector = '.post-toc';
+    var $tocSelector = $(tocSelector);
+    var activeCurrentSelector = '.active-current';
+
+    $tocSelector
+      .on('activate.bs.scrollspy', function () {
+        var $currentActiveElement = $(tocSelector + ' .active').last();
+
+        removeCurrentActiveClass();
+        $currentActiveElement.addClass('active-current');
+
+        $tocSelector[0].scrollTop = $currentActiveElement.position().top;
+      })
+      .on('clear.bs.scrollspy', function () {
+        removeCurrentActiveClass();
+      });
+
+    function removeCurrentActiveClass () {
+      $(tocSelector + ' ' + activeCurrentSelector)
+        .removeClass(activeCurrentSelector.substring(1));
+    }
+
+    function processTOC () {
+      getTOCMaxHeight();
+      toggleTOCOverflowIndicators();
+    }
+
+    function getTOCMaxHeight () {
+      var height = $('.sidebar').height() -
+                   $tocSelector.position().top -
+                   $('.post-toc-indicator-bottom').height();
+
+      $tocSelector.css('height', height);
+
+      return height;
+    }
+
+    function toggleTOCOverflowIndicators () {
+      tocOverflowIndicator(
+        '.post-toc-indicator-top',
+        $tocSelector.scrollTop() > 0 ? 'show' : 'hide'
+      );
+
+      tocOverflowIndicator(
+        '.post-toc-indicator-bottom',
+        $tocSelector.scrollTop() >= $tocSelector.find('ol').height() - $tocSelector.height() ? 'hide' : 'show'
+      )
+    }
+
+    $(document).on('sidebar.motion.complete', function () {
+      processTOC();
+    });
+
+    $('body').scrollspy({ target: tocSelector });
+    $(window).on('resize', function () {
+      if ( $('.sidebar').hasClass('sidebar-active') ) {
+        processTOC();
+      }
+    });
+
+    onScroll($tocSelector);
+
+    function onScroll (element) {
+      element.on('mousewheel DOMMouseScroll', function (event) {
+          var oe = event.originalEvent;
+          var delta = oe.wheelDelta || -oe.detail;
+
+          this.scrollTop += ( delta < 0 ? 1 : -1 ) * 30;
+          event.preventDefault();
+
+          toggleTOCOverflowIndicators();
+      });
+    }
+
+    function tocOverflowIndicator (indicator, action) {
+      var $indicator = $(indicator);
+      var opacity = action === 'show' ? 1 : 0;
+      $indicator.velocity ?
+        $indicator.velocity('stop').velocity({
+          opacity: opacity
+        }, { duration: 100 }) :
+        $indicator.stop().animate({
+          opacity: opacity
+        }, 100);
+    }
+
+  });
+</script>
+
+<script type="text/javascript" id="sidebar.nav">
+  $(document).ready(function () {
+    var html = $('html');
+    var TAB_ANIMATE_DURATION = 200;
+    var hasVelocity = $.isFunction(html.velocity);
+
+    $('.sidebar-nav li').on('click', function () {
+      var item = $(this);
+      var activeTabClassName = 'sidebar-nav-active';
+      var activePanelClassName = 'sidebar-panel-active';
+      if (item.hasClass(activeTabClassName)) {
+        return;
+      }
+
+      var currentTarget = $('.' + activePanelClassName);
+      var target = $('.' + item.data('target'));
+
+      hasVelocity ?
+        currentTarget.velocity('transition.slideUpOut', TAB_ANIMATE_DURATION, function () {
+          target
+            .velocity('stop')
+            .velocity('transition.slideDownIn', TAB_ANIMATE_DURATION)
+            .addClass(activePanelClassName);
+        }) :
+        currentTarget.animate({ opacity: 0 }, TAB_ANIMATE_DURATION, function () {
+          currentTarget.hide();
+          target
+            .stop()
+            .css({'opacity': 0, 'display': 'block'})
+            .animate({ opacity: 1 }, TAB_ANIMATE_DURATION, function () {
+              currentTarget.removeClass(activePanelClassName);
+              target.addClass(activePanelClassName);
+            });
+        });
+
+      item.siblings().removeClass(activeTabClassName);
+      item.addClass(activeTabClassName);
+    });
+
+    $('.post-toc a').on('click', function (e) {
+      e.preventDefault();
+      var targetSelector = NexT.utils.escapeSelector(this.getAttribute('href'));
+      var offset = $(targetSelector).offset().top;
+      hasVelocity ?
+        html.velocity('stop').velocity('scroll', {
+          offset: offset  + 'px',
+          mobileHA: false
+        }) :
+        $('html, body').stop().animate({
+          scrollTop: offset
+        }, 500);
+    });
+
+    // Expand sidebar on post detail page by default, when post has a toc.
+    NexT.motion.middleWares.sidebar = function () {
+      var $tocContent = $('.post-toc-content');
+
+      if (CONFIG.sidebar.display === 'post' || CONFIG.sidebar.display === 'always') {
+        if ($tocContent.length > 0 && $tocContent.html().trim().length > 0) {
+          NexT.utils.displaySidebar();
+        }
+      }
+    };
+  });
+</script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=0.5.0"></script>
+
+
+
+  
+
+
+
+  
+
+
+
+  
+  
+  
+
+  
+
+
+</body>
+</html>

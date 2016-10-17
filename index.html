@@ -1,0 +1,1537 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+  <link href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css"/>
+
+
+
+
+  <link href="//fonts.googleapis.com/css?family=Lato:300,400,700,400italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+
+
+
+<link href="/vendors/font-awesome/css/font-awesome.min.css?v=4.4.0" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=0.5.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Hexo, NexT" />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=0.5.0" />
+
+
+
+
+
+
+<meta property="og:type" content="website">
+<meta property="og:title" content="Simple">
+<meta property="og:url" content="http://localhost/index.html">
+<meta property="og:site_name" content="Simple">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Simple">
+
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    scheme: 'Muse',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: 0,
+      author: 'Author'
+    }
+  };
+</script>
+
+  <title> Simple </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="en">
+
+  
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left 
+   page-home 
+ ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">Simple</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+  <p class="site-subtitle">Simpe Life & Simpe Career</p>
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-home fa-fw"></i> <br />
+            
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-archive fa-fw"></i> <br />
+            
+            Archives
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-tags fa-fw"></i> <br />
+            
+            Tags
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+  <section id="posts" class="posts-expand">
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+                <a class="post-title-link" href="/2016/09/29/how-java-io-works/" itemprop="url">
+                  Java I/O 在底层是如何工作的？
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">Posted on</span>
+            <time itemprop="dateCreated" datetime="2016-09-29T23:39:53+08:00" content="2016-09-29">
+              2016-09-29
+            </time>
+          </span>
+
+          
+
+          
+            
+          
+
+          
+
+          
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <blockquote>
+<p>原文：<a href="http://howtodoinjava.com/core-java/io/how-java-io-works-internally-at-lower-level/" target="_blank" rel="external">http://howtodoinjava.com/core-java/io/how-java-io-works-internally-at-lower-level/</a></p>
+</blockquote>
+<p>这篇文章主要讨论I/O操作在底层使如何工作的。主要介绍Java层的I/O操作是如何映射到机器层的，已经在我们的应用运行的时候硬件都做了那些事情。这里我假定大家在读这篇文章的时候已经熟悉了进本的I/O操作，比如使用Java I/O 的API来读写文件，因为本文不会涉及这些内容。</p>
+<p>文章目录</p>
+<ul>
+<li><a href="#缓冲区处理与内核空间、用户空间">缓冲区处理与内核空间、用户空间</a></li>
+<li><a href="#虚拟内存">虚拟内存</a></li>
+<li><a href="#内存分页">内存分页</a></li>
+<li><a href="#面向文件/块的I/O">面向文件/块的I/O</a></li>
+<li><a href="#文件锁">文件锁</a></li>
+<li><a href="#面向流的I/O">面向流的I/O</a></li>
+</ul>
+<h1 id="缓冲区处理与内核空间、用户空间"><a href="#缓冲区处理与内核空间、用户空间" class="headerlink" title="缓冲区处理与内核空间、用户空间"></a>缓冲区处理与内核空间、用户空间</h1><p>缓冲区与缓冲区的操作是所以I/O的基础。<strong>“输入/输入”这个词的意义无非就是将数据移入与移出缓冲区。</strong>要时刻牢记这一点。通常，进程通过操作系统执行I/O操作，写操作就是将缓冲区内的数据清空，读操作是用数据填充缓冲区。这就是对I/O宏观上的总结。操作系统控制的机器在执行这些数据传输的时候可能相当的负责，但从概念上来说却是很简单的，接下来本文中将讨论其中的一小部分。</p>
+<p><img src="data-buffering-at-os-level.png" alt="data buffering at os level"></p>
+<p>上面这张图展示了数据块是如何一步步的从硬盘读入到用户进程的内存中的。首先，用户进程通过<code>read()</code>系统调用请求数据来填充到它的缓冲区，内核收到这个系统调用，会向硬盘控制器发出一个读取硬盘数据的指令。硬盘控制器可以通过DMA可以直接往内核内存缓冲区写数据，不需要主CPU的任何协助。一旦硬盘控制器将内核内存缓冲区填满之后，内核就将数据冲内核这个临时缓冲区Copy到特定的内存缓冲区。</p>
+<p>需要值得注意的一点是，内核会尝试缓存或者提前拉取数据，这样用户进程请求的数据可能已经存在在内核空间里面了。如果请求的数据已经在内核空间，那么只需要将数据从内核空间Copy到用户空间，如果没有，用户进程将被挂起，内核负责将数据从硬盘读入到内核空间。</p>
+<h1 id="虚拟内存"><a href="#虚拟内存" class="headerlink" title="虚拟内存"></a>虚拟内存</h1><p>之前你可能已经听过<code>虚拟内存</code>这个词很多次了，</p>
+<p>现代所有的操作系统都使用了虚拟内存。虚拟内存意味着，操作系统使用的是人工的虚拟的内存地址而不是真实的物理内存地址。使用虚拟内存有两大好处：</p>
+<ul>
+<li>多个虚拟内存地址可以指向物理内存的同一位置</li>
+<li>虚拟内存空间可以大于实际物理内存可用空间</li>
+</ul>
+<p>上面一节中提到的将数据从内核空间Copy到用户空间看起来像是无用功，为什么不直接告诉硬盘控制器直接将数据发送到用户空间？通过虚拟内存可以实现这一点，具体实现是使用了上面的第一条好处。</p>
+<p>将内核空间地址映射为用户空间使用的虚拟地址对应的物理地址，DMA（只能操作实际的物理内存地址）就可以只往内存中填充一个缓冲区，实现同时对于内核和用户空间都是可见的。</p>
+<p><img src="virtual-memory-architechture.png" alt="virtual memory architechture"></p>
+<p>这样的话就减少了一次内核空间与用户空间内存之间的拷贝，但有个前提条件是内核和用户缓冲区的内存页是对齐的。缓冲区的大小也必须是磁盘控制器使用的块的大小的整数倍。操作系统将内存空间划分为许多固定大小的页。这些页的大小是磁盘块大小的整数倍，通常是块大小的2的幂次方倍。一般内存页大小为1024byte，2048byte或者4096byte。虚拟内存页与物理内存页大小通常是一致的。</p>
+<h1 id="内存分页"><a href="#内存分页" class="headerlink" title="内存分页"></a>内存分页</h1><p>为了实现虚拟内存的第二个好处（地址空间大于实际物理内存），必须对内存进行分页处理（通常指的是内存交换）。为了能够使物理内存有足够的空间作为虚拟内存使用，一些虚拟内存的页必须放到磁盘上存储起来。</p>
+<h1 id="面向文件-块的I-O"><a href="#面向文件-块的I-O" class="headerlink" title="面向文件/块的I/O"></a>面向文件/块的I/O</h1><h1 id="文件锁"><a href="#文件锁" class="headerlink" title="文件锁"></a>文件锁</h1><h1 id="面向流的I-O"><a href="#面向流的I-O" class="headerlink" title="面向流的I/O"></a>面向流的I/O</h1>
+          
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+                <a class="post-title-link" href="/2016/09/29/Deep-Understanding-Volley/" itemprop="url">
+                  深入理解Volley
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">Posted on</span>
+            <time itemprop="dateCreated" datetime="2016-09-29T20:49:53+08:00" content="2016-09-29">
+              2016-09-29
+            </time>
+          </span>
+
+          
+
+          
+            
+          
+
+          
+
+          
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p>学习完了官方教程之后我们就学会如何在项目中使用Volley了，享受其带给我们的便捷。但作为一个有追求的程序猿我们决不能停留在使用的阶段，我们要去探索其中的奥秘，去学习优秀框架的设计思想，具体实现方法，甚至是学习作者的优秀编码习惯。<br>如何深入学习Volley呢？官方教程中声称Volley有八大优点，我们来探索一下这八大优点究竟是什么，在代码中是如何实现的。</p>
+<h1 id="自动调度网络请求"><a href="#自动调度网络请求" class="headerlink" title="自动调度网络请求"></a>自动调度网络请求</h1><p>通过教程了解到，当需要执行一个请求的时候，只需要将其添加到<code>RequestQueue</code>中，然后就是等待响应了。<br>那么中间Volley都做了那些事情呢，官方给的Request一生这张图做了详细介绍。<br><img src="/2016/09/27/sending-a-simple-request/volley-request.png" alt="Request的一生" title="Request的一生"></p>
+<p>自动调度要分两个部分：自动 和 调度</p>
+<h2 id="自动"><a href="#自动" class="headerlink" title="自动"></a>自动</h2><p>Volley内部有一个CacheDispatcher以及多个NetworkDispatcher，它们继承自Thread类，它们的业务实现是从各自的请求队列里不断拿Request并执行。所以我们只需要将我们的请求添加到RequestQueue中，这两类Dispatcher线程就会自动的去执行请求。</p>
+<p>在RequestQueue的start()方法里创建与开启Dispatcher线程：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">start</span><span class="params">()</span> </span>&#123;</div><div class="line">    stop();  <span class="comment">// Make sure any currently running dispatchers are stopped.</span></div><div class="line">    <span class="comment">// Create the cache dispatcher and start it.</span></div><div class="line">    mCacheDispatcher = <span class="keyword">new</span> CacheDispatcher(mCacheQueue, mNetworkQueue, mCache, mDelivery);</div><div class="line">    mCacheDispatcher.start();</div><div class="line"></div><div class="line">    <span class="comment">// Create network dispatchers (and corresponding threads) up to the pool size.</span></div><div class="line">    <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; mDispatchers.length; i++) &#123;</div><div class="line">        NetworkDispatcher networkDispatcher = <span class="keyword">new</span> NetworkDispatcher(mNetworkQueue, mNetwork,</div><div class="line">                mCache, mDelivery);</div><div class="line">        mDispatchers[i] = networkDispatcher;</div><div class="line">        networkDispatcher.start();</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>一个RequestQueue只有一个CacheDispatched，与多个NetworkDispatcher，NetworkDispatcher数量可自定义，默认为4个。<br>因为一个RequestQueue中包含了多个thread, 这也是推荐使用单例的原因之一，过多的RequestQueue就会导致thread过多，因为thread调度问题导致性能下降。</p>
+<h2 id="调度"><a href="#调度" class="headerlink" title="调度"></a>调度</h2><p>调度就是RequestQueue中同时有多个请求时，先执行哪个后执行哪个。<br>Volley将请求分为四个优先级：LOW、NORMAL、HIGH、IMMEDIATE，优先度以此增加，默认为NORMAL。<br>优先级高的先执行，同一优先级按照FIFO的顺序执行。<br>这种调度顺序在添加到RequestQueue的时候就被安排好了。<br>RequestQueue.add()方法根据是否使用缓存将Request添加到缓存的或者网络请求的PriorityBlockingQueue中。<br>来看一下PriorityBlockingQueue.add()的实现</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">add</span><span class="params">(E e)</span> </span>&#123;</div><div class="line">	<span class="keyword">return</span> offer(e);</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">offer</span><span class="params">(E e)</span> </span>&#123;</div><div class="line">    <span class="keyword">if</span> (e == <span class="keyword">null</span>)</div><div class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> NullPointerException();</div><div class="line">    <span class="keyword">final</span> ReentrantLock lock = <span class="keyword">this</span>.lock;</div><div class="line">    lock.lock();</div><div class="line">    <span class="keyword">int</span> n, cap;</div><div class="line">    Object[] array;</div><div class="line">    <span class="keyword">while</span> ((n = size) &gt;= (cap = (array = queue).length))</div><div class="line">        tryGrow(array, cap);</div><div class="line">    <span class="keyword">try</span> &#123;</div><div class="line">        Comparator&lt;? <span class="keyword">super</span> E&gt; cmp = comparator;</div><div class="line">        <span class="keyword">if</span> (cmp == <span class="keyword">null</span>) <span class="comment">// Volley默认没有设置comparator</span></div><div class="line">            siftUpComparable(n, e, array);</div><div class="line">        <span class="keyword">else</span></div><div class="line">            siftUpUsingComparator(n, e, array, cmp);</div><div class="line">        size = n + <span class="number">1</span>;</div><div class="line">        notEmpty.signal();</div><div class="line">    &#125; <span class="keyword">finally</span> &#123;</div><div class="line">        lock.unlock();</div><div class="line">    &#125;</div><div class="line">    <span class="keyword">return</span> <span class="keyword">true</span>;</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="keyword">private</span> <span class="keyword">static</span> &lt;T&gt; <span class="function"><span class="keyword">void</span> <span class="title">siftUpComparable</span><span class="params">(<span class="keyword">int</span> k, T x, Object[] array)</span> </span>&#123;</div><div class="line">    Comparable&lt;? <span class="keyword">super</span> T&gt; key = (Comparable&lt;? <span class="keyword">super</span> T&gt;) x;</div><div class="line">    <span class="keyword">while</span> (k &gt; <span class="number">0</span>) &#123;</div><div class="line">        <span class="keyword">int</span> parent = (k - <span class="number">1</span>) &gt;&gt;&gt; <span class="number">1</span>;</div><div class="line">        Object e = array[parent];</div><div class="line">        <span class="keyword">if</span> (key.compareTo((T) e) &gt;= <span class="number">0</span>)</div><div class="line">            <span class="keyword">break</span>;</div><div class="line">        array[k] = e;</div><div class="line">        k = parent;</div><div class="line">    &#125;</div><div class="line">    array[k] = key;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>PriorityBlockingQueue.add()方法保证了首先按照优先级排序，优先级一致的情况下按照FIFO的顺序。</p>
+<p>可以通过重写Request的getPriority()方法自定义请求优先级。注：ImageRequest被重写默认为LOW优先级。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="meta">@Override</span></div><div class="line"><span class="function"><span class="keyword">public</span> Priority <span class="title">getPriority</span><span class="params">()</span> </span>&#123;</div><div class="line">    <span class="keyword">return</span> Priority.LOW;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<h1 id="多并发网络连接"><a href="#多并发网络连接" class="headerlink" title="多并发网络连接"></a>多并发网络连接</h1><p>上面<a href="">自动</a>小节提到，每一个RequestQueue中包含多个NetworkDispatcher（默认是4个），每一个NetworkDispatcher都是一个负责网络请求的线程。因此Volley能够同时处理多个网络请求。</p>
+<h1 id="具有标准缓存一致性的，透明的，内存、硬盘响应缓存"><a href="#具有标准缓存一致性的，透明的，内存、硬盘响应缓存" class="headerlink" title="具有标准缓存一致性的，透明的，内存、硬盘响应缓存"></a>具有标准缓存一致性的，透明的，内存、硬盘响应缓存</h1><p>所谓透明的内存硬盘响应缓存的意思是，在我们使用的时候根本就没有感觉到有缓存的存在，完全由Volley负责为我们完成。<br>Volley默认提供了硬盘响应缓存DiskBasedCache，当然用户可以通过实现Cache接口自定义自己的缓存，比如内存硬盘双缓存。</p>
+<p>默认Request是使用缓存的，可以通过Request.setShouldCache(boolean)来设置是否使用缓存。</p>
+<h2 id="每个响应存储为一个文件"><a href="#每个响应存储为一个文件" class="headerlink" title="每个响应存储为一个文件"></a>每个响应存储为一个文件</h2><p>DiskBasedCache将每个响应生成一个文件，保存到磁盘上，在内存中保存着每一个磁盘缓存的响应头。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">synchronized</span> <span class="keyword">void</span> <span class="title">put</span><span class="params">(String key, Entry entry)</span> </span>&#123;</div><div class="line">    pruneIfNeeded(entry.data.length); <span class="comment">// *(1)如果剩余空间不足，删除一些原来的缓存</span></div><div class="line">    File file = getFileForKey(key); <span class="comment">// *(2)根据URL获取要缓存到的文件对象</span></div><div class="line">    <span class="keyword">try</span> &#123;</div><div class="line">        FileOutputStream fos = <span class="keyword">new</span> FileOutputStream(file);</div><div class="line">        CacheHeader e = <span class="keyword">new</span> CacheHeader(key, entry);</div><div class="line">        e.writeHeader(fos); <span class="comment">// 输出响应头</span></div><div class="line">        fos.write(entry.data); <span class="comment">// 输出响应体</span></div><div class="line">        fos.close();</div><div class="line">        putEntry(key, e);</div><div class="line">        <span class="keyword">return</span>;</div><div class="line">    &#125; <span class="keyword">catch</span> (IOException e) &#123;</div><div class="line">    &#125;</div><div class="line">    <span class="keyword">boolean</span> deleted = file.delete();</div><div class="line">    <span class="keyword">if</span> (!deleted) &#123;</div><div class="line">        VolleyLog.d(<span class="string">"Could not clean up file %s"</span>, file.getAbsolutePath());</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>*(1) 删除缓存的规则只是按照FIFO规则来的，跟缓存的命中率没有关系。直到删到能存下当前响应为止。<br>*(2) 通过URL这个key生成文件名的时候Volley是这么实现的：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">private</span> String <span class="title">getFilenameForKey</span><span class="params">(String key)</span> </span>&#123;</div><div class="line">    <span class="keyword">int</span> firstHalfLength = key.length() / <span class="number">2</span>;</div><div class="line">    String localFilename = String.valueOf(key.substring(<span class="number">0</span>, firstHalfLength).hashCode());</div><div class="line">    localFilename += String.valueOf(key.substring(firstHalfLength).hashCode());</div><div class="line">    <span class="keyword">return</span> localFilename;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>将URL从中间隔断，分别计算hashcode，然后在将两个hashcode拼接起来。猜想这样做大概是为了降低hash冲突的概率吧。</p>
+<p>响应头的输出严格按照特定的顺序：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">writeHeader</span><span class="params">(OutputStream os)</span> </span>&#123;</div><div class="line">    <span class="keyword">try</span> &#123;</div><div class="line">        writeInt(os, CACHE_MAGIC); <span class="comment">// 版本号，与java序列化的serialVersionUID功能一致</span></div><div class="line">        writeString(os, key); <span class="comment">// 缓存的唯一标志，即URL</span></div><div class="line">        writeString(os, etag == <span class="keyword">null</span> ? <span class="string">""</span> : etag); <span class="comment">// etag 缓存一致性使用</span></div><div class="line">        writeLong(os, serverDate); <span class="comment">// 服务器生成该响应的时间</span></div><div class="line">        writeLong(os, ttl); <span class="comment">// [Time to Live](https://en.wikipedia.org/wiki/Time_to_live)</span></div><div class="line">        writeLong(os, softTtl);</div><div class="line">        writeStringStringMap(responseHeaders, os); <span class="comment">// 输出Header中的其他键值对</span></div><div class="line">        os.flush();</div><div class="line">        <span class="keyword">return</span> <span class="keyword">true</span>;</div><div class="line">    &#125; <span class="keyword">catch</span> (IOException e) &#123;</div><div class="line">        VolleyLog.d(<span class="string">"%s"</span>, e.toString());</div><div class="line">        <span class="keyword">return</span> <span class="keyword">false</span>;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>总的来说将响应序列化到磁盘，响应内容的输出是严格按照特定的格式与顺序的，所以在读缓存的时候也要严格按照这种格式与顺序。</p>
+<h1 id="支持请求优先级"><a href="#支持请求优先级" class="headerlink" title="支持请求优先级"></a>支持请求优先级</h1><p>见<a href="">调度</a></p>
+<h1 id="取消请求接口"><a href="#取消请求接口" class="headerlink" title="取消请求接口"></a>取消请求接口</h1><p>RequestQueue中有三个集合是用来保存Request的：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">private</span> <span class="keyword">final</span> Set&lt;Request&gt; mCurrentRequests = <span class="keyword">new</span> HashSet&lt;Request&gt;();</div><div class="line"><span class="keyword">private</span> <span class="keyword">final</span> PriorityBlockingQueue&lt;Request&gt; mCacheQueue = <span class="keyword">new</span> PriorityBlockingQueue&lt;Request&gt;();</div><div class="line"><span class="keyword">private</span> <span class="keyword">final</span> PriorityBlockingQueue&lt;Request&gt; mNetworkQueue = <span class="keyword">new</span> PriorityBlockingQueue&lt;Request&gt;();</div></pre></td></tr></table></figure>
+<p>通过RequestQueue.add()添加的所有请求都会被添加到mCurrentRequests Set中，mCurrentRequests是所有请求的集合，如果请求需要缓存处理就会被添加到mCacheQueue中，如果请求不需要缓存处理或者缓存处理不了就会添加到mNetworkQueue。<br>mCacheQueue被CacheDispatcher提取，mNetworkQueue被NetworkDispatcher提取。</p>
+<p>Volley提供了通过Tag来取消请求的接口，方便大家合理的取消一个或者多个请求。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">cancelAll</span><span class="params">(<span class="keyword">final</span> Object tag)</span> </span>&#123;</div><div class="line">    <span class="keyword">if</span> (tag == <span class="keyword">null</span>) &#123;</div><div class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> IllegalArgumentException(<span class="string">"Cannot cancelAll with a null tag"</span>);</div><div class="line">    &#125;</div><div class="line">    cancelAll(<span class="keyword">new</span> RequestFilter() &#123;</div><div class="line">        <span class="meta">@Override</span></div><div class="line">        <span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">apply</span><span class="params">(Request&lt;?&gt; request)</span> </span>&#123;</div><div class="line">            <span class="keyword">return</span> request.getTag() == tag;</div><div class="line">        &#125;</div><div class="line">    &#125;);</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">cancelAll</span><span class="params">(RequestFilter filter)</span> </span>&#123;</div><div class="line">    <span class="keyword">synchronized</span> (mCurrentRequests) &#123;</div><div class="line">        <span class="keyword">for</span> (Request&lt;?&gt; request : mCurrentRequests) &#123;</div><div class="line">            <span class="keyword">if</span> (filter.apply(request)) &#123;</div><div class="line">                request.cancel();</div><div class="line">            &#125;</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>在mCurrentRequests这个所有请求的集合中，遍历带有tag的请求，然后取消。</p>
+<h1 id="方便定制。比如说：重试和退避请求"><a href="#方便定制。比如说：重试和退避请求" class="headerlink" title="方便定制。比如说：重试和退避请求"></a>方便定制。比如说：重试和退避请求</h1><p>该特性说的是Volley提供了一套默认机制，以及方便的替换自定义方法。retry 与 backoff机制便是其中之一。</p>
+<p>Volley中使用的不管是Request还是RetryPolicy都提供了接口或者基类，我们只需要实现或者集成就可以方便的定制复合我们业务逻辑的特性。</p>
+<p>提到了retry 与 backoff， 下面就叙述一下其实现</p>
+<h2 id="Retry-and-Backoff"><a href="#Retry-and-Backoff" class="headerlink" title="Retry and Backoff"></a>Retry and Backoff</h2><p>retry即当请求发生超时或者连接异常的时候，再一次执行该请求。backoff，翻译为退避方法，即在retry请求是，超时时间应如何处理。<br>Retry机制的接口定义为：RetryPolicy</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">RetryPolicy</span> </span>&#123;</div><div class="line">	<span class="comment">// 获取当前超时时间</span></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">getCurrentTimeout</span><span class="params">()</span></span>;</div><div class="line">    <span class="comment">// 获取当前已retry次数</span></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">getCurrentRetryCount</span><span class="params">()</span></span>;</div><div class="line">    <span class="comment">// 执行retry</span></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">retry</span><span class="params">(VolleyError error)</span> <span class="keyword">throws</span> VolleyError</span>;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>默认实现为：DefaultRetryPolicy，其中有三个重要的属性：mCurrentTimeoutMs、mMaxNumRetries、mBackoffMultiplier，分别是当前请求超时时间、最多retry次数、backoff算法的乘数。默认值分别为2500、1、1。</p>
+<p>DefaultRetryPolicy的retry方法实现：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div></pre></td><td class="code"><pre><div class="line"><span class="meta">@Override</span></div><div class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">retry</span><span class="params">(VolleyError error)</span> <span class="keyword">throws</span> VolleyError </span>&#123;</div><div class="line">    mCurrentRetryCount++;</div><div class="line">    mCurrentTimeoutMs += (mCurrentTimeoutMs * mBackoffMultiplier);</div><div class="line">    <span class="keyword">if</span> (!hasAttemptRemaining()) &#123;</div><div class="line">        <span class="keyword">throw</span> error;</div><div class="line">    &#125;</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">protected</span> <span class="keyword">boolean</span> <span class="title">hasAttemptRemaining</span><span class="params">()</span> </span>&#123;</div><div class="line">    <span class="keyword">return</span> mCurrentRetryCount &lt;= mMaxNumRetries;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>在每次执行retry的时候，超时时间都会变化，具体方法为：mCurrentTimeoutMs += (mCurrentTimeoutMs * mBackoffMultiplier);<br>按照默认值首次执行请求超时时间为：2500。2500时间内没有完成请求的话，将发生一次retry，超时时长就被重置为：5000。如果这个5000毫秒内也有收到响应的话，因为最多retry次数就1次，就不会再执行这个请求了，这个请求就失败了。</p>
+<p>retry请求是连续执行，并不是再次把请求放入请求队列中。<br>具体位于BasicNetwork的performRequest中：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line">public NetworkResponse performRequest(Request&lt;?&gt; request) throws VolleyError &#123;</div><div class="line">	...</div><div class="line">	while(true)&#123;</div><div class="line">		try&#123;</div><div class="line">			httpResponse = mHttpStack.performRequest(request, headers);</div><div class="line">		&#125;catch(TimeoutException e)&#123;</div><div class="line">			attemptRetryOnException(request, new TimeoutError()); // 执行retry方法，判断retry次数是否达到最大值，重新计算timeout时间</div><div class="line">		&#125;</div><div class="line">		...</div><div class="line">	&#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+
+          
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+                <a class="post-title-link" href="/2016/09/28/implementing-a-custom-request/" itemprop="url">
+                  Volley官方教程翻译（五）：自定义Request
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">Posted on</span>
+            <time itemprop="dateCreated" datetime="2016-09-28T10:27:51+08:00" content="2016-09-28">
+              2016-09-28
+            </time>
+          </span>
+
+          
+
+          
+            
+          
+
+          
+
+          
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <blockquote>
+<p>原文连接：<a href="https://developer.android.com/training/volley/request-custom.html" target="_blank" rel="external">https://developer.android.com/training/volley/request-custom.html</a></p>
+</blockquote>
+<p>如果Volley自带的JsonRequest、StringRequest等不能满足我们的需求，那么我就需要自定义Request了。</p>
+<h2 id="实现一个Request"><a href="#实现一个Request" class="headerlink" title="实现一个Request"></a>实现一个Request</h2><p>在toolbox中Volley已经帮我们实现好了常用的Request。如果你的请求响应是String、Json抑或Image的话，你大概不需要去实现Request。<br>如果你真的需要实现一个自己的Request的话。你只需要做如下的事情：</p>
+<ul>
+<li><p>继承<code>Request&lt;T&gt;</code>类，这里泛型<code>&lt;T&gt;</code>是你期待的解析后的请求的响应类型。比如，如果你希望将响应解析为字符串的话，只需要继承<code>Request&lt;String&gt;</code>就可以了。这里你可以参考toolbox里面的<code>StringRequest</code>和<code>ImageRequest</code>，参考以下如何继承<code>Request&lt;T&gt;</code>.</p>
+</li>
+<li><p>实现<code>parseNetworkResponse()</code>和<code>deliverResponse()</code>这两个抽象方法，下面详细介绍这两个方法。</p>
+</li>
+</ul>
+<h3 id="parseNetworkResponse"><a href="#parseNetworkResponse" class="headerlink" title="parseNetworkResponse"></a>parseNetworkResponse</h3><p>Volley用<code>Response&lt;T&gt;</code>封装<code>Request&lt;T&gt;</code>所指定类型(String、Json)的响应。如下是<code>parseNetworkResponse()</code>的一个实现示例：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div></pre></td><td class="code"><pre><div class="line"><span class="meta">@Override</span></div><div class="line"><span class="function"><span class="keyword">protected</span> Response&lt;T&gt; <span class="title">parseNetworkResponse</span><span class="params">(</span></span></div><div class="line">        NetworkResponse response) &#123;</div><div class="line">    <span class="keyword">try</span> &#123;</div><div class="line">        String json = <span class="keyword">new</span> String(response.data,</div><div class="line">        HttpHeaderParser.parseCharset(response.headers));</div><div class="line">    <span class="keyword">return</span> Response.success(gson.fromJson(json, clazz),</div><div class="line">    HttpHeaderParser.parseCacheHeaders(response));</div><div class="line">    &#125;</div><div class="line">    <span class="comment">// 错误处理</span></div><div class="line">...</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>流程说明：</p>
+<ul>
+<li>方法<code>parseNetworkResponse()</code>的参数为<code>NetworkResponse</code>，其内容包括二进制格式的响应负载、HTTP状态码以及响应头。</li>
+<li>实现的方法必须的返回结果必须是<code>Response&lt;T&gt;</code>。如果解析成功返回结果中将包含指定类型的响应对象以及缓存的元数据，如果失败结果里就是失败的信息。</li>
+</ul>
+<p>如果你的协议中缓存的要求与标准缓存不同，你可以自定义自己的缓存实现。不过大多数请求都可以按照如下写法：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">return</span> Response.success(myDecodedObject,</div><div class="line">        HttpHeaderParser.parseCacheHeaders(response));</div></pre></td></tr></table></figure>
+<p>Volley只会在工作线程调用<code>parseNetworkResponse()</code>方法。这一点保证了诸如将JPEG图片解析为一个Bitmap对象这样的耗时操作不会阻塞UI线程。</p>
+<h3 id="deliverResponse"><a href="#deliverResponse" class="headerlink" title="deliverResponse"></a>deliverResponse</h3><p>Volley会将<code>parseNetworkResponse()</code>方法返回的对象转移到主线程调用。大多数请求都会在这里调用回调接口。示例：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">deliverResponse</span><span class="params">(T response)</span> </span>&#123;</div><div class="line">        listener.onResponse(response);</div></pre></td></tr></table></figure>
+<h2 id="Example-GsonRequest"><a href="#Example-GsonRequest" class="headerlink" title="Example: GsonRequest"></a>Example: GsonRequest</h2><p>Gson库使用反射技术，能够把Json字符串转换成Java对象，也可以反过来将Java对象转换成Json字符串。Java对象的属性与Json的key需要对应起来，Gson才能够进行填充。如下是使用Gson解析请求响应结果的完整实现示例：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">GsonRequest</span>&lt;<span class="title">T</span>&gt; <span class="keyword">extends</span> <span class="title">Request</span>&lt;<span class="title">T</span>&gt; </span>&#123;</div><div class="line">    <span class="keyword">private</span> <span class="keyword">final</span> Gson gson = <span class="keyword">new</span> Gson();</div><div class="line">    <span class="keyword">private</span> <span class="keyword">final</span> Class&lt;T&gt; clazz;</div><div class="line">    <span class="keyword">private</span> <span class="keyword">final</span> Map&lt;String, String&gt; headers;</div><div class="line">    <span class="keyword">private</span> <span class="keyword">final</span> Listener&lt;T&gt; listener;</div><div class="line"></div><div class="line">    <span class="comment">/**</span></div><div class="line">     * 构造一个GET请求，其返回结果是解析自JSON字符串的对象</div><div class="line">     *</div><div class="line">     * <span class="doctag">@param</span> url 请求的URL</div><div class="line">     * <span class="doctag">@param</span> clazz 解析JSON字符串后生成该类的对象</div><div class="line">     * <span class="doctag">@param</span> headers Map of request headers</div><div class="line">     */</div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="title">GsonRequest</span><span class="params">(String url, Class&lt;T&gt; clazz, Map&lt;String, String&gt; headers,</span></span></div><div class="line">            Listener&lt;T&gt; listener, ErrorListener errorListener) &#123;</div><div class="line">        <span class="keyword">super</span>(Method.GET, url, errorListener);</div><div class="line">        <span class="keyword">this</span>.clazz = clazz;</div><div class="line">        <span class="keyword">this</span>.headers = headers;</div><div class="line">        <span class="keyword">this</span>.listener = listener;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="meta">@Override</span></div><div class="line">    <span class="function"><span class="keyword">public</span> Map&lt;String, String&gt; <span class="title">getHeaders</span><span class="params">()</span> <span class="keyword">throws</span> AuthFailureError </span>&#123;</div><div class="line">        <span class="keyword">return</span> headers != <span class="keyword">null</span> ? headers : <span class="keyword">super</span>.getHeaders();</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="meta">@Override</span></div><div class="line">    <span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">deliverResponse</span><span class="params">(T response)</span> </span>&#123;</div><div class="line">        listener.onResponse(response);</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="meta">@Override</span></div><div class="line">    <span class="function"><span class="keyword">protected</span> Response&lt;T&gt; <span class="title">parseNetworkResponse</span><span class="params">(NetworkResponse response)</span> </span>&#123;</div><div class="line">        <span class="keyword">try</span> &#123;</div><div class="line">            String json = <span class="keyword">new</span> String(</div><div class="line">                    response.data,</div><div class="line">                    HttpHeaderParser.parseCharset(response.headers));</div><div class="line">            <span class="keyword">return</span> Response.success(</div><div class="line">                    gson.fromJson(json, clazz),</div><div class="line">                    HttpHeaderParser.parseCacheHeaders(response));</div><div class="line">        &#125; <span class="keyword">catch</span> (UnsupportedEncodingException e) &#123;</div><div class="line">            <span class="keyword">return</span> Response.error(<span class="keyword">new</span> ParseError(e));</div><div class="line">        &#125; <span class="keyword">catch</span> (JsonSyntaxException e) &#123;</div><div class="line">            <span class="keyword">return</span> Response.error(<span class="keyword">new</span> ParseError(e));</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>Volley已经帮我们实现好了<code>JsonArrayRequest</code>和<code>JsonArrayObject</code>，可以方便使用。详情请参见<a href="使用标准请求">使用标准请求</a>。</p>
+
+          
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+                <a class="post-title-link" href="/2016/09/28/making-a-standard-request/" itemprop="url">
+                  Volley官方教程翻译（四）：使用标准请求
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">Posted on</span>
+            <time itemprop="dateCreated" datetime="2016-09-28T10:23:44+08:00" content="2016-09-28">
+              2016-09-28
+            </time>
+          </span>
+
+          
+
+          
+            
+          
+
+          
+
+          
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <blockquote>
+<p>原文连接：<a href="https://developer.android.com/training/volley/request.html" target="_blank" rel="external">https://developer.android.com/training/volley/request.html</a></p>
+</blockquote>
+<p>这节描述怎么使用Volley提供的一些常用类型的请求。</p>
+<ul>
+<li><code>StringRequest</code>. 请求特定URL，响应为原生字符串。具体示例参见：<a href="配置RequestQueue">配置RequestQueue</a>。</li>
+<li><code>ImageRequest</code>. 请求特定URL，响应为图片。</li>
+<li><code>JsonObjectRequest</code> 和 <code>JsonArrayRequest</code> (两个都是JsonRequest的子类). 请求特定URL，响应为Json对象或者数组。</li>
+</ul>
+<p>如果你期望的响应是如上的类型的话，就不需要在自定义Request了。这节介绍怎么使用这些标准的Request。如果想了解如何自定义Request，请参见<a href="自定义Request">自定义Request</a>.</p>
+<h1 id="请求图片"><a href="#请求图片" class="headerlink" title="请求图片"></a>请求图片</h1><p>Volley提供了如下几个请求图片使用的类。其实它们之间的关系是相互依赖，为我们提供不同层次级别的服务。</p>
+<ul>
+<li><code>ImageRequest</code> 一个获取指定URL图片的Request，最终响应结果是一个解析了的Bitmap。也有比如改变图片大小等许多方便的功能。它最大的优点是所有的耗时重量级操作，比如解码、改变大小，都在工作线程执行。</li>
+</ul>
+<ul>
+<li><p><code>ImageLoader</code> 一个负责加载与缓存远程图片的辅助类。<code>ImageLoader</code>可以管理大量的<code>ImageRequest</code>，比如，当往一个<code>List</code>中填充许多缩略图的时候。<code>ImageLoader</code>在Volley的缓存之上又提供了一层内存缓存，这一点能够有效避免图片的闪烁现象。如果一个图片存在内存缓存中，我们可以直接得到它，不用阻塞以及切离主线程，这一点Disk缓存是做不到的。<code>ImageLoader</code>能够对响应进行聚合处理。如果不聚合处理的话，每一个响应都会往一个View上设置一个Bitmap，导致一次布局调用。聚合能够定时把多个响应传送出来，提高了效率。</p>
+</li>
+<li><p><code>NetworkImageView</code> 基于ImageLoader实现。在图片是从网络上获取的情况下，能够高效替换ImageView。如果view被移除，NetworkImageView也负责管理request的取消操作。</p>
+</li>
+</ul>
+<h2 id="使用ImageRequest"><a href="#使用ImageRequest" class="headerlink" title="使用ImageRequest"></a>使用ImageRequest</h2><p>如果是一个使用ImageRequest的实例。展示了如何获取指定URL的图片，然后展示到应用上。值得注意的是如下代码段里的RequestQueue是通过单例类（详细讨论请参见：<a href="/2016/09/27/setting-up-a-requestqueue">配置RequestQueue</a>）获得的。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div></pre></td><td class="code"><pre><div class="line">ImageView mImageView;</div><div class="line">String url = <span class="string">"http://i.imgur.com/7spzG.png"</span>;</div><div class="line">mImageView = (ImageView) findViewById(R.id.myImage);</div><div class="line">...</div><div class="line"></div><div class="line"><span class="comment">// 获取指定URL的图片，展示到UI上</span></div><div class="line">ImageRequest request = <span class="keyword">new</span> ImageRequest(url,</div><div class="line">    <span class="keyword">new</span> Response.Listener&lt;Bitmap&gt;() &#123;</div><div class="line">        <span class="meta">@Override</span></div><div class="line">        <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onResponse</span><span class="params">(Bitmap bitmap)</span> </span>&#123;</div><div class="line">            mImageView.setImageBitmap(bitmap);</div><div class="line">        &#125;</div><div class="line">    &#125;, <span class="number">0</span>, <span class="number">0</span>, <span class="keyword">null</span>,</div><div class="line">    <span class="keyword">new</span> Response.ErrorListener() &#123;</div><div class="line">        <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onErrorResponse</span><span class="params">(VolleyError error)</span> </span>&#123;</div><div class="line">            mImageView.setImageResource(R.drawable.image_load_error);</div><div class="line">        &#125;</div><div class="line">    &#125;);</div><div class="line"><span class="comment">// 通过单例类获得RequestQueue</span></div><div class="line">MySingleton.getInstance(<span class="keyword">this</span>).addToRequestQueue(request);</div></pre></td></tr></table></figure>
+<h2 id="使用-ImageLoader-和-NetworkImageView"><a href="#使用-ImageLoader-和-NetworkImageView" class="headerlink" title="使用 ImageLoader 和 NetworkImageView"></a>使用 ImageLoader 和 NetworkImageView</h2><p>ImageLoader和NetworkImageView可以配合使用来高效管理譬如ListView多图的展示。在XML布局文件中，也可以像使用ImageView一样使用NetworkImageView，如下：</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="tag">&lt;<span class="name">com.android.volley.toolbox.NetworkImageView</span></span></div><div class="line">        <span class="attr">android:id</span>=<span class="string">"@+id/networkImageView"</span></div><div class="line">        <span class="attr">android:layout_width</span>=<span class="string">"150dp"</span></div><div class="line">        <span class="attr">android:layout_height</span>=<span class="string">"170dp"</span></div><div class="line">        <span class="attr">android:layout_centerHorizontal</span>=<span class="string">"true"</span> /&gt;</div></pre></td></tr></table></figure>
+<p>你也可以只使用ImageLoader来展示图片：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div></pre></td><td class="code"><pre><div class="line">ImageLoader mImageLoader;</div><div class="line">ImageView mImageView;</div><div class="line"><span class="comment">// 将被加载的图片的URL</span></div><div class="line"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> String IMAGE_URL =</div><div class="line">    <span class="string">"http://developer.android.com/images/training/system-ui.png"</span>;</div><div class="line">...</div><div class="line">mImageView = (ImageView) findViewById(R.id.regularImageView);</div><div class="line"></div><div class="line"><span class="comment">// 通过单例类获得ImageLoader</span></div><div class="line">mImageLoader = MySingleton.getInstance(<span class="keyword">this</span>).getImageLoader();</div><div class="line">mImageLoader.get(IMAGE_URL, ImageLoader.getImageListener(mImageView,</div><div class="line">         R.drawable.def_image, R.drawable.err_image));</div></pre></td></tr></table></figure>
+<p>下面是如何使用NetworkImageView来加载这个图片：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div></pre></td><td class="code"><pre><div class="line">ImageLoader mImageLoader;</div><div class="line">NetworkImageView mNetworkImageView;</div><div class="line"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> String IMAGE_URL =</div><div class="line">    <span class="string">"http://developer.android.com/images/training/system-ui.png"</span>;</div><div class="line">...</div><div class="line"></div><div class="line"><span class="comment">// 获得布局文件中定义的NetworkImageView</span></div><div class="line">mNetworkImageView = (NetworkImageView) findViewById(R.id.networkImageView);</div><div class="line"></div><div class="line"><span class="comment">// 通过单例类获得ImageLoader</span></div><div class="line">mImageLoader = MySingleton.getInstance(<span class="keyword">this</span>).getImageLoader();</div><div class="line"></div><div class="line"><span class="comment">// 把URL和加载该URL图片的ImageLoader设置给NetworkImageView</span></div><div class="line">mNetworkImageView.setImageUrl(IMAGE_URL, mImageLoader);</div></pre></td></tr></table></figure>
+<p>上面代码片段通过单例类获得RequestQueue和ImageLoader，这部分在<a href="/2016/09/27/setting-up-a-requestqueue">配置RequestQueue</a>这节有详细描述。使用单例类这种方法整个App只有一个RequestQueue和ImageLoader实例，而且生命周期与App一致。这样做的一个很重要的原因是内存缓存能够似的在设备旋转的时候无闪烁现象。单例模式能够使得缓存高于Activity而存在。如果你选择了在Activity中穿件ImageLoader的话，那么在旋转设备的时候，它会随Activity一起重建，导致图片闪烁现象。</p>
+<h3 id="LRU缓存示例"><a href="#LRU缓存示例" class="headerlink" title="LRU缓存示例"></a>LRU缓存示例</h3><p>Volley的工具盒中提供了一个基于DiskBasedCache类的标准实现。这个类直接将响应生产文件缓存到硬盘的指定目录下。但是使用ImageLoader，需要提供一个实现ImageLoader.ImageCache接口的内存缓存。你大概趋向于用单例模式来配置缓存。更多关于单例模式的讨论，请参见<a href="/2016/09/27/setting-up-a-requestqueue">配置RequestQueue</a>。</p>
+<p>如下是一个内存缓存的简单实现类LruBitmapCache，它继承自LruCache类实了ImageLoader.ImageCache接口：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">import</span> android.graphics.Bitmap;</div><div class="line"><span class="keyword">import</span> android.support.v4.util.LruCache;</div><div class="line"><span class="keyword">import</span> android.util.DisplayMetrics;</div><div class="line"><span class="keyword">import</span> com.android.volley.toolbox.ImageLoader.ImageCache;</div><div class="line"></div><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">LruBitmapCache</span> <span class="keyword">extends</span> <span class="title">LruCache</span>&lt;<span class="title">String</span>, <span class="title">Bitmap</span>&gt;</span></div><div class="line">        <span class="keyword">implements</span> <span class="title">ImageCache</span> &#123;</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="title">LruBitmapCache</span><span class="params">(<span class="keyword">int</span> maxSize)</span> </span>&#123;</div><div class="line">        <span class="keyword">super</span>(maxSize);</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="title">LruBitmapCache</span><span class="params">(Context ctx)</span> </span>&#123;</div><div class="line">        <span class="keyword">this</span>(getCacheSize(ctx));</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="meta">@Override</span></div><div class="line">    <span class="function"><span class="keyword">protected</span> <span class="keyword">int</span> <span class="title">sizeOf</span><span class="params">(String key, Bitmap value)</span> </span>&#123;</div><div class="line">        <span class="keyword">return</span> value.getRowBytes() * value.getHeight();</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="meta">@Override</span></div><div class="line">    <span class="function"><span class="keyword">public</span> Bitmap <span class="title">getBitmap</span><span class="params">(String url)</span> </span>&#123;</div><div class="line">        <span class="keyword">return</span> get(url);</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="meta">@Override</span></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">putBitmap</span><span class="params">(String url, Bitmap bitmap)</span> </span>&#123;</div><div class="line">        put(url, bitmap);</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="comment">// Returns a cache size equal to approximately three screens worth of images.</span></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">int</span> <span class="title">getCacheSize</span><span class="params">(Context ctx)</span> </span>&#123;</div><div class="line">        <span class="keyword">final</span> DisplayMetrics displayMetrics = ctx.getResources().</div><div class="line">                getDisplayMetrics();</div><div class="line">        <span class="keyword">final</span> <span class="keyword">int</span> screenWidth = displayMetrics.widthPixels;</div><div class="line">        <span class="keyword">final</span> <span class="keyword">int</span> screenHeight = displayMetrics.heightPixels;</div><div class="line">        <span class="comment">// 4 bytes per pixel</span></div><div class="line">        <span class="keyword">final</span> <span class="keyword">int</span> screenBytes = screenWidth * screenHeight * <span class="number">4</span>;</div><div class="line"></div><div class="line">        <span class="keyword">return</span> screenBytes * <span class="number">3</span>;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>如下是如何使用这个内存缓存实例话ImageLoader的示例：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">RequestQueue mRequestQueue; <span class="comment">// assume this exists.</span></div><div class="line">ImageLoader mImageLoader = <span class="keyword">new</span> ImageLoader(mRequestQueue, <span class="keyword">new</span> LruBitmapCache(</div><div class="line">            LruBitmapCache.getCacheSize()));</div></pre></td></tr></table></figure>
+<h1 id="请求JSON数据"><a href="#请求JSON数据" class="headerlink" title="请求JSON数据"></a>请求JSON数据</h1><p>Volley提供了如下两个类来完成Json请求：</p>
+<ul>
+<li>JsonArrayRequest 一个获取指定URL的响应为Json数组的请求</li>
+<li>JsonObjectRequest 一个获取指定URL的响应为Json对象的请求，请求体可以包含一个Json对象。</li>
+</ul>
+<p>以上两个类都基于JsonRequest类。它们的使用方法与其他类型的Request一样。如下的代码片段展示了如何获取Json数据以及将它们作为文本显示在UI上：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div></pre></td><td class="code"><pre><div class="line">TextView mTxtDisplay;</div><div class="line">ImageView mImageView;</div><div class="line">mTxtDisplay = (TextView) findViewById(R.id.txtDisplay);</div><div class="line">String url = <span class="string">"http://my-json-feed"</span>;</div><div class="line"></div><div class="line">JsonObjectRequest jsObjRequest = <span class="keyword">new</span> JsonObjectRequest</div><div class="line">        (Request.Method.GET, url, <span class="keyword">null</span>, <span class="keyword">new</span> Response.Listener&lt;JSONObject&gt;() &#123;</div><div class="line"></div><div class="line">    <span class="meta">@Override</span></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onResponse</span><span class="params">(JSONObject response)</span> </span>&#123;</div><div class="line">        mTxtDisplay.setText(<span class="string">"Response: "</span> + response.toString());</div><div class="line">    &#125;</div><div class="line">&#125;, <span class="keyword">new</span> Response.ErrorListener() &#123;</div><div class="line"></div><div class="line">    <span class="meta">@Override</span></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onErrorResponse</span><span class="params">(VolleyError error)</span> </span>&#123;</div><div class="line">        <span class="comment">// TODO Auto-generated method stub</span></div><div class="line"></div><div class="line">    &#125;</div><div class="line">&#125;);</div><div class="line"></div><div class="line"><span class="comment">// Access the RequestQueue through your singleton class.</span></div><div class="line">MySingleton.getInstance(<span class="keyword">this</span>).addToRequestQueue(jsObjRequest);</div></pre></td></tr></table></figure>
+<p>下一节<a href="/2016/09/28/implementing-a-custom-request">自定义Request</a>，将会介绍如何基于Gson自定义一个Json请求。</p>
+
+          
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+                <a class="post-title-link" href="/2016/09/27/setting-up-a-requestqueue/" itemprop="url">
+                  Volley官方教程翻译（三）：配置RequestQueue
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">Posted on</span>
+            <time itemprop="dateCreated" datetime="2016-09-27T23:00:05+08:00" content="2016-09-27">
+              2016-09-27
+            </time>
+          </span>
+
+          
+
+          
+            
+          
+
+          
+
+          
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <blockquote>
+<p>原文连接：<a href="https://developer.android.com/training/volley/requestqueue.html" target="_blank" rel="external">https://developer.android.com/training/volley/requestqueue.html</a><br>通过上节我们知道，使用<code>Volley.newRequestQueue</code>方法可以很方便的得到一个默认配置的<code>RequestQueue</code>。这节介绍如何一步步的配置一个满足用户需求的<code>RequestQueue</code>。</p>
+</blockquote>
+<p>此节中还推荐<code>RequestQueue</code>以单例的方式提供服务，这样整个App的生命周期内都可以使用Volley提供的网络请求服务了。</p>
+<h2 id="配置Network和Cache"><a href="#配置Network和Cache" class="headerlink" title="配置Network和Cache"></a>配置Network和Cache</h2><p><code>RequestQueue</code>在执行网络请求的时候主要以来两个东西：Network负责网络请求调用，Cache负责缓存处理。Network和Cache在Volley的toolbox中提供了两个标准实现：<code>DiskBasedCache</code>将每个响应作保存为一个文件，并在内存在提供索引。<code>BasicNetwork</code>基于优选的Http客户端负责请求用。</p>
+<p><code>BasicNetWork</code>是Volley的<code>NewWork</code>的默认实现。<code>BasicNetwork</code>初始的时候需要一个Http Client，通常是<code>HttpURLConnection</code>，通过这个Client真正连接网络。</p>
+<p>如下代码片段展示了如何一步步配置Requestqueue<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div></pre></td><td class="code"><pre><div class="line">RequestQueue mRequestQueue;</div><div class="line"></div><div class="line"><span class="comment">// 实例化Cache</span></div><div class="line">Cache cache = <span class="keyword">new</span> DiskBasedCache(getCacheDir(), <span class="number">1024</span> * <span class="number">1024</span>); <span class="comment">// 1MB 容量</span></div><div class="line"></div><div class="line"><span class="comment">// 使用HttpURLConnection作为Http Client实例化Network</span></div><div class="line">Network network = <span class="keyword">new</span> BasicNetwork(<span class="keyword">new</span> HurlStack());</div><div class="line"></div><div class="line"><span class="comment">// 使用上面的cache和network实例化Requestqueue</span></div><div class="line">mRequestQueue = <span class="keyword">new</span> RequestQueue(cache, network);</div><div class="line"></div><div class="line"><span class="comment">// 开启RequestQueue</span></div><div class="line">mRequestQueue.start();</div><div class="line"></div><div class="line">String url =<span class="string">"http://www.example.com"</span>;</div><div class="line"></div><div class="line"><span class="comment">// 构建Request并处理Response</span></div><div class="line">StringRequest stringRequest = <span class="keyword">new</span> StringRequest(Request.Method.GET, url,</div><div class="line">        <span class="keyword">new</span> Response.Listener&lt;String&gt;() &#123;</div><div class="line">    <span class="meta">@Override</span></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onResponse</span><span class="params">(String response)</span> </span>&#123;</div><div class="line">        <span class="comment">// 处理相应业务逻辑</span></div><div class="line">    &#125;</div><div class="line">&#125;,</div><div class="line">    <span class="keyword">new</span> Response.ErrorListener() &#123;</div><div class="line">        <span class="meta">@Override</span></div><div class="line">        <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onErrorResponse</span><span class="params">(VolleyError error)</span> </span>&#123;</div><div class="line">            <span class="comment">// 请求出错处理</span></div><div class="line">    &#125;</div><div class="line">&#125;);</div><div class="line"></div><div class="line"><span class="comment">// 将Request添加到RequestQueue中</span></div><div class="line">mRequestQueue.add(stringRequest);</div><div class="line"></div><div class="line"><span class="comment">// ...</span></div></pre></td></tr></table></figure></p>
+<p>如果你只想用Volley来完成一个一次性的请求，而且在请求完成后不想丢下Volley中的线程池不管，那么你可以在需要调用网络请求的任何地方创建一个<code>RequestQueue</code>，然后在收到请求响应或者收到错误的时候调用<code>stop</code>方法来停止<code>RequestQueue</code>。不过在具体的使用场景中，在整个App的生命周期内，我们随时都有可能调用网络请求，所以推荐<code>RequestQueue</code>使用单例的形式提供服务。下面详细介绍一下。</p>
+<h2 id="使用单例模式"><a href="#使用单例模式" class="headerlink" title="使用单例模式"></a>使用单例模式</h2><p>如果你的App要经常使用网络的话，那么让<code>RequestQueue</code>与你的App生命周期一样是最高效的解决办法。实现的方法多种多样，我们推荐实现一个单例类来封装<code>RequestQueue</code>以及Volley的其它功能。另外一个方法是，实现一个Application的子类，然后在<code>Application.onCreate()</code>方法中配置<code>RequestQueue</code>。第二种方法不推荐使用，因为这两中方法实现的功能一样，不过单例模式更能体现模块化的思想。</p>
+<p>请注意，在实例化<code>RequestQueue</code>的时候，使用ApplicationContext，不要使用Activity的Context。因为ApplicationContext的生命周期是整个App的生命周期。</p>
+<p>如下是提供了<code>RequestQueue</code>和<code>ImageLoad</code>功能的一个单例实现例子。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">MySingleton</span> </span>&#123;</div><div class="line">    <span class="keyword">private</span> <span class="keyword">static</span> MySingleton mInstance;</div><div class="line">    <span class="keyword">private</span> RequestQueue mRequestQueue;</div><div class="line">    <span class="keyword">private</span> ImageLoader mImageLoader;</div><div class="line">    <span class="keyword">private</span> <span class="keyword">static</span> Context mCtx;</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">private</span> <span class="title">MySingleton</span><span class="params">(Context context)</span> </span>&#123;</div><div class="line">        mCtx = context;</div><div class="line">        mRequestQueue = getRequestQueue();</div><div class="line"></div><div class="line">        mImageLoader = <span class="keyword">new</span> ImageLoader(mRequestQueue,</div><div class="line">                <span class="keyword">new</span> ImageLoader.ImageCache() &#123;</div><div class="line">            <span class="keyword">private</span> <span class="keyword">final</span> LruCache&lt;String, Bitmap&gt;</div><div class="line">                    cache = <span class="keyword">new</span> LruCache&lt;String, Bitmap&gt;(<span class="number">20</span>);</div><div class="line"></div><div class="line">            <span class="meta">@Override</span></div><div class="line">            <span class="function"><span class="keyword">public</span> Bitmap <span class="title">getBitmap</span><span class="params">(String url)</span> </span>&#123;</div><div class="line">                <span class="keyword">return</span> cache.get(url);</div><div class="line">            &#125;</div><div class="line"></div><div class="line">            <span class="meta">@Override</span></div><div class="line">            <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">putBitmap</span><span class="params">(String url, Bitmap bitmap)</span> </span>&#123;</div><div class="line">                cache.put(url, bitmap);</div><div class="line">            &#125;</div><div class="line">        &#125;);</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">synchronized</span> MySingleton <span class="title">getInstance</span><span class="params">(Context context)</span> </span>&#123;</div><div class="line">        <span class="keyword">if</span> (mInstance == <span class="keyword">null</span>) &#123;</div><div class="line">            mInstance = <span class="keyword">new</span> MySingleton(context);</div><div class="line">        &#125;</div><div class="line">        <span class="keyword">return</span> mInstance;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">public</span> RequestQueue <span class="title">getRequestQueue</span><span class="params">()</span> </span>&#123;</div><div class="line">        <span class="keyword">if</span> (mRequestQueue == <span class="keyword">null</span>) &#123;</div><div class="line">            <span class="comment">// getApplicationContext() 这句代码是关键</span></div><div class="line">            <span class="comment">// 因为mCtx可能不是ApplicationContext，结果就很可能泄露这个mCtx</span></div><div class="line">            mRequestQueue = Volley.newRequestQueue(mCtx.getApplicationContext());</div><div class="line">        &#125;</div><div class="line">        <span class="keyword">return</span> mRequestQueue;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="keyword">public</span> &lt;T&gt; <span class="function"><span class="keyword">void</span> <span class="title">addToRequestQueue</span><span class="params">(Request&lt;T&gt; req)</span> </span>&#123;</div><div class="line">        getRequestQueue().add(req);</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">public</span> ImageLoader <span class="title">getImageLoader</span><span class="params">()</span> </span>&#123;</div><div class="line">        <span class="keyword">return</span> mImageLoader;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>如下是如何使用这个单例执行网络请求。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line"><span class="comment">// 获得RequestQueue</span></div><div class="line">RequestQueue queue = MySingleton.getInstance(<span class="keyword">this</span>.getApplicationContext()).</div><div class="line">    getRequestQueue();</div><div class="line"></div><div class="line"><span class="comment">// ...</span></div><div class="line"></div><div class="line"><span class="comment">// 往RequestQueue中添加一个Request</span></div><div class="line">MySingleton.getInstance(<span class="keyword">this</span>).addToRequestQueue(stringRequest);</div></pre></td></tr></table></figure>
+
+          
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+                <a class="post-title-link" href="/2016/09/27/sending-a-simple-request/" itemprop="url">
+                  Volley官方教程翻译（二）：执行一个简单的请求
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">Posted on</span>
+            <time itemprop="dateCreated" datetime="2016-09-27T22:24:51+08:00" content="2016-09-27">
+              2016-09-27
+            </time>
+          </span>
+
+          
+
+          
+            
+          
+
+          
+
+          
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <blockquote>
+<p>原文连接：<a href="https://developer.android.com/training/volley/index.html" target="_blank" rel="external">https://developer.android.com/training/volley/index.html</a></p>
+</blockquote>
+<p>Volley框架的使用特别简单，只需要创建一个<code>RequestQueue</code>，然后将<code>Request</code>对象交给他就行了。<code>RequestQueue</code>维护了一组工作线程，这些工作线程的职责包括：执行网络请求、从缓存中读数据、往缓存中写数据、解析响应。<code>Request</code>对象会对其响应进行解析处理，然后Volley将解析过的响应转移到主线程处理。</p>
+<p>通过<code>Volley.newRequestQueue</code>，可以方便的得到一个默认配置的<code>RequestQueue</code>，这节课将使用这个默认配置的<code>RequestQueue</code>发送一个<code>Request</code>。如果想了解如何自定义一个<code>RequestQueue</code>请见下节：<a href="#配置RequestQueue">配置RequestQueue</a>。</p>
+<p>这节主要介绍如何将一个<code>Request</code>添加到<code>RequestQueue</code>，以及如何取消一个<code>Request</code></p>
+<h2 id="添加网络权限"><a href="#添加网络权限" class="headerlink" title="添加网络权限"></a>添加网络权限</h2><p>要使用Volley，我们必须在我们App的manifest文件中添加<code>android.permission.INTERNET</code>权限。不添加的话，我们的App就无法访问网络。</p>
+<h2 id="使用newRequestQueue方法"><a href="#使用newRequestQueue方法" class="headerlink" title="使用newRequestQueue方法"></a>使用newRequestQueue方法</h2><p>Volley提供了一个便捷的方法<code>Volley.newRequestQueue</code>，通过这个方法，我们可以快速的获得一个默认配置的<code>RequestQueue</code>，并将其开启。<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">final</span> TextView mTextView = (TextView) findViewById(R.id.text);</div><div class="line">...</div><div class="line"></div><div class="line"><span class="comment">// 实例化一个RequestQueue</span></div><div class="line">RequestQueue queue = Volley.newRequestQueue(<span class="keyword">this</span>);</div><div class="line">String url =<span class="string">"http://www.baidu.com"</span>;</div><div class="line"></div><div class="line"><span class="comment">// 请求制定URL的字符串响应</span></div><div class="line">StringRequest stringRequest = <span class="keyword">new</span> StringRequest(Request.Method.GET, url,</div><div class="line">            <span class="keyword">new</span> Response.Listener&lt;String&gt;() &#123;</div><div class="line">    <span class="meta">@Override</span></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onResponse</span><span class="params">(String response)</span> </span>&#123;</div><div class="line">        <span class="comment">// 展示响应字符串的前五百个字符</span></div><div class="line">        mTextView.setText(<span class="string">"Response is: "</span>+ response.substring(<span class="number">0</span>,<span class="number">500</span>));</div><div class="line">    &#125;</div><div class="line">&#125;, <span class="keyword">new</span> Response.ErrorListener() &#123;</div><div class="line">    <span class="meta">@Override</span></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onErrorResponse</span><span class="params">(VolleyError error)</span> </span>&#123;</div><div class="line">        mTextView.setText(<span class="string">"That didn't work!"</span>);</div><div class="line">    &#125;</div><div class="line">&#125;);</div><div class="line"><span class="comment">// 将Request添加到RequestQueue</span></div><div class="line">queue.add(stringRequest);</div></pre></td></tr></table></figure></p>
+<p>响应解析之后，Volley会将其转送到主线程。运行在主线程的好处就是我们可以很方便的使用得到的数据来填充UI控件，可以直接在请求的回调监听中进行UI操作。这一机能的实现对于存在其他重要功能尤其是取消功能的Volley来说是尤其苛刻的。</p>
+<p>如果你不想使用<code>Volley.newRequestQueue</code>这个便捷的方法获取<code>RequestQueue</code>，请详见<a href="#配置RequestQueue">配置RequestQueue</a>小节了解如何自定义<code>RequestQueue</code>，使其与你的项目更完美的结合。</p>
+<h2 id="发送一个Request"><a href="#发送一个Request" class="headerlink" title="发送一个Request"></a>发送一个Request</h2><p>想要发送执行一个<code>Request</code>，只需要像如上代码一样，构建一个<code>Request</code>对象，然后通过<code>add()</code>方法添加到<code>RequestQueue</code>中就可以了。<code>Request</code>被添加之后，接下来就等待被执行、解析原始响应数据并将结果转送到主线程执行。</p>
+<p>Volley内部维护者一个缓存处理线程和一组网络调度线程。当一个<code>Request</code>被添加之后，它首先被缓存线程处理。如果缓存命中，则直接在缓存线程中对缓存的响应解析处理，然后转送到主线程。如果缓存线程不能处理，<code>Request</code>将被添加到网络请求的<code>Queue</code>中，由一个网络调度线程负责执行一次HTTP请求，解析响应数据，转送到主线程。</p>
+<p>值得注意的一点是，重量级的操作，比如阻塞I/O、响应解码处理都是在工作线程上执行的。你可以在任意线程上添加<code>Request</code>，但响应总会被转送到主线程。</p>
+<p><img src="/2016/09/27/sending-a-simple-request/volley-request.png" alt="Request的一生" title="Request的一生"></p>
+<h2 id="取消请求"><a href="#取消请求" class="headerlink" title="取消请求"></a>取消请求</h2><p>通过调用<code>Request</code>对象的<code>cancel()</code>方法，可以取消这一个<code>Request</code>。一旦一个<code>Request</code>被取消，那么它的响应监听将永远不会被调用。这就意味着，你可以在<code>Activity</code>的<code>onStop()</code>方法中取消所有还没有执行完的<code>Request</code>。这样的话，我们就不需要在<code>Request</code>的响应回调中判断是否<code>getActivity() == null</code>或者<code>onSaveInstanceState()</code>有没有已经被调用这些预防性的判断了，因为被取消后根本就不存在这种case了。</p>
+<p>为了能够充分利用这一特点，我们需要追踪所有的<code>Request</code>以在适当的时机取消它们。Volley提供了一个很好的解决方案：将每一个Request与一个TAG对象关联起来，这样就可以根据TAG取消指定的一部分Request了。比如，你可以使用Activity对象作为所有Request的TAG，然后在<code>onStop</code>方法中执行<code>requestQueue.cancelAll(this)</code>。同样，在使用ViewPager的时候，将一个Tab中的所有Request打上该Tab的TAG，然后在切换Tab的时候取消上一个Tab的所有Request。</p>
+<p>如下是一个使用字符串作为TAG的例子</p>
+<ol>
+<li><p>定义TAG并添加到<code>Request</code>中</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> String TAG = <span class="string">"MyTag"</span>;</div><div class="line">StringRequest stringRequest; <span class="comment">// 假定已经存在</span></div><div class="line">RequestQueue mRequestQueue;  <span class="comment">// 假定已经存在</span></div><div class="line"></div><div class="line"><span class="comment">// 添加TAG到Request中</span></div><div class="line">stringRequest.setTag(TAG);</div><div class="line"></div><div class="line"><span class="comment">// 将Request添加到RequestQueue</span></div><div class="line">mRequestQueue.add(stringRequest);</div></pre></td></tr></table></figure>
+</li>
+<li><p>在Activity的<code>onStop()</code>方法中，取消拥有此TAG的所有<code>Request</code></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line"><span class="meta">@Override</span></div><div class="line"><span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">onStop</span> <span class="params">()</span> </span>&#123;</div><div class="line">    <span class="keyword">super</span>.onStop();</div><div class="line">    <span class="keyword">if</span> (mRequestQueue != <span class="keyword">null</span>) &#123;</div><div class="line">        mRequestQueue.cancelAll(TAG);</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+</li>
+</ol>
+<p>如果你的响应回调中包含譬如开启一个新的逻辑操作等业务逻辑的时候，在取消这个<code>Request</code>需要特别注意。</p>
+
+          
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+                <a class="post-title-link" href="/2016/09/27/transmitting-network-data-using-volley/" itemprop="url">
+                  Volley官方教程翻译（一）：使用Volley来完成网络数据请求
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">Posted on</span>
+            <time itemprop="dateCreated" datetime="2016-09-27T22:20:50+08:00" content="2016-09-27">
+              2016-09-27
+            </time>
+          </span>
+
+          
+
+          
+            
+          
+
+          
+
+          
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <blockquote>
+<p>原文连接：<a href="https://developer.android.com/training/volley/index.html" target="_blank" rel="external">https://developer.android.com/training/volley/index.html</a></p>
+</blockquote>
+<p>Volley是一个HTTP库，它使得Android应用程序的网络访问变得更加方便、快速。你可以通过<a href="https://android.googlesource.com/platform/frameworks/volley" target="_blank" rel="external">AOSP</a>(Android Open Source Project)获取其源码。<br>Volley包含在Android源码之中，具体路径为：android源码/frameworks/volley</p>
+<p>Volley有以下优点：</p>
+<ul>
+<li>自动调度网络请求</li>
+<li>多并发网络连接</li>
+<li>具有标准缓存一致性的，透明的，内存、硬盘响应缓存</li>
+<li>支持请求优先级</li>
+<li>取消请求接口。你可以单独取消一个请求，你也可以通过划定范围取消多个请求</li>
+<li>方便定制。比如说：重试和退避请求</li>
+<li>强大的排序功能，使得你能够很容易的使用从网络异步获取的数据填充你的UI</li>
+<li>调试与追踪工具</li>
+</ul>
+<p>Volley尤其擅长用来填充UI的RPC调用操作，比如获取一组结构化的搜索结果。它很容易与其他协议集成，而且已经实现了常用的、原始的String，Image与Json协议请求。Volley提供了许多在日常开发中所需要的网络层的功能，避免我们去重复造轮子，专注于业务逻辑代码的实现。</p>
+<p>Volley不是用于大文件下载或者数据流的操作，因为在处理响应的时候，Volley把整个响应都保存在内存中。如果要操作大文件，请考虑使用DownloadManager。</p>
+<p>Volley库源码位于AOSP仓库的frameworks/volley目录下，它的核心内容包括请求调度的流水线以及“toolbox”目录内的一些常用工具类的实现。将Volley应用与你的项目的最简单的方法就是克隆Volley仓库，然后将其设置为类库项目。</p>
+<ol>
+<li>执行如下指令，将Volley项目克隆到本地。当然需要梯子了，没梯子的请自行百度下载。<br><code>git clone https://android.googlesource.com/platform/frameworks/volley</code></li>
+<li>将下载的源码作为类库项目导入到你的项目中，具体做法<a href="https://developer.android.com/studio/projects/android-library.html" target="_blank" rel="external">传送门</a>。</li>
+</ol>
+
+          
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+                <a class="post-title-link" href="/2016/08/24/ThreadLocal/" itemprop="url">
+                  ThreadLocal的实现
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">Posted on</span>
+            <time itemprop="dateCreated" datetime="2016-08-24T20:11:50+08:00" content="2016-08-24">
+              2016-08-24
+            </time>
+          </span>
+
+          
+
+          
+            
+          
+
+          
+
+          
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h1 id="1-ThreadLocal的使用"><a href="#1-ThreadLocal的使用" class="headerlink" title="1. ThreadLocal的使用"></a>1. ThreadLocal的使用</h1><p>ThreadLocal类可以让你创建的变量只被同一个线程进行读和写操作。因此，尽管有两个线程同时执行一段相同的代码，而且这段代码又有一个指向同一个ThreadLocal变量的引用，但是这两个线程依然不能看到彼此的ThreadLocal变量域。<br>ThreadLocal的使用方法也特别简单：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">ThreadLocal&lt;String&gt; strThreadLocal = <span class="keyword">new</span> ThreadLocal&lt;String&gt;(); <span class="comment">// 声明ThreadLocal对象</span></div><div class="line">strThreadLocal.set(<span class="string">"My thread id is:"</span> + Thread.currentThread().getId() ); <span class="comment">// 存储</span></div><div class="line">String str = strThreadLocal.get(); <span class="comment">// 获取</span></div></pre></td></tr></table></figure>
+<p>通过ThreadLocal<t>可以很方便的让线程拥有自己的”私有对象”。下面来看看它是怎么为线程创造出来的这个”私有对象”。整个实现主要涉及到Thread，ThreadLocalMap以及ThreadLcal, 他们的具体分工如下：</t></p>
+<p>Thread：”私有对象”，即泛型对象T实际存储位置。<br>ThreadLocalMap：程序中可以有多个ThreadLocal<t>对象，这就意味着，Thread对象中要存储多个对象T，ThreadLocalMap就是对象T在Thread中存储的数据结构<br>ThreadLocal：线程中获取”私有对象”的中介。</t></p>
+<h1 id="2-ThreadLocal"><a href="#2-ThreadLocal" class="headerlink" title="2. ThreadLocal"></a>2. ThreadLocal</h1><h2 id="2-1-set-get-的实现"><a href="#2-1-set-get-的实现" class="headerlink" title="2.1 set() get()的实现"></a>2.1 set() get()的实现</h2><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">set</span><span class="params">(T value)</span> </span>&#123;</div><div class="line">    Thread t = Thread.currentThread(); <span class="comment">// 获取当前线程</span></div><div class="line">    ThreadLocalMap map = getMap(t); <span class="comment">// 拿到当前线程中的ThreadLocalMap对象</span></div><div class="line">    <span class="keyword">if</span> (map != <span class="keyword">null</span>)</div><div class="line">        map.set(<span class="keyword">this</span>, value); <span class="comment">// 如果ThreadLocalMap已经存在，则以该ThreadLocal对象为Key存储。</span></div><div class="line">    <span class="keyword">else</span></div><div class="line">        createMap(t, value); <span class="comment">// 如果ThreadLocalMap还未创建，创建并存储</span></div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">public</span> T <span class="title">get</span><span class="params">()</span> </span>&#123;</div><div class="line">    Thread t = Thread.currentThread();</div><div class="line">    ThreadLocalMap map = getMap(t);</div><div class="line">    <span class="keyword">if</span> (map != <span class="keyword">null</span>) &#123;</div><div class="line">        ThreadLocalMap.Entry e = map.getEntry(<span class="keyword">this</span>); <span class="comment">// 获取Map的Entry</span></div><div class="line">        <span class="keyword">if</span> (e != <span class="keyword">null</span>)</div><div class="line">            <span class="keyword">return</span> (T)e.value; <span class="comment">// 获取存储的对象</span></div><div class="line">    &#125;</div><div class="line">    <span class="keyword">return</span> setInitialValue(); <span class="comment">// 返回默认值。通过复写initialValue方法设置默认值。</span></div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>可以看出set get方法就是往ThreadLocalMap存与取。</p>
+<h1 id="3-ThreadLocalMap"><a href="#3-ThreadLocalMap" class="headerlink" title="3. ThreadLocalMap"></a>3. ThreadLocalMap</h1><p>ThreadLocalMap可以说是一个自定义的HashMap。那么为什么不直接用HashMap作为存储结构呢？因为会出现内存泄露。<br>因为对象的存储位置是Thread这个对象中，一旦对象使用的生命周期小于Thread的生命周期就会导致，对象无法被GC回收，内存泄露。</p>
+<h2 id="使用弱引用作为Map的Entry"><a href="#使用弱引用作为Map的Entry" class="headerlink" title="使用弱引用作为Map的Entry"></a>使用弱引用作为Map的Entry</h2><p>为了防止内存泄露，Entry采用了很巧妙的一种办法，让Entry实现为ThreadLocal的弱引用，已ThreadLocal对象为Key，内部包裹一个Value对象。<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">static</span> <span class="class"><span class="keyword">class</span> <span class="title">Entry</span> <span class="keyword">extends</span> <span class="title">WeakReference</span>&lt;<span class="title">ThreadLocal</span>&gt; </span>&#123;</div><div class="line">    <span class="comment">/** The value associated with this ThreadLocal. */</span></div><div class="line">    Object value;</div><div class="line"></div><div class="line">    Entry(ThreadLocal k, Object v) &#123;</div><div class="line">        <span class="keyword">super</span>(k);</div><div class="line">        value = v;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>这样当除了ThreadLocalMap以外如果没有其他引用到ThreadLocal对象的话，那么在GC发生的时候，弱引用Entry所指向的ThreadLocal对象就会被回收。<br>而且以Entry.get()得到ThreadLocal对象作为Key， Entry.value作为当前线程，对应该key的ThreadLocal的线程“私有对象”。</p>
+<h2 id="3-1-hashcode的计算"><a href="#3-1-hashcode的计算" class="headerlink" title="3.1 hashcode的计算"></a>3.1 hashcode的计算</h2><p>hash算法的宗旨就是尽量的将较多的key均匀分布在有限的槽中。在ThreadLocalMap中的key是ThreadLocal，自然hashcode的计算就落到的ThreadLocal身上。<br>结合考虑ThreadLocal使用的常见场景，ThreadLocal对象都会被连续的添加到每个线程的ThreadLocalMap中，所以设计者采用了一种“自增”的实现方法。自增的起始值是0x61c88647。也就是说第一个被new出来的ThreadLocal对象的hashcode为0x61c88647，第二被new出来的ThreadLocal对象的hashcode就是0x61c88648，以此类推。而且这种实现方法在那些并不常见的场景中效果也是很好的。</p>
+<h2 id="3-2-一维存储结构"><a href="#3-2-一维存储结构" class="headerlink" title="3.2 一维存储结构"></a>3.2 一维存储结构</h2><p>注意到Entry的实现与HashMap中不同，没有Entry.next，所以其无法实现HashMap的那种二维存储，只能是一维存储结构。<br>那么在发生hash冲突的时候，解决办法也就是简单的后移。贴上ThreadLocalMap 的set 与 get 方法</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">set</span><span class="params">(ThreadLocal key, Object value)</span> </span>&#123;</div><div class="line"></div><div class="line">    <span class="comment">// We don't use a fast path as with get() because it is at</span></div><div class="line">    <span class="comment">// least as common to use set() to create new entries as</span></div><div class="line">    <span class="comment">// it is to replace existing ones, in which case, a fast</span></div><div class="line">    <span class="comment">// path would fail more often than not.</span></div><div class="line"></div><div class="line">    Entry[] tab = table;</div><div class="line">    <span class="keyword">int</span> len = tab.length;</div><div class="line">    <span class="keyword">int</span> i = key.threadLocalHashCode &amp; (len-<span class="number">1</span>); <span class="comment">// hashcode 与 数组长度结合初步计算出存储位置</span></div><div class="line"></div><div class="line">    <span class="keyword">for</span> (Entry e = tab[i];</div><div class="line">         e != <span class="keyword">null</span>;</div><div class="line">         e = tab[i = nextIndex(i, len)]) &#123; <span class="comment">// 查看该位置是否已经存储了Entry</span></div><div class="line">        ThreadLocal k = e.get();</div><div class="line"></div><div class="line">        <span class="keyword">if</span> (k == key) &#123; <span class="comment">// 如果该位置存放的key value与要设的一直，直接return</span></div><div class="line">            e.value = value;</div><div class="line">            <span class="keyword">return</span>;</div><div class="line">        &#125;</div><div class="line"></div><div class="line">        <span class="keyword">if</span> (k == <span class="keyword">null</span>) &#123; <span class="comment">// 如果该位置存放的ThreadLocal已经被回收，替换它</span></div><div class="line">            replaceStaleEntry(key, value, i);</div><div class="line">            <span class="keyword">return</span>;</div><div class="line">        &#125;</div><div class="line">                             <span class="comment">// 不是以上情况，就查看下一个位置是否能够存储 </span></div><div class="line">    &#125;</div><div class="line"></div><div class="line">    tab[i] = <span class="keyword">new</span> Entry(key, value); <span class="comment">// 找到合适位置存储</span></div><div class="line">    <span class="keyword">int</span> sz = ++size;</div><div class="line">    <span class="keyword">if</span> (!cleanSomeSlots(i, sz) &amp;&amp; sz &gt;= threshold) <span class="comment">// 是否要扩充</span></div><div class="line">        rehash();</div><div class="line">&#125;</div><div class="line"></div><div class="line"></div><div class="line"><span class="function"><span class="keyword">private</span> Entry <span class="title">getEntry</span><span class="params">(ThreadLocal key)</span> </span>&#123;</div><div class="line">    <span class="keyword">int</span> i = key.threadLocalHashCode &amp; (table.length - <span class="number">1</span>);</div><div class="line">    Entry e = table[i];</div><div class="line">    <span class="keyword">if</span> (e != <span class="keyword">null</span> &amp;&amp; e.get() == key) <span class="comment">//当前Entry不为空， 且key相等说明命中</span></div><div class="line">        <span class="keyword">return</span> e;</div><div class="line">    <span class="keyword">else</span></div><div class="line">        <span class="keyword">return</span> getEntryAfterMiss(key, i, e); <span class="comment">//没有命中继续再找</span></div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">private</span> Entry <span class="title">getEntryAfterMiss</span><span class="params">(ThreadLocal key, <span class="keyword">int</span> i, Entry e)</span> </span>&#123;</div><div class="line">    Entry[] tab = table;</div><div class="line">    <span class="keyword">int</span> len = tab.length;</div><div class="line"></div><div class="line">    <span class="keyword">while</span> (e != <span class="keyword">null</span>) &#123;</div><div class="line">        ThreadLocal k = e.get();</div><div class="line">        <span class="keyword">if</span> (k == key) <span class="comment">// 命中返回</span></div><div class="line">            <span class="keyword">return</span> e;</div><div class="line">        <span class="keyword">if</span> (k == <span class="keyword">null</span>) <span class="comment">// ThreadLocal已经被回收，将当前Slot消去</span></div><div class="line">            expungeStaleEntry(i);</div><div class="line">        <span class="keyword">else</span></div><div class="line">            i = nextIndex(i, len); <span class="comment">// 没有命中，挪到下一个</span></div><div class="line">        e = tab[i];</div><div class="line">    &#125;</div><div class="line">    <span class="keyword">return</span> <span class="keyword">null</span>;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<h1 id="4-Thread"><a href="#4-Thread" class="headerlink" title="4. Thread"></a>4. Thread</h1><p>Thread是ThreadLocalMap的载体，结合其实际作用，不难想象。也没有太多好说的。</p>
+
+          
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+                <a class="post-title-link" href="/2016/08/24/Handler-Looper-MessageQueue/" itemprop="url">
+                  Android的消息机制
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">Posted on</span>
+            <time itemprop="dateCreated" datetime="2016-08-24T19:50:00+08:00" content="2016-08-24">
+              2016-08-24
+            </time>
+          </span>
+
+          
+
+          
+            
+          
+
+          
+
+          
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p>Android消息机制主要涉及三个类Looper、MessageQueue和Handler，另外还需要有ThreadLocal的知识基础。<br>首先介绍一下三个类的作用：</p>
+<p>MessageQueue：消息队列，用于存储待执行的消息Message。<br>Looper：消息循环者，负责从MessageQueue中取出消息，交给响应的Handler执行。<br>Handler:发送消息到MessageQueue，执行Looper从MessageQueue中取出的消息。</p>
+<h1 id="消息机制初始化"><a href="#消息机制初始化" class="headerlink" title="消息机制初始化"></a>消息机制初始化</h1><p>在一个线程中怎样才能够使用消息机制呢？只需要在线程中之下下面两行代码：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">Looper.perpare();</div><div class="line">Looper.loop();</div></pre></td></tr></table></figure>
+<p>简单的两个代码到底做了什么事情，就让一个线程可以使用消息机制了呢？看一下源码分析一下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">prepare</span><span class="params">(<span class="keyword">boolean</span> quitAllowed)</span> </span>&#123;</div><div class="line">    <span class="keyword">if</span> (sThreadLocal.get() != <span class="keyword">null</span>) &#123;</div><div class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> RuntimeException(<span class="string">"Only one Looper may be created per thread"</span>);</div><div class="line">    &#125;</div><div class="line">    sThreadLocal.set(<span class="keyword">new</span> Looper(quitAllowed));</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>首先看ThreadLocal中是不是已经有一个Looper对象了，如果有就说明该线程已经初始化过消息机制了。<br>如果没有Looper对象就新建一个放到ThreadLocal中。来看一下Looper的构造方法</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">private</span> <span class="title">Looper</span><span class="params">(<span class="keyword">boolean</span> quitAllowed)</span> </span>&#123;</div><div class="line">    mQueue = <span class="keyword">new</span> MessageQueue(quitAllowed);</div><div class="line">    mRun = <span class="keyword">true</span>;</div><div class="line">    mThread = Thread.currentThread();</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>构造方法中新建一个MessageQueue，把mRun标志为true，mThread指向当前线程。<br>Looper.loop()方法也是特别简单，死循环的取消息队列里的消息来执行。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">loop</span><span class="params">()</span> </span>&#123;</div><div class="line">    <span class="keyword">final</span> Looper me = myLooper();</div><div class="line">    <span class="keyword">final</span> MessageQueue queue = me.mQueue;</div><div class="line">    <span class="keyword">for</span> (;;) &#123;</div><div class="line">        Message msg = queue.next(); <span class="comment">// 如果消息队列为空，就会阻塞</span></div><div class="line">        msg.target.dispatchMessage(msg);</div><div class="line">        msg.recycle();</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<h1 id="消息的发送与执行"><a href="#消息的发送与执行" class="headerlink" title="消息的发送与执行"></a>消息的发送与执行</h1><h2 id="发送消息"><a href="#发送消息" class="headerlink" title="发送消息"></a>发送消息</h2><p>消息具体分为what消息与runable消息。<br>what消息发送方法Handler.sendXXX()， runable消息发送方法Handler.postXXX()。<br>Handler提供了这么多发送消息的调用方法其实只是为了开发者在不同情景下方便调用，其实他们最终都是通过Handler.sendMessageAtTime(Message msg, long uptimeMillis)实现的。<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">sendMessageAtTime</span><span class="params">(Message msg, <span class="keyword">long</span> uptimeMillis)</span> </span>&#123;</div><div class="line">    MessageQueue queue = mQueue;</div><div class="line">    <span class="keyword">if</span> (queue == <span class="keyword">null</span>) &#123;</div><div class="line">        RuntimeException e = <span class="keyword">new</span> RuntimeException(</div><div class="line">                <span class="keyword">this</span> + <span class="string">" sendMessageAtTime() called with no mQueue"</span>);</div><div class="line">        Log.w(<span class="string">"Looper"</span>, e.getMessage(), e);</div><div class="line">        <span class="keyword">return</span> <span class="keyword">false</span>;</div><div class="line">    &#125;</div><div class="line">    <span class="keyword">return</span> enqueueMessage(queue, msg, uptimeMillis);</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">boolean</span> <span class="title">enqueueMessage</span><span class="params">(MessageQueue queue, Message msg, <span class="keyword">long</span> uptimeMillis)</span> </span>&#123;</div><div class="line">    msg.target = <span class="keyword">this</span>; <span class="comment">// 将handler应用交给msg</span></div><div class="line">    <span class="keyword">if</span> (mAsynchronous) &#123;</div><div class="line">        msg.setAsynchronous(<span class="keyword">true</span>);</div><div class="line">    &#125;</div><div class="line">    <span class="keyword">return</span> queue.enqueueMessage(msg, uptimeMillis); <span class="comment">// 将msg添加到消息队列</span></div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>至此，消息发送完成，就是这么简单。<br>需要注意的一点是在将Message添加到MessageQueue之间，Handler将自己的引用交给了Message<code>msg.target = this</code>，这是为了下面执行消息的时候使用。</p>
+<h2 id="执行消息"><a href="#执行消息" class="headerlink" title="执行消息"></a>执行消息</h2><p>消息的执行的第一步就是从消息队列里将消息取出，这件事起是在上面的Looper.loop()中执行的。<br>看上面代码，消息取出来之后调用了这一句，<code>msg.target.dispatchMessage(msg)</code>，细看一下dispatchMessage这个方法也特别简单。<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">dispatchMessage</span><span class="params">(Message msg)</span> </span>&#123;</div><div class="line">    <span class="keyword">if</span> (msg.callback != <span class="keyword">null</span>) &#123; <span class="comment">// callback不为空，说明是runable消息，通过handleCallback方法执行</span></div><div class="line">        handleCallback(msg);    <span class="comment">// 执行 msg.callback.run()</span></div><div class="line">    &#125; <span class="keyword">else</span> &#123;					<span class="comment">// 否则为what消息</span></div><div class="line">        <span class="keyword">if</span> (mCallback != <span class="keyword">null</span>) &#123; <span class="comment">// 如果有mCallback，则由其处理</span></div><div class="line">            <span class="keyword">if</span> (mCallback.handleMessage(msg)) &#123;</div><div class="line">                <span class="keyword">return</span>;</div><div class="line">            &#125;</div><div class="line">        &#125;</div><div class="line">        handleMessage(msg); <span class="comment">// 如果没有mCallback，handleMessage方法处理</span></div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>消息的执行也不复杂<br>如果是runable消息，直接调用run方法<br>如果是what消息有两种方法可以处理：1，指定Callback创建Handler 2，重写handleMessage方法<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div></pre></td><td class="code"><pre><div class="line">Handler.Callback callback = <span class="keyword">new</span> Handler.Callback()&#123;</div><div class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">handleMessage</span><span class="params">(Message msg)</span></span>&#123;</div><div class="line">		<span class="keyword">switch</span>(msg.what)&#123;</div><div class="line">		<span class="keyword">case</span> X:</div><div class="line">			dosomething...</div><div class="line">			<span class="keyword">break</span>;</div><div class="line">		<span class="keyword">default</span>:</div><div class="line">			<span class="keyword">break</span>;</div><div class="line">		&#125;</div><div class="line">		<span class="keyword">return</span> <span class="keyword">true</span>; <span class="comment">// 返回true消费message， Handler自身的handleMessage不会被执行</span></div><div class="line">		<span class="comment">//return false; //返回false不消费message，Handler自身的handleMessage会被执行</span></div><div class="line">	&#125;</div><div class="line">&#125;</div><div class="line">Handler handler = <span class="keyword">new</span> Handler(callback, ...);</div></pre></td></tr></table></figure></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div></pre></td><td class="code"><pre><div class="line">Handler handler = <span class="keyword">new</span> Handler()&#123;</div><div class="line">	<span class="meta">@override</span></div><div class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">handleMessage</span><span class="params">(Message msg)</span></span>&#123;</div><div class="line">		<span class="keyword">switch</span>(msg.what)&#123;</div><div class="line">		<span class="keyword">case</span> X:</div><div class="line">			dosomething...</div><div class="line">			<span class="keyword">break</span>;</div><div class="line">		<span class="keyword">default</span>:</div><div class="line">			<span class="keyword">break</span>;</div><div class="line">		&#125;</div><div class="line">	&#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<h2 id="Tips"><a href="#Tips" class="headerlink" title="Tips"></a>Tips</h2><ol>
+<li>在一个具有消息机制的线程中，Looper和MessageQueue是唯一的，Handler可以有多个，可以被同一进程下的任意线程调用（线程间通信），这些Handler都是往同一个MessageQueue里存取消息，也统一由Looper取出消息，依次交回Looper所在线程处理。</li>
+<li>每个Handler都对应唯一的Looper，消息都是发送到这个Looper内的MessageQueue</li>
+<li>new Handler() 以当前线程中的Looper创建Handler</li>
+<li>new Handler(Looper looper) 指定Looper创建Handler</li>
+</ol>
+<h1 id="Message的回收与重用"><a href="#Message的回收与重用" class="headerlink" title="Message的回收与重用"></a>Message的回收与重用</h1><p>Android应用层完全就运行于这套消息机制中，整个机制源源不断的流通着Message。如果说每次需要Message的时候都通过构造方法创建一个，用完之后再由GC回收掉，这也太浪费。Message设计了一套回收重用机制。<br>提到重用肯定就想到了池这个概念，一般池的实现都是通过静态集合实现的，而Message的这套池结构也采用的一种栈式池结构。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line"><span class="class"><span class="keyword">class</span> <span class="title">Message</span></span>&#123;</div><div class="line">	Message next; <span class="comment">// 指向一下个可重用msg</span></div><div class="line"></div><div class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> Object sPoolSync = <span class="keyword">new</span> Object(); <span class="comment">//池操作对象锁</span></div><div class="line">    <span class="keyword">private</span> <span class="keyword">static</span> Message sPool; <span class="comment">// 池变量，指向栈式池的头</span></div><div class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">int</span> sPoolSize = <span class="number">0</span>; <span class="comment">// 当前池的大小</span></div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">recycle</span><span class="params">()</span></span>; <span class="comment">//msg使用完之后，清空msg信息，入池</span></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">obtain</span><span class="params">()</span></span>; <span class="comment">//从池中提取一个msg</span></div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>recycle的实现：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">recycle</span><span class="params">()</span> </span>&#123;</div><div class="line">    clearForRecycle(); <span class="comment">// 清空msg信息</span></div><div class="line"></div><div class="line">    <span class="keyword">synchronized</span> (sPoolSync) &#123;</div><div class="line">        <span class="keyword">if</span> (sPoolSize &lt; MAX_POOL_SIZE) &#123; <span class="comment">// 如果栈池不满，入栈</span></div><div class="line">            next = sPool;</div><div class="line">            sPool = <span class="keyword">this</span>;</div><div class="line">            sPoolSize++;</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>obtain的实现：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> Message <span class="title">obtain</span><span class="params">()</span> </span>&#123;</div><div class="line">    <span class="keyword">synchronized</span> (sPoolSync) &#123;</div><div class="line">        <span class="keyword">if</span> (sPool != <span class="keyword">null</span>) &#123; <span class="comment">// 如果栈池不空，出栈</span></div><div class="line">            Message m = sPool;</div><div class="line">            sPool = m.next;</div><div class="line">            m.next = <span class="keyword">null</span>;</div><div class="line">            sPoolSize--;</div><div class="line">            <span class="keyword">return</span> m;</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line">    <span class="keyword">return</span> <span class="keyword">new</span> Message(); <span class="comment">// 栈池空，new一个</span></div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>池为空的情况下连续回收msg1，msg2<br><img src="pic01.jpg" alt=""></p>
+<p>连续obtain两个Message<br><img src="pic02.jpg" alt=""></p>
+
+          
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+                <a class="post-title-link" href="/2015/01/16/java-io-fileoutputstream/" itemprop="url">
+                  16 - Java IO FileOutputStream
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">Posted on</span>
+            <time itemprop="dateCreated" datetime="2015-01-16T17:36:55+08:00" content="2015-01-16">
+              2015-01-16
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/java-io/" itemprop="url" rel="index">
+                    <span itemprop="name">java io</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <blockquote>
+<p><a href="http://tutorials.jenkov.com/java-io/fileoutputstream.html" target="_blank" rel="external">原文链接</a> 作者: Jakob Jenkov 译者: 李璟(jlee381344197@gmail.com)</p>
+</blockquote>
+<p>FileOutputStream可以往文件里写入字节流，它是OutputStream的子类，所以你可以像使用OutputStream那样使用FileOutputStream。</p>
+<p>这是一个FileOutputStream的例子：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">OutputStream output = <span class="keyword">new</span> FileOutputStream(<span class="string">"c:\\data\\output-text.txt"</span>);</div><div class="line"><span class="keyword">while</span>(moreData) &#123;</div><div class="line">    <span class="keyword">int</span> data = getMoreData();</div><div class="line">    output.write(data);</div><div class="line">&#125;</div><div class="line">output.close();</div></pre></td></tr></table></figure>
+<p>请注意，为了清晰，这里忽略了必要的异常处理。想了解更多异常处理的信息，请参考<a href="">Java IO异常处理</a>。</p>
+<p>FileOutputStream的write()方法取一个包含了待写入字节(译者注：低8位数据)的int变量作为参数进行写入。</p>
+<p>FileOutputStream也有其他的构造函数，允许你通过不同的方式写入文件。请参考<a href="">官方文档</a>查阅更多信息。</p>
+<h1 id="文件内容的覆盖Override-VS追加Appending"><a href="#文件内容的覆盖Override-VS追加Appending" class="headerlink" title="文件内容的覆盖Override VS追加Appending"></a>文件内容的覆盖Override VS追加Appending</h1><p>当你创建了一个指向已存在文件的FileOutputStream，你可以选择覆盖整个文件，或者在文件末尾追加内容。通过使用不同的构造函数可以实现不同的目的。</p>
+<p>其中一个构造函数取文件名作为参数，会覆盖任何此文件名指向的文件。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">OutputStream output = <span class="keyword">new</span> FileOutputStream(<span class="string">"c:\\data\\output-text.txt"</span>);</div></pre></td></tr></table></figure>
+<p>另外一个构造函数取2个参数：文件名和一个布尔值，布尔值表明你是否需要覆盖文件。这是构造函数的例子：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">OutputStream output = <span class="keyword">new</span> FileOutputStream(<span class="string">"c:\\data\\output-text.txt"</span>, <span class="keyword">true</span>); <span class="comment">//appends to file</span></div><div class="line">OutputStream output = <span class="keyword">new</span> FileOutputStream(<span class="string">"c:\\data\\output-text.txt"</span>, <span class="keyword">false</span>); <span class="comment">//overwrites file</span></div></pre></td></tr></table></figure>
+<h1 id="写入字节数组"><a href="#写入字节数组" class="headerlink" title="写入字节数组"></a>写入字节数组</h1><p>既然FileOutputStream是OutputStream的子类，所以你也可以往FileOutputStream中写入字节数组，而不需要每次都只写入一个字节。可以参考我的OutputStream教程查阅更多关于写入字节数组的信息。</p>
+<h1 id="flush"><a href="#flush" class="headerlink" title="flush()"></a>flush()</h1><p>当你往FileOutputStream里写数据的时候，这些数据有可能会缓存在内存中。在之后的某个时间，比如，每次都只有X份数据可写，或者FileOutputStream关闭的时候，才会真正地写入磁盘。当FileOutputStream没被关闭，而你又想确保写入到FileOutputStream中的数据写入到磁盘中，可以调用flush()方法，该方法可以保证所有写入到FileOutputStream的数据全部写入到磁盘中。</p>
+<blockquote>
+<p>转载自<a href="http://ifeve.com/" target="_blank" rel="external">并发编程网 – ifeve.com</a> 本文链接地址: <a href="http://ifeve.com/java-io-fileoutputstream/" target="_blank" rel="external">Java IO: FileOutputStream</a></p>
+</blockquote>
+
+          
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+  </section>
+
+  
+  <nav class="pagination">
+    <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><a class="page-number" href="/page/3/">3</a><a class="extend next" rel="next" href="/page/2/"><i class="fa fa-angle-right"></i></a>
+  </nav>
+
+
+
+          </div>
+          
+
+
+          
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+
+      <section class="site-overview sidebar-panel  sidebar-panel-active ">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/default_avatar.jpg"
+               alt="KangZongZhan" />
+          <p class="site-author-name" itemprop="name">KangZongZhan</p>
+          <p class="site-description motion-element" itemprop="description"></p>
+        </div>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">25</span>
+              <span class="site-state-item-name">posts</span>
+            </a>
+          </div>
+
+          
+            <div class="site-state-item site-state-categories">
+              
+                <span class="site-state-item-count">1</span>
+                <span class="site-state-item-name">categories</span>
+              
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/tags">
+                <span class="site-state-item-count">5</span>
+                <span class="site-state-item-name">tags</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        <div class="links-of-blogroll motion-element">
+          
+        </div>
+
+      </section>
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2016</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">KangZongZhan</span>
+</div>
+
+<div class="powered-by">
+  Powered by <a class="theme-link" href="http://hexo.io">Hexo</a>
+</div>
+
+<div class="theme-info">
+  Theme -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Muse
+  </a>
+</div>
+
+
+
+      </div>
+    </footer>
+
+    <div class="back-to-top">
+      <i class="fa fa-arrow-up"></i>
+    </div>
+  </div>
+
+  
+
+
+  
+
+
+
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  <script type="text/javascript" src="/vendors/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js"></script>
+
+  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js"></script>
+
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=0.5.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=0.5.0"></script>
+
+
+
+  
+  
+
+  
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=0.5.0"></script>
+
+
+
+  
+
+
+
+  
+
+
+
+  
+  
+  
+
+  
+
+
+</body>
+</html>

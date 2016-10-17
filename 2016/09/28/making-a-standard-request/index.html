@@ -1,0 +1,736 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+  <link href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css"/>
+
+
+
+
+  <link href="//fonts.googleapis.com/css?family=Lato:300,400,700,400italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+
+
+
+<link href="/vendors/font-awesome/css/font-awesome.min.css?v=4.4.0" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=0.5.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="android,volley," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=0.5.0" />
+
+
+
+
+
+
+<meta name="description" content="原文连接：https://developer.android.com/training/volley/request.html
+
+这节描述怎么使用Volley提供的一些常用类型的请求。
+
+StringRequest. 请求特定URL，响应为原生字符串。具体示例参见：配置RequestQueue。
+ImageRequest. 请求特定URL，响应为图片。
+JsonObjectRequest 和 J">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Volley官方教程翻译（四）：使用标准请求">
+<meta property="og:url" content="http://localhost/2016/09/28/making-a-standard-request/index.html">
+<meta property="og:site_name" content="Simple">
+<meta property="og:description" content="原文连接：https://developer.android.com/training/volley/request.html
+
+这节描述怎么使用Volley提供的一些常用类型的请求。
+
+StringRequest. 请求特定URL，响应为原生字符串。具体示例参见：配置RequestQueue。
+ImageRequest. 请求特定URL，响应为图片。
+JsonObjectRequest 和 J">
+<meta property="og:updated_time" content="2016-09-29T02:20:32.757Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Volley官方教程翻译（四）：使用标准请求">
+<meta name="twitter:description" content="原文连接：https://developer.android.com/training/volley/request.html
+
+这节描述怎么使用Volley提供的一些常用类型的请求。
+
+StringRequest. 请求特定URL，响应为原生字符串。具体示例参见：配置RequestQueue。
+ImageRequest. 请求特定URL，响应为图片。
+JsonObjectRequest 和 J">
+
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    scheme: 'Muse',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: 0,
+      author: 'Author'
+    }
+  };
+</script>
+
+  <title> Volley官方教程翻译（四）：使用标准请求 | Simple </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="en">
+
+  
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">Simple</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+  <p class="site-subtitle">Simpe Life & Simpe Career</p>
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-home fa-fw"></i> <br />
+            
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-archive fa-fw"></i> <br />
+            
+            Archives
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-tags fa-fw"></i> <br />
+            
+            Tags
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                Volley官方教程翻译（四）：使用标准请求
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">Posted on</span>
+            <time itemprop="dateCreated" datetime="2016-09-28T10:23:44+08:00" content="2016-09-28">
+              2016-09-28
+            </time>
+          </span>
+
+          
+
+          
+            
+          
+
+          
+
+          
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <blockquote>
+<p>原文连接：<a href="https://developer.android.com/training/volley/request.html" target="_blank" rel="external">https://developer.android.com/training/volley/request.html</a></p>
+</blockquote>
+<p>这节描述怎么使用Volley提供的一些常用类型的请求。</p>
+<ul>
+<li><code>StringRequest</code>. 请求特定URL，响应为原生字符串。具体示例参见：<a href="配置RequestQueue">配置RequestQueue</a>。</li>
+<li><code>ImageRequest</code>. 请求特定URL，响应为图片。</li>
+<li><code>JsonObjectRequest</code> 和 <code>JsonArrayRequest</code> (两个都是JsonRequest的子类). 请求特定URL，响应为Json对象或者数组。</li>
+</ul>
+<p>如果你期望的响应是如上的类型的话，就不需要在自定义Request了。这节介绍怎么使用这些标准的Request。如果想了解如何自定义Request，请参见<a href="自定义Request">自定义Request</a>.</p>
+<h1 id="请求图片"><a href="#请求图片" class="headerlink" title="请求图片"></a>请求图片</h1><p>Volley提供了如下几个请求图片使用的类。其实它们之间的关系是相互依赖，为我们提供不同层次级别的服务。</p>
+<ul>
+<li><code>ImageRequest</code> 一个获取指定URL图片的Request，最终响应结果是一个解析了的Bitmap。也有比如改变图片大小等许多方便的功能。它最大的优点是所有的耗时重量级操作，比如解码、改变大小，都在工作线程执行。</li>
+</ul>
+<ul>
+<li><p><code>ImageLoader</code> 一个负责加载与缓存远程图片的辅助类。<code>ImageLoader</code>可以管理大量的<code>ImageRequest</code>，比如，当往一个<code>List</code>中填充许多缩略图的时候。<code>ImageLoader</code>在Volley的缓存之上又提供了一层内存缓存，这一点能够有效避免图片的闪烁现象。如果一个图片存在内存缓存中，我们可以直接得到它，不用阻塞以及切离主线程，这一点Disk缓存是做不到的。<code>ImageLoader</code>能够对响应进行聚合处理。如果不聚合处理的话，每一个响应都会往一个View上设置一个Bitmap，导致一次布局调用。聚合能够定时把多个响应传送出来，提高了效率。</p>
+</li>
+<li><p><code>NetworkImageView</code> 基于ImageLoader实现。在图片是从网络上获取的情况下，能够高效替换ImageView。如果view被移除，NetworkImageView也负责管理request的取消操作。</p>
+</li>
+</ul>
+<h2 id="使用ImageRequest"><a href="#使用ImageRequest" class="headerlink" title="使用ImageRequest"></a>使用ImageRequest</h2><p>如果是一个使用ImageRequest的实例。展示了如何获取指定URL的图片，然后展示到应用上。值得注意的是如下代码段里的RequestQueue是通过单例类（详细讨论请参见：<a href="/2016/09/27/setting-up-a-requestqueue">配置RequestQueue</a>）获得的。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div></pre></td><td class="code"><pre><div class="line">ImageView mImageView;</div><div class="line">String url = <span class="string">"http://i.imgur.com/7spzG.png"</span>;</div><div class="line">mImageView = (ImageView) findViewById(R.id.myImage);</div><div class="line">...</div><div class="line"></div><div class="line"><span class="comment">// 获取指定URL的图片，展示到UI上</span></div><div class="line">ImageRequest request = <span class="keyword">new</span> ImageRequest(url,</div><div class="line">    <span class="keyword">new</span> Response.Listener&lt;Bitmap&gt;() &#123;</div><div class="line">        <span class="meta">@Override</span></div><div class="line">        <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onResponse</span><span class="params">(Bitmap bitmap)</span> </span>&#123;</div><div class="line">            mImageView.setImageBitmap(bitmap);</div><div class="line">        &#125;</div><div class="line">    &#125;, <span class="number">0</span>, <span class="number">0</span>, <span class="keyword">null</span>,</div><div class="line">    <span class="keyword">new</span> Response.ErrorListener() &#123;</div><div class="line">        <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onErrorResponse</span><span class="params">(VolleyError error)</span> </span>&#123;</div><div class="line">            mImageView.setImageResource(R.drawable.image_load_error);</div><div class="line">        &#125;</div><div class="line">    &#125;);</div><div class="line"><span class="comment">// 通过单例类获得RequestQueue</span></div><div class="line">MySingleton.getInstance(<span class="keyword">this</span>).addToRequestQueue(request);</div></pre></td></tr></table></figure>
+<h2 id="使用-ImageLoader-和-NetworkImageView"><a href="#使用-ImageLoader-和-NetworkImageView" class="headerlink" title="使用 ImageLoader 和 NetworkImageView"></a>使用 ImageLoader 和 NetworkImageView</h2><p>ImageLoader和NetworkImageView可以配合使用来高效管理譬如ListView多图的展示。在XML布局文件中，也可以像使用ImageView一样使用NetworkImageView，如下：</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="tag">&lt;<span class="name">com.android.volley.toolbox.NetworkImageView</span></span></div><div class="line">        <span class="attr">android:id</span>=<span class="string">"@+id/networkImageView"</span></div><div class="line">        <span class="attr">android:layout_width</span>=<span class="string">"150dp"</span></div><div class="line">        <span class="attr">android:layout_height</span>=<span class="string">"170dp"</span></div><div class="line">        <span class="attr">android:layout_centerHorizontal</span>=<span class="string">"true"</span> /&gt;</div></pre></td></tr></table></figure>
+<p>你也可以只使用ImageLoader来展示图片：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div></pre></td><td class="code"><pre><div class="line">ImageLoader mImageLoader;</div><div class="line">ImageView mImageView;</div><div class="line"><span class="comment">// 将被加载的图片的URL</span></div><div class="line"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> String IMAGE_URL =</div><div class="line">    <span class="string">"http://developer.android.com/images/training/system-ui.png"</span>;</div><div class="line">...</div><div class="line">mImageView = (ImageView) findViewById(R.id.regularImageView);</div><div class="line"></div><div class="line"><span class="comment">// 通过单例类获得ImageLoader</span></div><div class="line">mImageLoader = MySingleton.getInstance(<span class="keyword">this</span>).getImageLoader();</div><div class="line">mImageLoader.get(IMAGE_URL, ImageLoader.getImageListener(mImageView,</div><div class="line">         R.drawable.def_image, R.drawable.err_image));</div></pre></td></tr></table></figure>
+<p>下面是如何使用NetworkImageView来加载这个图片：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div></pre></td><td class="code"><pre><div class="line">ImageLoader mImageLoader;</div><div class="line">NetworkImageView mNetworkImageView;</div><div class="line"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> String IMAGE_URL =</div><div class="line">    <span class="string">"http://developer.android.com/images/training/system-ui.png"</span>;</div><div class="line">...</div><div class="line"></div><div class="line"><span class="comment">// 获得布局文件中定义的NetworkImageView</span></div><div class="line">mNetworkImageView = (NetworkImageView) findViewById(R.id.networkImageView);</div><div class="line"></div><div class="line"><span class="comment">// 通过单例类获得ImageLoader</span></div><div class="line">mImageLoader = MySingleton.getInstance(<span class="keyword">this</span>).getImageLoader();</div><div class="line"></div><div class="line"><span class="comment">// 把URL和加载该URL图片的ImageLoader设置给NetworkImageView</span></div><div class="line">mNetworkImageView.setImageUrl(IMAGE_URL, mImageLoader);</div></pre></td></tr></table></figure>
+<p>上面代码片段通过单例类获得RequestQueue和ImageLoader，这部分在<a href="/2016/09/27/setting-up-a-requestqueue">配置RequestQueue</a>这节有详细描述。使用单例类这种方法整个App只有一个RequestQueue和ImageLoader实例，而且生命周期与App一致。这样做的一个很重要的原因是内存缓存能够似的在设备旋转的时候无闪烁现象。单例模式能够使得缓存高于Activity而存在。如果你选择了在Activity中穿件ImageLoader的话，那么在旋转设备的时候，它会随Activity一起重建，导致图片闪烁现象。</p>
+<h3 id="LRU缓存示例"><a href="#LRU缓存示例" class="headerlink" title="LRU缓存示例"></a>LRU缓存示例</h3><p>Volley的工具盒中提供了一个基于DiskBasedCache类的标准实现。这个类直接将响应生产文件缓存到硬盘的指定目录下。但是使用ImageLoader，需要提供一个实现ImageLoader.ImageCache接口的内存缓存。你大概趋向于用单例模式来配置缓存。更多关于单例模式的讨论，请参见<a href="/2016/09/27/setting-up-a-requestqueue">配置RequestQueue</a>。</p>
+<p>如下是一个内存缓存的简单实现类LruBitmapCache，它继承自LruCache类实了ImageLoader.ImageCache接口：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">import</span> android.graphics.Bitmap;</div><div class="line"><span class="keyword">import</span> android.support.v4.util.LruCache;</div><div class="line"><span class="keyword">import</span> android.util.DisplayMetrics;</div><div class="line"><span class="keyword">import</span> com.android.volley.toolbox.ImageLoader.ImageCache;</div><div class="line"></div><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">LruBitmapCache</span> <span class="keyword">extends</span> <span class="title">LruCache</span>&lt;<span class="title">String</span>, <span class="title">Bitmap</span>&gt;</span></div><div class="line">        <span class="keyword">implements</span> <span class="title">ImageCache</span> &#123;</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="title">LruBitmapCache</span><span class="params">(<span class="keyword">int</span> maxSize)</span> </span>&#123;</div><div class="line">        <span class="keyword">super</span>(maxSize);</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="title">LruBitmapCache</span><span class="params">(Context ctx)</span> </span>&#123;</div><div class="line">        <span class="keyword">this</span>(getCacheSize(ctx));</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="meta">@Override</span></div><div class="line">    <span class="function"><span class="keyword">protected</span> <span class="keyword">int</span> <span class="title">sizeOf</span><span class="params">(String key, Bitmap value)</span> </span>&#123;</div><div class="line">        <span class="keyword">return</span> value.getRowBytes() * value.getHeight();</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="meta">@Override</span></div><div class="line">    <span class="function"><span class="keyword">public</span> Bitmap <span class="title">getBitmap</span><span class="params">(String url)</span> </span>&#123;</div><div class="line">        <span class="keyword">return</span> get(url);</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="meta">@Override</span></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">putBitmap</span><span class="params">(String url, Bitmap bitmap)</span> </span>&#123;</div><div class="line">        put(url, bitmap);</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="comment">// Returns a cache size equal to approximately three screens worth of images.</span></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">int</span> <span class="title">getCacheSize</span><span class="params">(Context ctx)</span> </span>&#123;</div><div class="line">        <span class="keyword">final</span> DisplayMetrics displayMetrics = ctx.getResources().</div><div class="line">                getDisplayMetrics();</div><div class="line">        <span class="keyword">final</span> <span class="keyword">int</span> screenWidth = displayMetrics.widthPixels;</div><div class="line">        <span class="keyword">final</span> <span class="keyword">int</span> screenHeight = displayMetrics.heightPixels;</div><div class="line">        <span class="comment">// 4 bytes per pixel</span></div><div class="line">        <span class="keyword">final</span> <span class="keyword">int</span> screenBytes = screenWidth * screenHeight * <span class="number">4</span>;</div><div class="line"></div><div class="line">        <span class="keyword">return</span> screenBytes * <span class="number">3</span>;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>如下是如何使用这个内存缓存实例话ImageLoader的示例：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">RequestQueue mRequestQueue; <span class="comment">// assume this exists.</span></div><div class="line">ImageLoader mImageLoader = <span class="keyword">new</span> ImageLoader(mRequestQueue, <span class="keyword">new</span> LruBitmapCache(</div><div class="line">            LruBitmapCache.getCacheSize()));</div></pre></td></tr></table></figure>
+<h1 id="请求JSON数据"><a href="#请求JSON数据" class="headerlink" title="请求JSON数据"></a>请求JSON数据</h1><p>Volley提供了如下两个类来完成Json请求：</p>
+<ul>
+<li>JsonArrayRequest 一个获取指定URL的响应为Json数组的请求</li>
+<li>JsonObjectRequest 一个获取指定URL的响应为Json对象的请求，请求体可以包含一个Json对象。</li>
+</ul>
+<p>以上两个类都基于JsonRequest类。它们的使用方法与其他类型的Request一样。如下的代码片段展示了如何获取Json数据以及将它们作为文本显示在UI上：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div></pre></td><td class="code"><pre><div class="line">TextView mTxtDisplay;</div><div class="line">ImageView mImageView;</div><div class="line">mTxtDisplay = (TextView) findViewById(R.id.txtDisplay);</div><div class="line">String url = <span class="string">"http://my-json-feed"</span>;</div><div class="line"></div><div class="line">JsonObjectRequest jsObjRequest = <span class="keyword">new</span> JsonObjectRequest</div><div class="line">        (Request.Method.GET, url, <span class="keyword">null</span>, <span class="keyword">new</span> Response.Listener&lt;JSONObject&gt;() &#123;</div><div class="line"></div><div class="line">    <span class="meta">@Override</span></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onResponse</span><span class="params">(JSONObject response)</span> </span>&#123;</div><div class="line">        mTxtDisplay.setText(<span class="string">"Response: "</span> + response.toString());</div><div class="line">    &#125;</div><div class="line">&#125;, <span class="keyword">new</span> Response.ErrorListener() &#123;</div><div class="line"></div><div class="line">    <span class="meta">@Override</span></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onErrorResponse</span><span class="params">(VolleyError error)</span> </span>&#123;</div><div class="line">        <span class="comment">// TODO Auto-generated method stub</span></div><div class="line"></div><div class="line">    &#125;</div><div class="line">&#125;);</div><div class="line"></div><div class="line"><span class="comment">// Access the RequestQueue through your singleton class.</span></div><div class="line">MySingleton.getInstance(<span class="keyword">this</span>).addToRequestQueue(jsObjRequest);</div></pre></td></tr></table></figure>
+<p>下一节<a href="/2016/09/28/implementing-a-custom-request">自定义Request</a>，将会介绍如何基于Gson自定义一个Json请求。</p>
+
+      
+    </div>
+
+    <div>
+      
+        
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/android/" rel="tag">#android</a>
+          
+            <a href="/tags/volley/" rel="tag">#volley</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2016/09/27/setting-up-a-requestqueue/" rel="next" title="Volley官方教程翻译（三）：配置RequestQueue">
+                <i class="fa fa-chevron-left"></i> Volley官方教程翻译（三）：配置RequestQueue
+              </a>
+            
+          </div>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2016/09/28/implementing-a-custom-request/" rel="prev" title="Volley官方教程翻译（五）：自定义Request">
+                Volley官方教程翻译（五）：自定义Request <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel ">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/default_avatar.jpg"
+               alt="KangZongZhan" />
+          <p class="site-author-name" itemprop="name">KangZongZhan</p>
+          <p class="site-description motion-element" itemprop="description"></p>
+        </div>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">25</span>
+              <span class="site-state-item-name">posts</span>
+            </a>
+          </div>
+
+          
+            <div class="site-state-item site-state-categories">
+              
+                <span class="site-state-item-count">1</span>
+                <span class="site-state-item-name">categories</span>
+              
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/tags">
+                <span class="site-state-item-count">5</span>
+                <span class="site-state-item-name">tags</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        <div class="links-of-blogroll motion-element">
+          
+        </div>
+
+      </section>
+
+      
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc-indicator-top post-toc-indicator">
+            <i class="fa fa-angle-double-up"></i>
+          </div>
+          <div class="post-toc">
+            
+              
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#请求图片"><span class="nav-number">1.</span> <span class="nav-text">请求图片</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#使用ImageRequest"><span class="nav-number">1.1.</span> <span class="nav-text">使用ImageRequest</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#使用-ImageLoader-和-NetworkImageView"><span class="nav-number">1.2.</span> <span class="nav-text">使用 ImageLoader 和 NetworkImageView</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#LRU缓存示例"><span class="nav-number">1.2.1.</span> <span class="nav-text">LRU缓存示例</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#请求JSON数据"><span class="nav-number">2.</span> <span class="nav-text">请求JSON数据</span></a></li></ol></div>
+            
+          </div>
+          <div class="post-toc-indicator-bottom post-toc-indicator">
+            <i class="fa fa-angle-double-down"></i>
+          </div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2016</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">KangZongZhan</span>
+</div>
+
+<div class="powered-by">
+  Powered by <a class="theme-link" href="http://hexo.io">Hexo</a>
+</div>
+
+<div class="theme-info">
+  Theme -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Muse
+  </a>
+</div>
+
+
+
+      </div>
+    </footer>
+
+    <div class="back-to-top">
+      <i class="fa fa-arrow-up"></i>
+    </div>
+  </div>
+
+  
+
+
+  
+
+
+
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  <script type="text/javascript" src="/vendors/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js"></script>
+
+  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js"></script>
+
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=0.5.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=0.5.0"></script>
+
+
+
+  
+  
+
+  
+  
+<script type="text/javascript" src="/js/src/scrollspy.js?v=0.5.0"></script>
+
+<script type="text/javascript" id="sidebar.toc.highlight">
+  $(document).ready(function () {
+    var tocSelector = '.post-toc';
+    var $tocSelector = $(tocSelector);
+    var activeCurrentSelector = '.active-current';
+
+    $tocSelector
+      .on('activate.bs.scrollspy', function () {
+        var $currentActiveElement = $(tocSelector + ' .active').last();
+
+        removeCurrentActiveClass();
+        $currentActiveElement.addClass('active-current');
+
+        $tocSelector[0].scrollTop = $currentActiveElement.position().top;
+      })
+      .on('clear.bs.scrollspy', function () {
+        removeCurrentActiveClass();
+      });
+
+    function removeCurrentActiveClass () {
+      $(tocSelector + ' ' + activeCurrentSelector)
+        .removeClass(activeCurrentSelector.substring(1));
+    }
+
+    function processTOC () {
+      getTOCMaxHeight();
+      toggleTOCOverflowIndicators();
+    }
+
+    function getTOCMaxHeight () {
+      var height = $('.sidebar').height() -
+                   $tocSelector.position().top -
+                   $('.post-toc-indicator-bottom').height();
+
+      $tocSelector.css('height', height);
+
+      return height;
+    }
+
+    function toggleTOCOverflowIndicators () {
+      tocOverflowIndicator(
+        '.post-toc-indicator-top',
+        $tocSelector.scrollTop() > 0 ? 'show' : 'hide'
+      );
+
+      tocOverflowIndicator(
+        '.post-toc-indicator-bottom',
+        $tocSelector.scrollTop() >= $tocSelector.find('ol').height() - $tocSelector.height() ? 'hide' : 'show'
+      )
+    }
+
+    $(document).on('sidebar.motion.complete', function () {
+      processTOC();
+    });
+
+    $('body').scrollspy({ target: tocSelector });
+    $(window).on('resize', function () {
+      if ( $('.sidebar').hasClass('sidebar-active') ) {
+        processTOC();
+      }
+    });
+
+    onScroll($tocSelector);
+
+    function onScroll (element) {
+      element.on('mousewheel DOMMouseScroll', function (event) {
+          var oe = event.originalEvent;
+          var delta = oe.wheelDelta || -oe.detail;
+
+          this.scrollTop += ( delta < 0 ? 1 : -1 ) * 30;
+          event.preventDefault();
+
+          toggleTOCOverflowIndicators();
+      });
+    }
+
+    function tocOverflowIndicator (indicator, action) {
+      var $indicator = $(indicator);
+      var opacity = action === 'show' ? 1 : 0;
+      $indicator.velocity ?
+        $indicator.velocity('stop').velocity({
+          opacity: opacity
+        }, { duration: 100 }) :
+        $indicator.stop().animate({
+          opacity: opacity
+        }, 100);
+    }
+
+  });
+</script>
+
+<script type="text/javascript" id="sidebar.nav">
+  $(document).ready(function () {
+    var html = $('html');
+    var TAB_ANIMATE_DURATION = 200;
+    var hasVelocity = $.isFunction(html.velocity);
+
+    $('.sidebar-nav li').on('click', function () {
+      var item = $(this);
+      var activeTabClassName = 'sidebar-nav-active';
+      var activePanelClassName = 'sidebar-panel-active';
+      if (item.hasClass(activeTabClassName)) {
+        return;
+      }
+
+      var currentTarget = $('.' + activePanelClassName);
+      var target = $('.' + item.data('target'));
+
+      hasVelocity ?
+        currentTarget.velocity('transition.slideUpOut', TAB_ANIMATE_DURATION, function () {
+          target
+            .velocity('stop')
+            .velocity('transition.slideDownIn', TAB_ANIMATE_DURATION)
+            .addClass(activePanelClassName);
+        }) :
+        currentTarget.animate({ opacity: 0 }, TAB_ANIMATE_DURATION, function () {
+          currentTarget.hide();
+          target
+            .stop()
+            .css({'opacity': 0, 'display': 'block'})
+            .animate({ opacity: 1 }, TAB_ANIMATE_DURATION, function () {
+              currentTarget.removeClass(activePanelClassName);
+              target.addClass(activePanelClassName);
+            });
+        });
+
+      item.siblings().removeClass(activeTabClassName);
+      item.addClass(activeTabClassName);
+    });
+
+    $('.post-toc a').on('click', function (e) {
+      e.preventDefault();
+      var targetSelector = NexT.utils.escapeSelector(this.getAttribute('href'));
+      var offset = $(targetSelector).offset().top;
+      hasVelocity ?
+        html.velocity('stop').velocity('scroll', {
+          offset: offset  + 'px',
+          mobileHA: false
+        }) :
+        $('html, body').stop().animate({
+          scrollTop: offset
+        }, 500);
+    });
+
+    // Expand sidebar on post detail page by default, when post has a toc.
+    NexT.motion.middleWares.sidebar = function () {
+      var $tocContent = $('.post-toc-content');
+
+      if (CONFIG.sidebar.display === 'post' || CONFIG.sidebar.display === 'always') {
+        if ($tocContent.length > 0 && $tocContent.html().trim().length > 0) {
+          NexT.utils.displaySidebar();
+        }
+      }
+    };
+  });
+</script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=0.5.0"></script>
+
+
+
+  
+
+
+
+  
+
+
+
+  
+  
+  
+
+  
+
+
+</body>
+</html>
