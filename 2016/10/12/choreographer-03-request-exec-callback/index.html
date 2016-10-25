@@ -1,0 +1,703 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+  <link href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css"/>
+
+
+
+
+  <link href="//fonts.googleapis.com/css?family=Lato:300,400,700,400italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+
+
+
+<link href="/vendors/font-awesome/css/font-awesome.min.css?v=4.4.0" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=0.5.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="android," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=0.5.0" />
+
+
+
+
+
+
+<meta name="description" content="请求回调执行，请求-对应的方法是Choreographer.scheduleFrameLocked, 执行-对应的方法Choreographer.doFrame
+通过上一节我们知道，无论是消费INPUT、动画开始还是View的invalidate、requestLayout、requestFocus这些方法都会最终调用scheduleFrameLocked方法请求执行回调刷新屏幕。
+既然手机有固定">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Choreographer - 03 - 请求执行回调">
+<meta property="og:url" content="http://localhost/2016/10/12/choreographer-03-request-exec-callback/index.html">
+<meta property="og:site_name" content="Simple">
+<meta property="og:description" content="请求回调执行，请求-对应的方法是Choreographer.scheduleFrameLocked, 执行-对应的方法Choreographer.doFrame
+通过上一节我们知道，无论是消费INPUT、动画开始还是View的invalidate、requestLayout、requestFocus这些方法都会最终调用scheduleFrameLocked方法请求执行回调刷新屏幕。
+既然手机有固定">
+<meta property="og:image" content="http://localhost/2016/10/12/choreographer-03-request-exec-callback/v-sync.jpg">
+<meta property="og:updated_time" content="2016-10-25T09:51:19.083Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Choreographer - 03 - 请求执行回调">
+<meta name="twitter:description" content="请求回调执行，请求-对应的方法是Choreographer.scheduleFrameLocked, 执行-对应的方法Choreographer.doFrame
+通过上一节我们知道，无论是消费INPUT、动画开始还是View的invalidate、requestLayout、requestFocus这些方法都会最终调用scheduleFrameLocked方法请求执行回调刷新屏幕。
+既然手机有固定">
+<meta name="twitter:image" content="http://localhost/2016/10/12/choreographer-03-request-exec-callback/v-sync.jpg">
+
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    scheme: 'Muse',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: 0,
+      author: 'Author'
+    }
+  };
+</script>
+
+  <title> Choreographer - 03 - 请求执行回调 | Simple </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="en">
+
+  
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">Simple</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+  <p class="site-subtitle">Simpe Life & Simpe Career</p>
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-home fa-fw"></i> <br />
+            
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-archive fa-fw"></i> <br />
+            
+            Archives
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-tags fa-fw"></i> <br />
+            
+            Tags
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                Choreographer - 03 - 请求执行回调
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">Posted on</span>
+            <time itemprop="dateCreated" datetime="2016-10-12T15:38:57+08:00" content="2016-10-12">
+              2016-10-12
+            </time>
+          </span>
+
+          
+
+          
+            
+          
+
+          
+
+          
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>请求回调执行，请求-对应的方法是Choreographer.scheduleFrameLocked, 执行-对应的方法Choreographer.doFrame</p>
+<p>通过上一节我们知道，无论是消费INPUT、动画开始还是View的invalidate、requestLayout、requestFocus这些方法都会最终调用scheduleFrameLocked方法请求执行回调刷新屏幕。</p>
+<p>既然手机有固定的频率，那么屏幕内容的刷新肯定不是跟随我们随意调用scheduleFrameLocked执行的，scheduleFrameLocked方法具体分成两种实现：使用以及不使用垂直同步</p>
+<p>变量USE_VSYNC标记是否要使用垂直同步，这个值是从系统配置中读取的。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="keyword">boolean</span> USE_VSYNC = SystemProperties.getBoolean(</div><div class="line">        <span class="string">"debug.choreographer.vsync"</span>, <span class="keyword">true</span>);</div></pre></td></tr></table></figure>
+<p>scheduleFrameLocked代码：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">scheduleFrameLocked</span><span class="params">(<span class="keyword">long</span> now)</span> </span>&#123;</div><div class="line">    <span class="keyword">if</span> (!mFrameScheduled) &#123;</div><div class="line">        mFrameScheduled = <span class="keyword">true</span>; <span class="comment">// 在doFrame执行后会置为false</span></div><div class="line">        						<span class="comment">// 因此多次调用只有第一次会真的请求执行doFrame</span></div><div class="line">        <span class="keyword">if</span> (USE_VSYNC) &#123;	<span class="comment">//使用垂直同步</span></div><div class="line">            <span class="keyword">if</span> (DEBUG) &#123;</div><div class="line">                Log.d(TAG, <span class="string">"Scheduling next frame on vsync."</span>);</div><div class="line">            &#125;</div><div class="line"></div><div class="line">            <span class="comment">// If running on the Looper thread, then schedule the vsync immediately,</span></div><div class="line">            <span class="comment">// otherwise post a message to schedule the vsync from the UI thread</span></div><div class="line">            <span class="comment">// as soon as possible.</span></div><div class="line">            <span class="keyword">if</span> (isRunningOnLooperThreadLocked()) &#123;</div><div class="line">                scheduleVsyncLocked();</div><div class="line">            &#125; <span class="keyword">else</span> &#123;</div><div class="line">                Message msg = mHandler.obtainMessage(MSG_DO_SCHEDULE_VSYNC);</div><div class="line">                msg.setAsynchronous(<span class="keyword">true</span>);</div><div class="line">                mHandler.sendMessageAtFrontOfQueue(msg);</div><div class="line">            &#125;</div><div class="line">        &#125; <span class="keyword">else</span> &#123; <span class="comment">// 不使用垂直同步</span></div><div class="line">            <span class="keyword">final</span> <span class="keyword">long</span> nextFrameTime = Math.max(</div><div class="line">                    mLastFrameTimeNanos / NANOS_PER_MS + sFrameDelay, now);</div><div class="line">            <span class="keyword">if</span> (DEBUG) &#123;</div><div class="line">                Log.d(TAG, <span class="string">"Scheduling next frame in "</span> + (nextFrameTime - now) + <span class="string">" ms."</span>);</div><div class="line">            &#125;</div><div class="line">            Message msg = mHandler.obtainMessage(MSG_DO_FRAME);</div><div class="line">            msg.setAsynchronous(<span class="keyword">true</span>);</div><div class="line">            mHandler.sendMessageAtTime(msg, nextFrameTime);</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<h1 id="不使用垂直同步"><a href="#不使用垂直同步" class="headerlink" title="不使用垂直同步"></a>不使用垂直同步</h1><p>在不使用垂直同步的情况下，两帧之间有最小事件间隔<code>sFrameDelay</code>， 默认为10ms。因此，理论上在不使用垂直同步的情况下最大的屏幕最大的刷新频率为100HZ。</p>
+<p>首先是根据上一帧执行的时间结合sFrameDelay与系统当前时间对比计算出下一帧执行时间。<br>然后使用消息机制，发送定时消息到主线程来执行doFrame。</p>
+<h1 id="使用垂直同步"><a href="#使用垂直同步" class="headerlink" title="使用垂直同步"></a>使用垂直同步</h1><p>垂直同步(下记V-Sync)是加在两帧之间。它指示着前一帧的结束，和新一帧的开始。这也就意味着每秒内最多有60个V-Sync，每一次V-Sync到来的时候，如果需要重新绘制，就执行绘制流程刷新屏幕。</p>
+<p>V-Sync由底层SurfaceFlinger产生，但其不自主均匀的每秒钟产生60个，是在需要刷新的时候去请求SurfaceFlinger产生V-Sync。负责与SurfaceFlinger交互的是DisplayEventReceiver，其中涉及的主要方法是：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div></pre></td><td class="code"><pre><div class="line"><span class="comment">/**</span></div><div class="line"> * Schedules a single vertical sync pulse to be delivered when the next</div><div class="line"> * display frame begins.</div><div class="line"> */</div><div class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">scheduleVsync</span><span class="params">()</span> </span>&#123;</div><div class="line">    <span class="keyword">if</span> (mReceiverPtr == <span class="number">0</span>) &#123;</div><div class="line">        Log.w(TAG, <span class="string">"Attempted to schedule a vertical sync pulse but the display event "</span></div><div class="line">                + <span class="string">"receiver has already been disposed."</span>);</div><div class="line">    &#125; <span class="keyword">else</span> &#123;</div><div class="line">        nativeScheduleVsync(mReceiverPtr);</div><div class="line">    &#125;</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="comment">// Called from native code.</span></div><div class="line"><span class="meta">@SuppressWarnings</span>(<span class="string">"unused"</span>)</div><div class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">dispatchVsync</span><span class="params">(<span class="keyword">long</span> timestampNanos, <span class="keyword">int</span> builtInDisplayId, <span class="keyword">int</span> frame)</span> </span>&#123;</div><div class="line">    onVsync(timestampNanos, builtInDisplayId, frame);</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="comment">/**</span></div><div class="line"> * Called when a vertical sync pulse is received.</div><div class="line"> * The recipient should render a frame and then call &#123;<span class="doctag">@link</span> #scheduleVsync&#125;</div><div class="line"> * to schedule the next vertical sync pulse.</div><div class="line"> *</div><div class="line"> * <span class="doctag">@param</span> timestampNanos The timestamp of the pulse, in the &#123;<span class="doctag">@link</span> System#nanoTime()&#125;</div><div class="line"> * timebase.</div><div class="line"> * <span class="doctag">@param</span> builtInDisplayId The surface flinger built-in display id such as</div><div class="line"> * &#123;<span class="doctag">@link</span> SurfaceControl#BUILT_IN_DISPLAY_ID_MAIN&#125;.</div><div class="line"> * <span class="doctag">@param</span> frame The frame number.  Increases by one for each vertical sync interval.</div><div class="line"> */</div><div class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onVsync</span><span class="params">(<span class="keyword">long</span> timestampNanos, <span class="keyword">int</span> builtInDisplayId, <span class="keyword">int</span> frame)</span> </span>&#123;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<ol>
+<li>通过scheduleVsync请求V-Sync</li>
+<li>SurfaceFlinger收到V-Sync请求，在下一次V-Sync的时间点调用dispatchVsync方法</li>
+<li>dispatchVsync紧接着调用onSync方法，onSync内实现具体逻辑</li>
+</ol>
+<p>需要注意的是第1步和第2步并不是连续的，收到V-Sync请求之后需要等到下一次V-Sync开始的时间dispatchVsync方法才会被调用，而且在同一个V-Sync时间内无论请求几次V-Sync，都只会在下一次V-Sync开始的时候收到一次dispatchVsync回调。</p>
+<p><img src="/2016/10/12/choreographer-03-request-exec-callback/v-sync.jpg" alt="v-sync"></p>
+<p>DisplayEventReceiver的具体实现类是FrameDisplayEventReceiver，其内主要实现是：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div></pre></td><td class="code"><pre><div class="line"><span class="meta">@Override</span></div><div class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onVsync</span><span class="params">(<span class="keyword">long</span> timestampNanos, <span class="keyword">int</span> builtInDisplayId, <span class="keyword">int</span> frame)</span> </span>&#123;</div><div class="line">	...</div><div class="line">    <span class="keyword">long</span> now = System.nanoTime();</div><div class="line">    <span class="keyword">if</span> (timestampNanos &gt; now) &#123;</div><div class="line">        Log.w(TAG, <span class="string">"Frame time is "</span> + ((timestampNanos - now) * <span class="number">0.000001f</span>)</div><div class="line">                + <span class="string">" ms in the future!  Check that graphics HAL is generating vsync "</span></div><div class="line">                + <span class="string">"timestamps using the correct timebase."</span>);</div><div class="line">        timestampNanos = now;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="keyword">if</span> (mHavePendingVsync) &#123;</div><div class="line">        Log.w(TAG, <span class="string">"Already have a pending vsync event.  There should only be "</span></div><div class="line">                + <span class="string">"one at a time."</span>);</div><div class="line">    &#125; <span class="keyword">else</span> &#123;</div><div class="line">        mHavePendingVsync = <span class="keyword">true</span>;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="comment">// @@@ 这里是FW垂直同步脉冲生成器的调用</span></div><div class="line">    <span class="comment">// @@@ 不是Loop线程</span></div><div class="line">    <span class="comment">// @@@ 抛到Loop线程执行doFrame</span></div><div class="line">    mTimestampNanos = timestampNanos;</div><div class="line">    mFrame = frame;</div><div class="line">    Message msg = Message.obtain(mHandler, <span class="keyword">this</span>);</div><div class="line">    msg.setAsynchronous(<span class="keyword">true</span>);</div><div class="line">    mHandler.sendMessageAtTime(msg, timestampNanos / NANOS_PER_MS);</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="meta">@Override</span></div><div class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</div><div class="line">    mHavePendingVsync = <span class="keyword">false</span>;</div><div class="line">    doFrame(mTimestampNanos, mFrame); <span class="comment">// doFrame执行</span></div><div class="line">&#125;</div></pre></td></tr></table></figure>
+
+      
+    </div>
+
+    <div>
+      
+        
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/android/" rel="tag">#android</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2016/10/11/choreographer-01-introduction/" rel="next" title="Choreographer - 01 - 简介">
+                <i class="fa fa-chevron-left"></i> Choreographer - 01 - 简介
+              </a>
+            
+          </div>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2016/10/12/choreographer-02-accept-callback/" rel="prev" title="Choreographer - 02 - 接收回调">
+                Choreographer - 02 - 接收回调 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel ">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/default_avatar.jpg"
+               alt="KangZongZhan" />
+          <p class="site-author-name" itemprop="name">KangZongZhan</p>
+          <p class="site-description motion-element" itemprop="description"></p>
+        </div>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">43</span>
+              <span class="site-state-item-name">posts</span>
+            </a>
+          </div>
+
+          
+            <div class="site-state-item site-state-categories">
+              
+                <span class="site-state-item-count">1</span>
+                <span class="site-state-item-name">categories</span>
+              
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/tags">
+                <span class="site-state-item-count">5</span>
+                <span class="site-state-item-name">tags</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        <div class="links-of-blogroll motion-element">
+          
+        </div>
+
+      </section>
+
+      
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc-indicator-top post-toc-indicator">
+            <i class="fa fa-angle-double-up"></i>
+          </div>
+          <div class="post-toc">
+            
+              
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#不使用垂直同步"><span class="nav-number">1.</span> <span class="nav-text">不使用垂直同步</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#使用垂直同步"><span class="nav-number">2.</span> <span class="nav-text">使用垂直同步</span></a></li></ol></div>
+            
+          </div>
+          <div class="post-toc-indicator-bottom post-toc-indicator">
+            <i class="fa fa-angle-double-down"></i>
+          </div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2016</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">KangZongZhan</span>
+</div>
+
+<div class="powered-by">
+  Powered by <a class="theme-link" href="http://hexo.io">Hexo</a>
+</div>
+
+<div class="theme-info">
+  Theme -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Muse
+  </a>
+</div>
+
+
+
+      </div>
+    </footer>
+
+    <div class="back-to-top">
+      <i class="fa fa-arrow-up"></i>
+    </div>
+  </div>
+
+  
+
+
+  
+
+
+
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  <script type="text/javascript" src="/vendors/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js"></script>
+
+  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js"></script>
+
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=0.5.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=0.5.0"></script>
+
+
+
+  
+  
+
+  
+  
+<script type="text/javascript" src="/js/src/scrollspy.js?v=0.5.0"></script>
+
+<script type="text/javascript" id="sidebar.toc.highlight">
+  $(document).ready(function () {
+    var tocSelector = '.post-toc';
+    var $tocSelector = $(tocSelector);
+    var activeCurrentSelector = '.active-current';
+
+    $tocSelector
+      .on('activate.bs.scrollspy', function () {
+        var $currentActiveElement = $(tocSelector + ' .active').last();
+
+        removeCurrentActiveClass();
+        $currentActiveElement.addClass('active-current');
+
+        $tocSelector[0].scrollTop = $currentActiveElement.position().top;
+      })
+      .on('clear.bs.scrollspy', function () {
+        removeCurrentActiveClass();
+      });
+
+    function removeCurrentActiveClass () {
+      $(tocSelector + ' ' + activeCurrentSelector)
+        .removeClass(activeCurrentSelector.substring(1));
+    }
+
+    function processTOC () {
+      getTOCMaxHeight();
+      toggleTOCOverflowIndicators();
+    }
+
+    function getTOCMaxHeight () {
+      var height = $('.sidebar').height() -
+                   $tocSelector.position().top -
+                   $('.post-toc-indicator-bottom').height();
+
+      $tocSelector.css('height', height);
+
+      return height;
+    }
+
+    function toggleTOCOverflowIndicators () {
+      tocOverflowIndicator(
+        '.post-toc-indicator-top',
+        $tocSelector.scrollTop() > 0 ? 'show' : 'hide'
+      );
+
+      tocOverflowIndicator(
+        '.post-toc-indicator-bottom',
+        $tocSelector.scrollTop() >= $tocSelector.find('ol').height() - $tocSelector.height() ? 'hide' : 'show'
+      )
+    }
+
+    $(document).on('sidebar.motion.complete', function () {
+      processTOC();
+    });
+
+    $('body').scrollspy({ target: tocSelector });
+    $(window).on('resize', function () {
+      if ( $('.sidebar').hasClass('sidebar-active') ) {
+        processTOC();
+      }
+    });
+
+    onScroll($tocSelector);
+
+    function onScroll (element) {
+      element.on('mousewheel DOMMouseScroll', function (event) {
+          var oe = event.originalEvent;
+          var delta = oe.wheelDelta || -oe.detail;
+
+          this.scrollTop += ( delta < 0 ? 1 : -1 ) * 30;
+          event.preventDefault();
+
+          toggleTOCOverflowIndicators();
+      });
+    }
+
+    function tocOverflowIndicator (indicator, action) {
+      var $indicator = $(indicator);
+      var opacity = action === 'show' ? 1 : 0;
+      $indicator.velocity ?
+        $indicator.velocity('stop').velocity({
+          opacity: opacity
+        }, { duration: 100 }) :
+        $indicator.stop().animate({
+          opacity: opacity
+        }, 100);
+    }
+
+  });
+</script>
+
+<script type="text/javascript" id="sidebar.nav">
+  $(document).ready(function () {
+    var html = $('html');
+    var TAB_ANIMATE_DURATION = 200;
+    var hasVelocity = $.isFunction(html.velocity);
+
+    $('.sidebar-nav li').on('click', function () {
+      var item = $(this);
+      var activeTabClassName = 'sidebar-nav-active';
+      var activePanelClassName = 'sidebar-panel-active';
+      if (item.hasClass(activeTabClassName)) {
+        return;
+      }
+
+      var currentTarget = $('.' + activePanelClassName);
+      var target = $('.' + item.data('target'));
+
+      hasVelocity ?
+        currentTarget.velocity('transition.slideUpOut', TAB_ANIMATE_DURATION, function () {
+          target
+            .velocity('stop')
+            .velocity('transition.slideDownIn', TAB_ANIMATE_DURATION)
+            .addClass(activePanelClassName);
+        }) :
+        currentTarget.animate({ opacity: 0 }, TAB_ANIMATE_DURATION, function () {
+          currentTarget.hide();
+          target
+            .stop()
+            .css({'opacity': 0, 'display': 'block'})
+            .animate({ opacity: 1 }, TAB_ANIMATE_DURATION, function () {
+              currentTarget.removeClass(activePanelClassName);
+              target.addClass(activePanelClassName);
+            });
+        });
+
+      item.siblings().removeClass(activeTabClassName);
+      item.addClass(activeTabClassName);
+    });
+
+    $('.post-toc a').on('click', function (e) {
+      e.preventDefault();
+      var targetSelector = NexT.utils.escapeSelector(this.getAttribute('href'));
+      var offset = $(targetSelector).offset().top;
+      hasVelocity ?
+        html.velocity('stop').velocity('scroll', {
+          offset: offset  + 'px',
+          mobileHA: false
+        }) :
+        $('html, body').stop().animate({
+          scrollTop: offset
+        }, 500);
+    });
+
+    // Expand sidebar on post detail page by default, when post has a toc.
+    NexT.motion.middleWares.sidebar = function () {
+      var $tocContent = $('.post-toc-content');
+
+      if (CONFIG.sidebar.display === 'post' || CONFIG.sidebar.display === 'always') {
+        if ($tocContent.length > 0 && $tocContent.html().trim().length > 0) {
+          NexT.utils.displaySidebar();
+        }
+      }
+    };
+  });
+</script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=0.5.0"></script>
+
+
+
+  
+
+
+
+  
+
+
+
+  
+  
+  
+
+  
+
+
+</body>
+</html>

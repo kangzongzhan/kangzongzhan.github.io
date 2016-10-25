@@ -203,8 +203,8 @@
             
               
                 
-                <a class="post-title-link" href="/2015/01/05/java-io-networking/" itemprop="url">
-                  05 - Java IO 网络
+                <a class="post-title-link" href="/2015/01/23/java-io-23-s-objectinputstream-objectoutputstream/" itemprop="url">
+                  23 - Java IO 序列化与ObjectInputStream、ObjectOutputStream
                 </a>
               
             
@@ -217,8 +217,8 @@
               <i class="fa fa-calendar-o"></i>
             </span>
             <span class="post-meta-item-text">Posted on</span>
-            <time itemprop="dateCreated" datetime="2015-01-05T17:36:55+08:00" content="2015-01-05">
-              2015-01-05
+            <time itemprop="dateCreated" datetime="2015-01-23T17:36:55+08:00" content="2015-01-23">
+              2015-01-23
             </time>
           </span>
 
@@ -266,17 +266,25 @@
         
           
             <blockquote>
-<p><a href="http://tutorials.jenkov.com/java-io/networking.html" target="_blank" rel="external">原文链接</a> 作者: Jakob Jenkov 译者: 李璟(jlee381344197@gmail.com) 校对：方腾飞</p>
+<p>作者：Jakob Jenkov  译者： 李璟(jlee381344197@gmail.com)</p>
 </blockquote>
-<p>Java中网络的内容或多或少的超出了Java IO的范畴。关于Java网络更多的是在我的Java网络教程中探讨。但是既然网络是一个常见的数据来源以及数据流目的地，并且因为你使用Java IO的API通过网络连接进行通信，所以本文将简要的涉及网络应用。</p>
-<p>当两个进程之间建立了网络连接之后，他们通信的方式如同操作文件一样：利用InputStream读取数据，利用OutputStream写入数据。换句话来说，Java网络API用来在不同进程之间建立网络连接，而Java IO则用来在建立了连接之后的进程之间交换数据。</p>
-<p>基本上意味着如果你有一份能够对文件进行写入某些数据的代码，那么这些数据也可以很容易地写入到网络连接中去。你所需要做的仅仅只是在代码中利用InputStream替代FileInputStream进行数据的写入。因为FileInputStream是InputStream的子类，所以这么做并没有什么问题。(译者注：此处应该是OutputStream和FileOutputStream)</p>
-<p>实际上对于文件的读操作也类似，一个具有读取文件数据功能的组件，同样可以轻松读取网络连接中的数据。只需要保证读取数据的组件是基于InputStream而非FileInputStream即可。</p>
-<p>这是一份简单的代码示例：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">MyClass</span> </span>&#123;</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</div><div class="line">        InputStream inputStream = <span class="keyword">new</span> FileInputStream(<span class="string">"c:\\myfile.txt"</span>);</div><div class="line">        process(inputStream);</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">process</span><span class="params">(InputStream input)</span> <span class="keyword">throws</span> IOException </span>&#123;</div><div class="line">        <span class="comment">//do something with the InputStream</span></div><div class="line">    &#125;</div><div class="line"></div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<p>在这个例子中，process()方法并不关心InputStream参数的输入流，是来自于文件还是网络(例子只展示了输入流来自文件的版本)。process()方法只会对InputStream进行操作。</p>
+<p>本小节会简要概括Java IO中的序列化以及涉及到的流，主要包括ObjectInputStream和ObjectOutputStream。</p>
+<h1 id="Serializable"><a href="#Serializable" class="headerlink" title="Serializable"></a>Serializable</h1><p><a href="http://tutorials.jenkov.com/java-io/serializable.html" target="_blank" rel="external">原文链接</a></p>
+<p>如果你希望类能够序列化和反序列化，必须实现Serializable接口，就像所展示的ObjectInputStream和ObjectOutputStream例子一样。</p>
+<p>对象序列化本身就是一个主题。Java IO系列教程主要关注流、reader和writer，所以我不会深入探讨对象序列化的细节。并且，目前在网上已经有很多文章探讨了对象序列化，我将给出几个深入分析的资料链接，不再赘述。链接：<a href="http://java.sun.com/developer/technicalArticles/Programming/serialization/" target="_blank" rel="external">传送门</a></p>
+<h1 id="ObjectInputStream"><a href="#ObjectInputStream" class="headerlink" title="ObjectInputStream"></a>ObjectInputStream</h1><p><a href="http://tutorials.jenkov.com/java-io/objectinputstream.html" target="_blank" rel="external">原文链接</a></p>
+<p>ObjectInputStream能够让你从输入流中读取Java对象，而不需要每次读取一个字节。你可以把InputStream包装到ObjectInputStream中，然后就可以从中读取对象了。代码如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">ObjectInputStream input = <span class="keyword">new</span> ObjectInputStream(<span class="keyword">new</span> FileInputStream(<span class="string">"object.data"</span>));</div><div class="line">MyClass object = (MyClass) input.readObject(); <span class="comment">//etc.</span></div><div class="line">input.close();</div></pre></td></tr></table></figure>
+<p>在这个例子中，你读取的对象必须是MyClass的一个实例，并且必须事先通过ObjectOutputStream序列化到“object.data”文件中。(译者注：ObjectInputStream和ObjectOutputStream还有许多read和write方法，比如readInt、writeLong等等，详细信息请查看<a href="http://docs.oracle.com/javase/7/docs/api/" target="_blank" rel="external">官方文档</a>)</p>
+<p>在你序列化和反序列化一个对象之前，该对象的类必须实现了java.io.Serializable接口。</p>
+<h1 id="ObjectOutputStream"><a href="#ObjectOutputStream" class="headerlink" title="ObjectOutputStream"></a>ObjectOutputStream</h1><p><a href="http://tutorials.jenkov.com/java-io/objectoutputstream.html" target="_blank" rel="external">原文链接</a></p>
+<p>ObjectOutputStream能够让你把对象写入到输出流中，而不需要每次写入一个字节。你可以把OutputStream包装到ObjectOutputStream中，然后就可以把对象写入到该输出流中了。代码如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">ObjectOutputStream output = <span class="keyword">new</span> ObjectOutputStream(<span class="keyword">new</span> FileOutputStream(<span class="string">"object.data"</span>));</div><div class="line">MyClass object = <span class="keyword">new</span> MyClass();  output.writeObject(object); <span class="comment">//etc.</span></div><div class="line">output.close();</div></pre></td></tr></table></figure>
+<p>例子中序列化的对象object现在可以从ObjectInputStream中读取了。</p>
+<p>同样，在你序列化和反序列化一个对象之前，该对象的类必须实现了java.io.Serializable接口。</p>
+<p>原创文章，转载请注明： 转载自并发编程网 – ifeve.com本文链接地址: Java IO: 序列化与ObjectInputStream、ObjectOutputStream</p>
 <blockquote>
-<p>转载自<a href="http://ifeve.com/" target="_blank" rel="external">并发编程网 – ifeve.com</a> 本文链接地址: <a href="http://ifeve.com/java-io-network/" target="_blank" rel="external">Java  IO 网络</a></p>
+<p>转载自<a href="http://ifeve.com/" target="_blank" rel="external">并发编程网 – ifeve.com</a> 本文链接地址: <a href="http://ifeve.com/java-io-s-objectinputstream-objectoutputstream/" target="_blank" rel="external">Java IO: 序列化与ObjectInputStream、ObjectOutputStream</a></p>
 </blockquote>
 
           
@@ -323,8 +331,8 @@
             
               
                 
-                <a class="post-title-link" href="/2015/01/04/java-io-pipes/" itemprop="url">
-                  04 - Java IO 管道
+                <a class="post-title-link" href="/2015/01/22/java-io-22-buffered-data/" itemprop="url">
+                  22 - Java IO Buffered 和 Data
                 </a>
               
             
@@ -337,8 +345,8 @@
               <i class="fa fa-calendar-o"></i>
             </span>
             <span class="post-meta-item-text">Posted on</span>
-            <time itemprop="dateCreated" datetime="2015-01-04T17:36:55+08:00" content="2015-01-04">
-              2015-01-04
+            <time itemprop="dateCreated" datetime="2015-01-22T17:36:55+08:00" content="2015-01-22">
+              2015-01-22
             </time>
           </span>
 
@@ -386,19 +394,33 @@
         
           
             <blockquote>
-<p><a href="http://tutorials.jenkov.com/java-io/pipes.html" target="_blank" rel="external">原文链接</a> 作者: Jakob Jenkov  译者: 李璟(jlee381344197@gmail.com)</p>
+<p>作者：Jakob Jenkov  译者： 李璟(jlee381344197@gmail.com)</p>
 </blockquote>
-<p>Java IO中的管道为运行在同一个JVM中的两个线程提供了通信的能力。所以管道也可以作为数据源以及目标媒介。</p>
-<p>你不能利用管道与不同的JVM中的线程通信(不同的进程)。在概念上，Java的管道不同于Unix/Linux系统中的管道。在Unix/Linux中，运行在不同地址空间的两个进程可以通过管道通信。在Java中，通信的双方应该是运行在同一进程中的不同线程。</p>
-<h1 id="通过Java-IO创建管道"><a href="#通过Java-IO创建管道" class="headerlink" title="通过Java IO创建管道"></a>通过Java IO创建管道</h1><p>可以通过Java IO中的PipedOutputStream和PipedInputStream创建管道。一个PipedInputStream流应该和一个PipedOutputStream流相关联。一个线程通过PipedOutputStream写入的数据可以被另一个线程通过相关联的PipedInputStream读取出来。</p>
-<h1 id="Java-IO管道示例"><a href="#Java-IO管道示例" class="headerlink" title="Java IO管道示例"></a>Java IO管道示例</h1><p>这是一个如何将PipedInputStream和PipedOutputStream关联起来的简单例子：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">import</span> java.io.IOException;</div><div class="line"><span class="keyword">import</span> java.io.PipedInputStream;</div><div class="line"><span class="keyword">import</span> java.io.PipedOutputStream;</div><div class="line"></div><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">PipeExample</span> </span>&#123;</div><div class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> IOException </span>&#123;</div><div class="line">		<span class="keyword">final</span> PipedOutputStream output = <span class="keyword">new</span> PipedOutStream();</div><div class="line">		<span class="keyword">final</span> PipedInputStream input = <span class="keyword">new</span> PipedInputStream(output);</div><div class="line"></div><div class="line">		Thread thread1 = <span class="keyword">new</span> Thread(<span class="keyword">new</span> Runable() &#123;</div><div class="line">			<span class="meta">@override</span></div><div class="line">			<span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</div><div class="line">				<span class="keyword">try</span> &#123;</div><div class="line">					output.write(<span class="string">"Hello, world, pipe!"</span>.getBytes());</div><div class="line">				&#125; <span class="keyword">catch</span> (IOException e) &#123;</div><div class="line">				&#125;</div><div class="line">			&#125;</div><div class="line">		&#125;);</div><div class="line"></div><div class="line">		Thread thread2 = <span class="keyword">new</span> Thread(<span class="keyword">new</span> Runable() &#123;</div><div class="line">			<span class="meta">@override</span></div><div class="line">			<span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</div><div class="line">				<span class="keyword">try</span> &#123;</div><div class="line">					<span class="keyword">int</span> data = input.read();</div><div class="line">					<span class="keyword">while</span>(data != -<span class="number">1</span>)&#123;</div><div class="line">						System.out.print((<span class="keyword">char</span>) data);</div><div class="line">						data = input.read();</div><div class="line">					&#125;</div><div class="line">				&#125; <span class="keyword">catch</span> (IOException e) &#123;</div><div class="line">				&#125;</div><div class="line">			&#125;</div><div class="line">		&#125;);</div><div class="line"></div><div class="line">		thread1.start();</div><div class="line">		thread2.start();</div><div class="line">	&#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<p>注：本例忽略了流的关闭。请在处理流的过程中，务必保证关闭流，或者使用jdk7引入的try-resources代替显示地调用close方法的方式。</p>
-<p>你也可以使用两个管道共有的connect()方法使之相关联。PipedInputStream和PipedOutputStream都拥有一个可以互相关联的connect()方法。</p>
-<h1 id="管道和线程"><a href="#管道和线程" class="headerlink" title="管道和线程"></a>管道和线程</h1><p>请记得，当使用两个相关联的管道流时，务必将它们分配给不同的线程。read()方法和write()方法调用时会导致流阻塞，这意味着如果你尝试在一个线程中同时进行读和写，可能会导致线程死锁。</p>
-<h1 id="管道的替代"><a href="#管道的替代" class="headerlink" title="管道的替代"></a>管道的替代</h1><p>除了管道之外，一个JVM中不同线程之间还有许多通信的方式。实际上，线程在大多数情况下会传递完整的对象信息而非原始的字节数据。但是，如果你需要在线程之间传递字节数据，Java IO的管道是一个不错的选择。</p>
+<p>本小节会简要概括Java IO中Buffered和data的输入输出流，主要涉及以下4个类型的流：BufferedInputStream，BufferedOutputStream，DataInputStream，DataOutputStream。</p>
+<h1 id="BufferedInputStream"><a href="#BufferedInputStream" class="headerlink" title="BufferedInputStream"></a>BufferedInputStream</h1><p><a href="http://tutorials.jenkov.com/java-io/bufferedinputstream.html" target="_blank" rel="external">原文链接</a></p>
+<p>BufferedInputStream能为输入流提供缓冲区，能提高很多IO的速度。你可以一次读取一大块的数据，而不需要每次从网络或者磁盘中一次读取一个字节。特别是在访问大量磁盘数据时，缓冲通常会让IO快上许多。</p>
+<p>为了给你的输入流加上缓冲，你需要把输入流包装到BufferedInputStream中，代码如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">InputStream input = <span class="keyword">new</span> BufferedInputStream(<span class="keyword">new</span> FileInputStream(<span class="string">"c:\\data\\input-file.txt"</span>));</div></pre></td></tr></table></figure>
+<p>很简单，不是吗？你可以给BufferedInputStream的构造函数传递一个值，设置内部使用的缓冲区设置大小(译者注：默认缓冲区大小8 * 1024B)，就像这样：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">InputStream input = <span class="keyword">new</span> BufferedInputStream(<span class="keyword">new</span> FileInputStream(<span class="string">"c:\\data\\input-file.txt"</span>), <span class="number">8</span> * <span class="number">1024</span>);</div></pre></td></tr></table></figure>
+<p>这个例子设置了8KB的缓冲区。最好把缓冲区大小设置成1024字节的整数倍，这样能更高效地利用内置缓冲区的磁盘。</p>
+<p>除了能够为输入流提供缓冲区以外，其余方面BufferedInputStream基本与InputStream类似。</p>
+<h1 id="BufferedOutputStream"><a href="#BufferedOutputStream" class="headerlink" title="BufferedOutputStream"></a>BufferedOutputStream</h1><p><a href="http://tutorials.jenkov.com/java-io/bufferedoutputstream.html" target="_blank" rel="external">原文链接</a></p>
+<p>与BufferedInputStream类似，BufferedOutputStream可以为输出流提供缓冲区。可以构造一个使用默认大小缓冲区的BufferedOutputStream(译者注：默认缓冲区大小8 * 1024B)，代码如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">OutputStream output = <span class="keyword">new</span> BufferedOutputStream(<span class="keyword">new</span> FileOutputStream(<span class="string">"c:\\data\\output-file.txt"</span>));</div></pre></td></tr></table></figure>
+<p>也可以手动设置缓冲区大小，代码如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">OutputStream output = <span class="keyword">new</span> BufferedOutputStream(<span class="keyword">new</span> FileOutputStream(<span class="string">"c:\\data\\output-file.txt"</span>), <span class="number">8</span> * <span class="number">1024</span>);</div></pre></td></tr></table></figure>
+<p>为了更好地使用内置缓冲区的磁盘，同样建议把缓冲区大小设置成1024的整数倍。<br>除了能够为输出流提供缓冲区以外，其余方面BufferedOutputStream基本与OutputStream类似。唯一不同的时，你需要手动flush()方法确保写入到此输出流的数据真正写入到磁盘或者网络中。</p>
+<h1 id="DataInputStream"><a href="#DataInputStream" class="headerlink" title="DataInputStream"></a>DataInputStream</h1><p><a href="http://tutorials.jenkov.com/java-io/datainputstream.html" target="_blank" rel="external">原文链接</a></p>
+<p>DataInputStream可以使你从输入流中读取Java基本类型数据，而不必每次读取字节数据。你可以把InputStream包装到DataInputStream中，然后就可以从此输入流中读取基本类型数据了，代码如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">DataInputStream input = <span class="keyword">new</span> DataInputStream(<span class="keyword">new</span> FileInputStream(<span class="string">"binary.data"</span>));</div><div class="line"><span class="keyword">int</span> aByte = input.read();</div><div class="line"><span class="keyword">int</span> anInt = input.readInt();</div><div class="line"><span class="keyword">float</span> aFloat = input.readFloat();</div><div class="line"><span class="keyword">double</span> aDouble = input.readDouble();<span class="comment">//etc.</span></div><div class="line">input.close();</div></pre></td></tr></table></figure>
+<p>当你要读取的数据中包含了int，long，float，double这样的基本类型变量时，DataInputStream可以很方便地处理这些数据。</p>
+<h1 id="DataOutputStream"><a href="#DataOutputStream" class="headerlink" title="DataOutputStream"></a>DataOutputStream</h1><p><a href="http://tutorials.jenkov.com/java-io/dataoutputstream.html" target="_blank" rel="external">原文链接</a></p>
+<p>DataOutputStream可以往输出流中写入Java基本类型数据，例子如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">DataOutputStream output = <span class="keyword">new</span> DataOutputStream(<span class="keyword">new</span> FileOutputStream(<span class="string">"binary.data"</span>));</div><div class="line">output.write(<span class="number">45</span>);</div><div class="line"><span class="comment">//byte data output.writeInt(4545);</span></div><div class="line"><span class="comment">//int data output.writeDouble(109.123);</span></div><div class="line"><span class="comment">//double data  output.close();</span></div></pre></td></tr></table></figure>
+<p>其他方面与DataInputStream类似，不再赘述。</p>
 <blockquote>
-<p>转载自<a href="http://ifeve.com/" target="_blank" rel="external">并发编程网 – ifeve.com</a> 本文链接地址: <a href="http://ifeve.com/java-io-%E7%AE%A1%E9%81%93/" target="_blank" rel="external">Java  IO 管道</a></p>
+<p>转载自<a href="http://ifeve.com/" target="_blank" rel="external">并发编程网 – ifeve.com</a> 本文链接地址: <a href="http://ifeve.com/java-io-buffered%E5%92%8Cdata/" target="_blank" rel="external">Java IO: Buffered和Data</a></p>
 </blockquote>
 
           
@@ -445,8 +467,8 @@
             
               
                 
-                <a class="post-title-link" href="/2015/01/03/java-io-file/" itemprop="url">
-                  03 - Java IO 文件
+                <a class="post-title-link" href="/2015/01/21/java-io-21-bytearray-filter/" itemprop="url">
+                  21 - Java IO ByteArray 和 Filter
                 </a>
               
             
@@ -459,8 +481,8 @@
               <i class="fa fa-calendar-o"></i>
             </span>
             <span class="post-meta-item-text">Posted on</span>
-            <time itemprop="dateCreated" datetime="2015-01-03T18:07:01+08:00" content="2015-01-03">
-              2015-01-03
+            <time itemprop="dateCreated" datetime="2015-01-21T17:36:55+08:00" content="2015-01-21">
+              2015-01-21
             </time>
           </span>
 
@@ -508,17 +530,23 @@
         
           
             <blockquote>
-<p><a href="http://tutorials.jenkov.com/java-io/files.html" target="_blank" rel="external">原文链接</a>  作者: Jakob Jenkov  译者: 李璟(jlee381344197@gmail.com)</p>
+<p>作者: Jakob Jenkov 译者: 李璟(jlee381344197@gmail.com)</p>
 </blockquote>
-<p>在Java应用程序中，文件是一种常用的数据源或者存储数据的媒介。所以这一小节将会对Java中文件的使用做一个简短的概述。这篇文章不会对每一个技术细节都做出解释，而是会针对文件存取的方法提供给你一些必要的知识点。在之后的文章中，将会更加详细地描述这些方法或者类，包括方法示例等等。</p>
-<h1 id="通过Java-IO读文件"><a href="#通过Java-IO读文件" class="headerlink" title="通过Java IO读文件"></a>通过Java IO读文件</h1><p>如果你需要在不同端之间读取文件，你可以根据该文件是二进制文件还是文本文件来选择使用FileInputStream或者FileReader。这两个类允许你从文件开始到文件末尾一次读取一个字节或者字符，或者将读取到的字节写入到字节数组或者字符数组。你不必一次性读取整个文件，相反你可以按顺序地读取文件中的字节和字符。</p>
-<p>如果你需要跳跃式地读取文件其中的某些部分，可以使用RandomAccessFile。</p>
-<h1 id="通过Java-IO写文件"><a href="#通过Java-IO写文件" class="headerlink" title="通过Java IO写文件"></a>通过Java IO写文件</h1><p>如果你需要在不同端之间进行文件的写入，你可以根据你要写入的数据是二进制型数据还是字符型数据选用FileOutputStream或者FileWriter。你可以一次写入一个字节或者字符到文件中，也可以直接写入一个字节数组或者字符数据。数据按照写入的顺序存储在文件当中。</p>
-<h1 id="通过Java-IO随机存取文件"><a href="#通过Java-IO随机存取文件" class="headerlink" title="通过Java IO随机存取文件"></a>通过Java IO随机存取文件</h1><p>正如我所提到的，你可以通过RandomAccessFile对文件进行随机存取。</p>
-<p>随机存取并不意味着你可以在真正随机的位置进行读写操作，它只是意味着你可以跳过文件中某些部分进行操作，并且支持同时读写，不要求特定的存取顺序。这使得RandomAccessFile可以覆盖一个文件的某些部分、或者追加内容到它的末尾、或者删除它的某些内容，当然它也可以从文件的任何位置开始读取文件。</p>
-<h1 id="文件和目录信息的获取"><a href="#文件和目录信息的获取" class="headerlink" title="文件和目录信息的获取"></a>文件和目录信息的获取</h1><p>有时候你可能需要读取文件的信息而不是文件的内容，举个例子，如果你需要知道文件的大小和文件的属性。对于目录来说也是一样的，比如你需要获取某个目录下的文件列表。通过File类可以获取文件和目录的信息。</p>
+<p>本小节会简要概括Java IO中字节数组与过滤器的输入输出流，主要涉及以下4个类型的流：ByteArrayInputStream，ByteArrayOutputStream，FilterInputStream，FilterOutputStream。请注意，为了清晰，这里忽略了必要的异常处理。想了解更多异常处理的信息，请参考<a href="">Java IO异常处理</a>。</p>
+<h1 id="ByteArrayInputStream"><a href="#ByteArrayInputStream" class="headerlink" title="ByteArrayInputStream"></a>ByteArrayInputStream</h1><p><a href="http://tutorials.jenkov.com/java-io/bytearrayinputstream.html" target="_blank" rel="external">原文链接</a></p>
+<p>ByteArrayInputStream允许你从字节数组中读取字节流数据，代码如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">byte</span>[] bytes = ... <span class="comment">//get byte array from somewhere.</span></div><div class="line">InputStream input = <span class="keyword">new</span> ByteArrayInputStream(bytes);</div><div class="line"><span class="keyword">int</span> data = input.read();</div><div class="line"><span class="keyword">while</span>(data != -<span class="number">1</span>) &#123;</div><div class="line">    <span class="comment">//do something with data</span></div><div class="line">    data = input.read();</div><div class="line">&#125;</div><div class="line">input.close();</div></pre></td></tr></table></figure>
+<p>如果数据存储在数组中，ByteArrayInputStream可以很方便地读取数据。如果你有一个InputStream变量，又想从数组中读取数据呢？很简单，只需要把字节数组传递给ByteArrayInputStream的构造函数，在把这个ByteArrayInputStream赋值给InputStream变量就可以了(译者注：InputStream是所有字节输入流流的基类，Reader是所有字符输入流的基类，OutputStream与Writer同理)。</p>
+<h1 id="ByteArrayOutputStream"><a href="#ByteArrayOutputStream" class="headerlink" title="ByteArrayOutputStream"></a>ByteArrayOutputStream</h1><p><a href="http://tutorials.jenkov.com/java-io/bytearrayoutputstream.html" target="_blank" rel="external">原文链接</a></p>
+<p>ByteArrayOutputStream允许你以数组的形式获取写入到该输出流中的数据，代码如下：</p>
+<p>`` java<br>ByteArrayOutputStream output = new ByteArrayOutputStream();<br>//write data to output stream<br>byte[] bytes = output.toByteArray();<br>```</p>
+<h1 id="FilterInputStream"><a href="#FilterInputStream" class="headerlink" title="FilterInputStream"></a>FilterInputStream</h1><p><a href="http://tutorials.jenkov.com/java-io/filterinputstream.html" target="_blank" rel="external">原文链接</a></p>
+<p>FilterInputStream是实现自定义过滤输入流的基类，基本上它仅仅只是覆盖了InputStream中的所有方法。</p>
+<p>就我自己而言，我没发现这个类明显的用途。除了构造函数取一个InputStream变量作为参数之外，我没看到FilterInputStream任何对InputStream新增或者修改的地方。如果你选择继承FilterInputStream实现自定义的类，同样也可以直接继承自InputStream从而避免额外的类层级结构。</p>
+<h1 id="FilterOutputStream"><a href="#FilterOutputStream" class="headerlink" title="FilterOutputStream"></a>FilterOutputStream</h1><p><a href="http://tutorials.jenkov.com/java-io/filteroutputstream.html" target="_blank" rel="external">原文链接</a></p>
+<p>内容同FilterInputStream，不再赘述。</p>
 <blockquote>
-<p>转载自<a href="http://ifeve.com/" target="_blank" rel="external">并发编程网 – ifeve.com</a> 本文链接地址: <a href="http://ifeve.com/java-io-%E6%96%87%E4%BB%B6/" target="_blank" rel="external">Java  IO 文件</a></p>
+<p>转载自<a href="http://ifeve.com/" target="_blank" rel="external">并发编程网 – ifeve.com</a> 本文链接地址: <a href="http://ifeve.com/java-io-bytearray%E5%92%8Cfilter/" target="_blank" rel="external">Java IO: ByteArray和Filter</a></p>
 </blockquote>
 
           
@@ -565,8 +593,8 @@
             
               
                 
-                <a class="post-title-link" href="/2015/01/02/java-io-summary/" itemprop="url">
-                  02 - Java IO 概述
+                <a class="post-title-link" href="/2015/01/20/java-io-20-pipedoutputstream/" itemprop="url">
+                  20 - Java IO PipedOutputStream
                 </a>
               
             
@@ -579,8 +607,8 @@
               <i class="fa fa-calendar-o"></i>
             </span>
             <span class="post-meta-item-text">Posted on</span>
-            <time itemprop="dateCreated" datetime="2015-01-02T17:36:55+08:00" content="2015-01-02">
-              2015-01-02
+            <time itemprop="dateCreated" datetime="2015-01-20T17:36:55+08:00" content="2015-01-20">
+              2015-01-20
             </time>
           </span>
 
@@ -628,43 +656,273 @@
         
           
             <blockquote>
-<p><a href="http://tutorials.jenkov.com/java-io/overview.html" target="_blank" rel="external">原文链接</a> 作者: Jakob Jenkov   译者: 李璟(jlee381344197@gmail.com)  校对：方腾飞</p>
+<p><a href="http://tutorials.jenkov.com/java-io/pipedoutputstream.html" target="_blank" rel="external">原文链接</a> 作者: Jakob Jenkov 译者: 李璟(jlee381344197@gmail.com)</p>
 </blockquote>
-<p>在这一小节，我会试着给出Java IO(java.io)包下所有类的概述。更具体地说，我会根据类的用途对类进行分组。这个分组将会使你在未来的工作中，进行类的用途判定时，或者是为某个特定用途选择类时变得更加容易。</p>
-<h1 id="输入和输出-–-数据源和目标媒介"><a href="#输入和输出-–-数据源和目标媒介" class="headerlink" title="输入和输出 – 数据源和目标媒介"></a>输入和输出 – 数据源和目标媒介</h1><p>术语“输入”和“输出”有时候会有一点让人疑惑。一个应用程序的输入往往是另外一个应用程序的输出。那么OutputStream流到底是一个输出到目的地的流呢，还是一个产生输出的流？InputStream流到底会不会输出它的数据给读取数据的程序呢？就我个人而言，在第一天学习Java IO的时候我就感觉到了一丝疑惑。（校对注：输入流可以理解为向内存输入，输出流可以理解为从内存输出）</p>
-<p>为了消除这个疑惑，我试着给输入和输出起一些不一样的别名，让它们从概念上与数据的来源和数据的流向相联系。</p>
-<p>Java的IO包主要关注的是从原始数据源的读取以及输出原始数据到目标媒介。以下是最典型的数据源和目标媒介：</p>
+<p>PipedOutputStream可以往管道里写入读取字节流数据，代码如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">OutputStream output = <span class="keyword">new</span> PipedOutputStream(pipedInputStream);</div><div class="line"><span class="keyword">while</span>(moreData) &#123;</div><div class="line">    <span class="keyword">int</span> data = getMoreData();</div><div class="line">    output.write(data);</div><div class="line">&#125;</div><div class="line">output.close();</div></pre></td></tr></table></figure>
+<p>请注意，为了清晰，这里忽略了必要的异常处理。想了解更多异常处理的信息，请参考<a href="">Java IO异常处理</a>。</p>
+<p>PipedOutputStream的write()方法取一个包含了待写入字节的int类型变量作为参数进行写入。</p>
+<h1 id="Java-IO管道"><a href="#Java-IO管道" class="headerlink" title="Java IO管道"></a>Java IO管道</h1><p>一个PipedOutputStream总是需要与一个PipedInputStream相关联。当这两种流联系起来时，它们就形成了一条管道。要想更多地了解Java IO中的管道，请参考Java IO管道。</p>
+<blockquote>
+<p>转载自<a href="http://ifeve.com/" target="_blank" rel="external">并发编程网 – ifeve.com</a> 本文链接地址: <a href="http://ifeve.com/java-io-pipedoutputstream/" target="_blank" rel="external">Java IO: PipedOutputStream</a></p>
+</blockquote>
+
+          
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+                <a class="post-title-link" href="/2015/01/19/java-io-19-pipedinputstream/" itemprop="url">
+                  19 - Java IO PipedInputStream
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">Posted on</span>
+            <time itemprop="dateCreated" datetime="2015-01-19T17:36:55+08:00" content="2015-01-19">
+              2015-01-19
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/java-io/" itemprop="url" rel="index">
+                    <span itemprop="name">java io</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <blockquote>
+<p><a href="http://tutorials.jenkov.com/java-io/pipedinputstream.html" target="_blank" rel="external">原文链接</a> 作者: Jakob Jenkov 译者: 李璟(jlee381344197@gmail.com)</p>
+</blockquote>
+<p>PipedInputStream可以从管道中读取字节流数据，代码如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">InputStream input = <span class="keyword">new</span> PipedInputStream(pipedOutputStream);</div><div class="line"><span class="keyword">int</span> data = input.read();</div><div class="line"><span class="keyword">while</span>(data != -<span class="number">1</span>) &#123;</div><div class="line">    <span class="comment">//do something with data...</span></div><div class="line">    doSomethingWithData(data);</div><div class="line">    data = input.read();</div><div class="line">&#125;</div><div class="line">input.close();</div></pre></td></tr></table></figure>
+<p>请注意，为了清晰，这里忽略了必要的异常处理。想了解更多异常处理的信息，请参考<a href="">Java IO异常处理</a>。</p>
+<p>PipedInputStream的read()方法返回读取到的包含一个字节内容的int变量(译者注：0~255)。如果read()方法返回-1，意味着程序已经读到了流的末尾，此时流内已经没有多余的数据可供读取了，你可以关闭流。-1是一个int类型，不是byte类型，这是不一样的。</p>
+<h1 id="Java-IO管道"><a href="#Java-IO管道" class="headerlink" title="Java IO管道"></a>Java IO管道</h1><p>正如你所看到的例子那样，一个PipedInputStream需要与一个PipedOutputStream相关联，当这两种流联系起来时，就形成了一条管道。要想更多地了解Java IO中的管道，请参考<a href="">Java IO管道</a>。</p>
+<blockquote>
+<p>转载自<a href="http://ifeve.com/" target="_blank" rel="external">并发编程网 – ifeve.com</a> 本文链接地址: <a href="http://ifeve.com/java-io-pipedinputstream/" target="_blank" rel="external">Java IO: PipedInputStream</a></p>
+</blockquote>
+
+          
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+                <a class="post-title-link" href="/2015/01/18/java-io-18-file-class/" itemprop="url">
+                  18 - Java IO File
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">Posted on</span>
+            <time itemprop="dateCreated" datetime="2015-01-18T17:36:55+08:00" content="2015-01-18">
+              2015-01-18
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/java-io/" itemprop="url" rel="index">
+                    <span itemprop="name">java io</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <blockquote>
+<p><a href="http://ifeve.com/java-io-file/" target="_blank" rel="external">原文链接</a> 作者: Jakob Jenkov 译者: 李璟(jlee381344197@gmail.com)</p>
+</blockquote>
+<p>Java IO API中的FIle类可以让你访问底层文件系统，通过File类，你可以做到以下几点：</p>
 <ul>
-<li>文件</li>
-<li>管道</li>
-<li>网络连接</li>
-<li>内存缓存</li>
-<li>System.in, System.out, System.error(注：Java标准输入、输出、错误输出)</li>
+<li>检测文件是否存在</li>
+<li>读取文件长度</li>
+<li>重命名或移动文件</li>
+<li>删除文件</li>
+<li>检测某个路径是文件还是目录</li>
+<li>读取目录中的文件列表</li>
 </ul>
-<p>下面这张图描绘了一个程序从数据源读取数据，然后将数据输出到其他媒介的原理：</p>
-<p><img src="pic01.png" alt=""></p>
-<h1 id="流"><a href="#流" class="headerlink" title="流"></a>流</h1><p>在Java IO中，流是一个核心的概念。流从概念上来说是一个连续的数据流。你既可以从流中读取数据，也可以往流中写数据。流与数据源或者数据流向的媒介相关联。在Java IO中流既可以是字节流(以字节为单位进行读写)，也可以是字符流(以字符为单位进行读写)。</p>
-<h1 id="类InputStream-OutputStream-Reader-和Writer"><a href="#类InputStream-OutputStream-Reader-和Writer" class="headerlink" title="类InputStream, OutputStream, Reader 和Writer"></a>类InputStream, OutputStream, Reader 和Writer</h1><p>一个程序需要InputStream或者Reader从数据源读取数据，需要OutputStream或者Writer将数据写入到目标媒介中。以下的图说明了这一点：</p>
-<p><img src="pic02.png" alt=""></p>
-<p>InputStream和Reader与数据源相关联，OutputStream和writer与目标媒介相关联。</p>
-<h1 id="Java-IO的用途和特征"><a href="#Java-IO的用途和特征" class="headerlink" title="Java IO的用途和特征"></a>Java IO的用途和特征</h1><p>Java IO中包含了许多InputStream、OutputStream、Reader、Writer的子类。这样设计的原因是让每一个类都负责不同的功能。这也就是为什么IO包中有这么多不同的类的缘故。各类用途汇总如下：</p>
-<ul>
-<li>文件访问</li>
-<li>网络访问</li>
-<li>内存缓存访问</li>
-<li>线程内部通信(管道)</li>
-<li>缓冲</li>
-<li>过滤</li>
-<li>解析</li>
-<li>读写文本 (Readers / Writers)</li>
-<li>读写基本类型数据 (long, int etc.)</li>
-<li>读写对象</li>
-</ul>
-<p>当通读过Java IO类的源代码之后，我们很容易就能了解这些用途。这些用途或多或少让我们更加容易地理解，不同的类用于针对不同业务场景。</p>
-<h1 id="Java-IO类概述表"><a href="#Java-IO类概述表" class="headerlink" title="Java IO类概述表"></a>Java IO类概述表</h1><p>已经讨论了数据源、目标媒介、输入、输出和各类不同用途的Java IO类，接下来是一张通过输入、输出、基于字节或者字符、以及其他比如缓冲、解析之类的特定用途划分的大部分Java IO类的表格。</p>
-<p><img src="pic03.png" alt=""></p>
+<p>请注意：File只能访问文件以及文件系统的元数据。如果你想读写文件内容，需要使用FileInputStream、FileOutputStream或者RandomAccessFile。如果你正在使用Java NIO，并且想使用完整的NIO解决方案，你会使用到java.nio.FileChannel(否则你也可以使用File)。</p>
+<h1 id="实例化一个java-io-File对象"><a href="#实例化一个java-io-File对象" class="headerlink" title="实例化一个java.io.File对象"></a>实例化一个java.io.File对象</h1><p>在使用File之前，必须拥有一个File对象，这是实例化的代码例子：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">File file = <span class="keyword">new</span> File(<span class="string">"c:\\data\\input-file.txt"</span>);</div></pre></td></tr></table></figure>
+<p>很简单，对吗？File类同样拥有多种不同实例化方式的构造函数。</p>
+<h1 id="检测文件是否存在"><a href="#检测文件是否存在" class="headerlink" title="检测文件是否存在"></a>检测文件是否存在</h1><p>当你获得一个File对象之后，可以检测相应的文件是否存在。当文件不存在的时候，构造函数并不会执行失败。你已经准备好创建一个File了，对吧？</p>
+<p>通过调用exists()方法，可以检测文件是否存在，代码如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">File file = <span class="keyword">new</span> File(<span class="string">"c:\\data\\input-file.txt"</span>);</div><div class="line"><span class="keyword">boolean</span> fileExists = file.exists();</div></pre></td></tr></table></figure>
+<h1 id="文件长度"><a href="#文件长度" class="headerlink" title="文件长度"></a>文件长度</h1><p>通过调用length()可以获得文件的字节长度，代码如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">File file = <span class="keyword">new</span> File(<span class="string">"c:\\data\\input-file.txt"</span>);</div><div class="line"><span class="keyword">long</span> length = file.length();</div></pre></td></tr></table></figure>
+<h1 id="重命名或移动文件"><a href="#重命名或移动文件" class="headerlink" title="重命名或移动文件"></a>重命名或移动文件</h1><p>通过调用File类中的renameTo()方法可以重命名(或者移动)文件，代码如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">File file = <span class="keyword">new</span> File(<span class="string">"c:\\data\\input-file.txt"</span>);</div><div class="line"><span class="keyword">boolean</span> success = file.renameTo(<span class="keyword">new</span> File(<span class="string">"c:\\data\\new-file.txt"</span>));</div></pre></td></tr></table></figure>
+<h1 id="删除文件"><a href="#删除文件" class="headerlink" title="删除文件"></a>删除文件</h1><p>通过调用delete()方法可以删除文件，代码如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">File file = <span class="keyword">new</span> File(<span class="string">"c:\\data\\input-file.txt"</span>);</div><div class="line"><span class="keyword">boolean</span> success = file.delete();</div></pre></td></tr></table></figure>
+<p>delete()方法与rename()方法一样，返回布尔值表明是否成功删除文件，同样也会有相同的操作失败原因。</p>
+<h1 id="检测某个路径是文件还是目录"><a href="#检测某个路径是文件还是目录" class="headerlink" title="检测某个路径是文件还是目录"></a>检测某个路径是文件还是目录</h1><p>File对象既可以指向一个文件，也可以指向一个目录。可以通过调用isDirectory()方法，可以判断当前File对象指向的是文件还是目录。当方法返回值是true时，File指向的是目录，否则指向的是文件，代码如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">File file = <span class="keyword">new</span> File(<span class="string">"c:\\data"</span>);</div><div class="line"><span class="keyword">boolean</span> isDirectory = file.isDirectory();</div></pre></td></tr></table></figure>
+<h1 id="读取目录中的文件列表"><a href="#读取目录中的文件列表" class="headerlink" title="读取目录中的文件列表"></a>读取目录中的文件列表</h1><p>你可以通过调用list()或者listFiles()方法获取一个目录中的所有文件列表。list()方法返回当前File对象指向的目录中所有文件与子目录的字符串名称(译者注：不会返回子目录下的文件及其子目录名称)。listFiles()方法返回当前File对象指向的目录中所有文件与子目录相关联的File对象(译者注：与list()方法类似，不会返回子目录下的文件及其子目录)。代码如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">File file = <span class="keyword">new</span> File(<span class="string">"c:\\data"</span>);</div><div class="line">String[] fileNames = file.list();</div><div class="line">File[] files = file.listFiles();</div></pre></td></tr></table></figure>
 <blockquote>
-<p>转载自<a href="http://ifeve.com/" target="_blank" rel="external">并发编程网 – ifeve.com</a> 本文链接地址: <a href="http://ifeve.com/java-io-3/" target="_blank" rel="external">Java  IO 概述</a></p>
+<p>转载自<a href="http://ifeve.com/" target="_blank" rel="external">并发编程网 – ifeve.com</a> 本文链接地址: <a href="http://ifeve.com/java-io-file/" target="_blank" rel="external">Java IO: File</a></p>
 </blockquote>
 
           
@@ -711,8 +969,8 @@
             
               
                 
-                <a class="post-title-link" href="/2015/01/01/java-io/" itemprop="url">
-                  01 - Java IO教程
+                <a class="post-title-link" href="/2015/01/17/java-io-17-randomaccessfile/" itemprop="url">
+                  17 - Java IO RandomAccessFile
                 </a>
               
             
@@ -725,8 +983,8 @@
               <i class="fa fa-calendar-o"></i>
             </span>
             <span class="post-meta-item-text">Posted on</span>
-            <time itemprop="dateCreated" datetime="2015-01-01T17:19:10+08:00" content="2015-01-01">
-              2015-01-01
+            <time itemprop="dateCreated" datetime="2015-01-17T17:36:55+08:00" content="2015-01-17">
+              2015-01-17
             </time>
           </span>
 
@@ -774,50 +1032,399 @@
         
           
             <blockquote>
-<p><a href="http://tutorials.jenkov.com/java-io/index.html" target="_blank" rel="external">原文链接</a> 作者：Jakob Jenkov  译者：Connor (cronnorc@gmail.com) ，李璟  校对：方腾飞</p>
+<p><a href="http://tutorials.jenkov.com/java-io/randomaccessfile.html" target="_blank" rel="external">原文链接</a> 作者: Jakob Jenkov 译者: 李璟(jlee381344197@gmail.com)</p>
 </blockquote>
-<p>Java IO 是一套Java用来读写数据（输入和输出）的API。大部分程序都要处理一些输入，并由输入产生一些输出。Java为此提供了java.io包。</p>
-<p>如果你浏览下java.io包，会对其中各样的类选择感到迷惑。这些类的作用都是什么？对于某个任务该选择哪个类？怎样创建你自己的类做插件？这个手册的目的就是给你介绍这些类是如何组织的，以及怎样使用他们，因此你就不会疑惑需要时怎样选取合适的类，或者是否有一个满足你需求的类已经存在了。</p>
-<h1 id="Java-io-包的范围"><a href="#Java-io-包的范围" class="headerlink" title="Java.io 包的范围"></a>Java.io 包的范围</h1><p>java.io 包并没有涵盖所有输入输出类型。例如，并不包含GUI或者网页上的输入输出，这些输入和输出在其它地方都涉及，比如Swing工程中的JFC (Java Foundation Classes) 类，或者J2EE里的Servlet和HTTP包。</p>
-<p>Java.io 包主要涉及文件，网络数据流，内存缓冲等的输入输出。</p>
-<h1 id="更多的Java-IO工具，提示等"><a href="#更多的Java-IO工具，提示等" class="headerlink" title="更多的Java IO工具，提示等"></a>更多的Java IO工具，提示等</h1><p>这个手册也被称为” <a href="http://tutorials.jenkov.com/java-howto/index.html" target="_blank" rel="external">Java How To’s and Utilities</a> ”，包含一些Java IO的工具，例如替换流数据中的字符串，使用缓冲来反复处理流数据。</p>
-<h1 id="此Java-IO-手册的范围"><a href="#此Java-IO-手册的范围" class="headerlink" title="此Java IO 手册的范围"></a>此Java IO 手册的范围</h1><p>这个手册开始部分会给你一个Java IO API 工作的概览，以及你该怎样使用这些他们，接着会介绍包括所有Java IO API 的核心类。</p>
-<p>这个手册不只是一个API的列表，这样的列表你可以从Sun公司的官方Java文档获得。事实上，每篇文档都是对一个类的简要介绍，设计它的目的以及一些实用的例子。换句话说，这些内容你在Sun公司的官方文档上是找不到的。</p>
-<p>（本文是第一篇，如果你有兴趣翻译剩下的文章，请在回复中领取文章，翻译后，可以讲译文直接邮箱给我，或者直接发布在并发网上，你也可以加入我们试译者QQ群领取其他文章翻译，369468545）</p>
-<ol>
-<li><a href="">Java IO 教程</a></li>
-<li><a href="">Java IO 概述</a></li>
-<li><a href="">Java IO: 文件</a></li>
-<li><a href="">Java IO: 管道</a></li>
-<li><a href="">Java IO: 网络</a></li>
-<li><a href="">Java IO: 字节和字符数组</a></li>
-<li><a href="">Java IO: System.in, System.out, and System.error</a></li>
-<li><a href="">Java IO: 流</a></li>
-<li><a href="">Java IO: Input Parsing（暂无翻译，处理中）</a></li>
-<li><a href="">Java IO: Readers and Writers</a></li>
-<li><a href="">Java IO: 并发IO</a></li>
-<li><a href="">Java IO: 异常处理</a></li>
-<li><a href="">Java IO: InputStream</a></li>
-<li><a href="">Java IO: OutputStream</a></li>
-<li><a href="">Java IO: FileInputStream</a></li>
-<li><a href="">Java IO: FileOutputStream</a></li>
-<li><a href="">Java IO: RandomAccessFile</a></li>
-<li><a href="">Java IO: File</a></li>
-<li><a href="">Java IO: PipedInputStream</a></li>
-<li><a href="">Java IO: PipedOutputStream</a></li>
-<li><a href="">Java IO: 字节流的ByteArray和Filter</a></li>
-<li><a href="">Java IO: 字节流的Buffered和Data</a></li>
-<li><a href="">Java IO: 序列化与ObjectInputStream、ObjectOutputStream</a></li>
-<li><a href="">Java IO: Reader和Writer</a></li>
-<li><a href="">Java IO: InputStreamReader和OutputStreamWriter</a></li>
-<li><a href="">Java IO: FileReader和FileWriter</a></li>
-<li><a href="">Java IO: 字符流的Buffered和Filter</a></li>
-<li><a href="">Java IO: 字符流的Piped和CharArray</a></li>
-<li><a href="">Java IO: 其他字节流(上)</a></li>
-<li><a href="">Java IO: 其他字符流(下)</a></li>
-</ol>
+<p>RandomAccessFile允许你来回读写文件，也可以替换文件中的某些部分。FileInputStream和FileOutputStream没有这样的功能。</p>
+<h1 id="创建一个RandomAccessFile"><a href="#创建一个RandomAccessFile" class="headerlink" title="创建一个RandomAccessFile"></a>创建一个RandomAccessFile</h1><p>在使用RandomAccessFile之前，必须初始化它。这是例子：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">RandomAccessFile file = <span class="keyword">new</span> RandomAccessFile(<span class="string">"c:\\data\\file.txt"</span>, <span class="string">"rw"</span>);</div></pre></td></tr></table></figure>
+<p>请注意构造函数的第二个参数：“rw”，表明你以读写方式打开文件。请查阅Java文档获知你需要以何种方式构造RandomAccessFile。</p>
+<h1 id="在RandomAccessFile中来回读写"><a href="#在RandomAccessFile中来回读写" class="headerlink" title="在RandomAccessFile中来回读写"></a>在RandomAccessFile中来回读写</h1><p>在RandomAccessFile的某个位置读写之前，必须把文件指针指向该位置。通过seek()方法可以达到这一目标。可以通过调用getFilePointer()获得当前文件指针的位置。例子如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">RandomAccessFile file = <span class="keyword">new</span> RandomAccessFile(<span class="string">"c:\\data\\file.txt"</span>, <span class="string">"rw"</span>);</div><div class="line">file.seek(<span class="number">200</span>);</div><div class="line"><span class="keyword">long</span> pointer = file.getFilePointer();</div><div class="line">file.close();</div></pre></td></tr></table></figure>
+<h1 id="读取RandomAccessFile"><a href="#读取RandomAccessFile" class="headerlink" title="读取RandomAccessFile"></a>读取RandomAccessFile</h1><p>RandomAccessFile中的任何一个read()方法都可以读取RandomAccessFile的数据。例子如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">RandomAccessFile file = <span class="keyword">new</span> RandomAccessFile(<span class="string">"c:\\data\\file.txt"</span>, <span class="string">"rw"</span>);</div><div class="line"><span class="keyword">int</span> aByte = file.read();</div><div class="line">file.close();</div></pre></td></tr></table></figure>
+<p>read()方法返回当前RandomAccessFile实例的文件指针指向的位置中包含的字节内容。Java文档中遗漏了一点：read()方法在读取完一个字节之后，会自动把指针移动到下一个可读字节。这意味着使用者在调用完read()方法之后不需要手动移动文件指针。</p>
+<h1 id="写入RandomAccessFile"><a href="#写入RandomAccessFile" class="headerlink" title="写入RandomAccessFile"></a>写入RandomAccessFile</h1><p>RandomAccessFile中的任何一个write()方法都可以往RandomAccessFile中写入数据。例子如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">RandomAccessFile file = <span class="keyword">new</span> RandomAccessFile(<span class="string">"c:\\data\\file.txt"</span>, <span class="string">"rw"</span>);</div><div class="line">file.write(<span class="string">"Hello World"</span>.getBytes());</div><div class="line">file.close();</div></pre></td></tr></table></figure>
+<p>与read()方法类似，write()方法在调用结束之后自动移动文件指针，所以你不需要频繁地把指针移动到下一个将要写入数据的位置。</p>
+<h1 id="RandomAccessFile异常处理"><a href="#RandomAccessFile异常处理" class="headerlink" title="RandomAccessFile异常处理"></a>RandomAccessFile异常处理</h1><p>为了本篇内容清晰，暂时忽略RandomAccessFile异常处理的内容。RandomAccessFile与其他流一样，在使用完毕之后必须关闭。想要了解更多信息，请参考<a href="">Java IO异常处理</a>。</p>
 <blockquote>
-<p>转载自<a href="http://ifeve.com/" target="_blank" rel="external">并发编程网 – ifeve.com</a> 本文链接地址: <a href="http://ifeve.com/java-io/" target="_blank" rel="external">Java IO教程</a></p>
+<p>转载自<a href="http://ifeve.com/" target="_blank" rel="external">并发编程网 – ifeve.com</a> 本文链接地址: <a href="http://ifeve.com/java-io-randomaccessfile/" target="_blank" rel="external">Java IO: RandomAccessFile</a></p>
+</blockquote>
+
+          
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+                <a class="post-title-link" href="/2015/01/16/java-io-16-fileoutputstream/" itemprop="url">
+                  16 - Java IO FileOutputStream
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">Posted on</span>
+            <time itemprop="dateCreated" datetime="2015-01-16T17:36:55+08:00" content="2015-01-16">
+              2015-01-16
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/java-io/" itemprop="url" rel="index">
+                    <span itemprop="name">java io</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <blockquote>
+<p><a href="http://tutorials.jenkov.com/java-io/fileoutputstream.html" target="_blank" rel="external">原文链接</a> 作者: Jakob Jenkov 译者: 李璟(jlee381344197@gmail.com)</p>
+</blockquote>
+<p>FileOutputStream可以往文件里写入字节流，它是OutputStream的子类，所以你可以像使用OutputStream那样使用FileOutputStream。</p>
+<p>这是一个FileOutputStream的例子：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">OutputStream output = <span class="keyword">new</span> FileOutputStream(<span class="string">"c:\\data\\output-text.txt"</span>);</div><div class="line"><span class="keyword">while</span>(moreData) &#123;</div><div class="line">    <span class="keyword">int</span> data = getMoreData();</div><div class="line">    output.write(data);</div><div class="line">&#125;</div><div class="line">output.close();</div></pre></td></tr></table></figure>
+<p>请注意，为了清晰，这里忽略了必要的异常处理。想了解更多异常处理的信息，请参考<a href="">Java IO异常处理</a>。</p>
+<p>FileOutputStream的write()方法取一个包含了待写入字节(译者注：低8位数据)的int变量作为参数进行写入。</p>
+<p>FileOutputStream也有其他的构造函数，允许你通过不同的方式写入文件。请参考<a href="">官方文档</a>查阅更多信息。</p>
+<h1 id="文件内容的覆盖Override-VS追加Appending"><a href="#文件内容的覆盖Override-VS追加Appending" class="headerlink" title="文件内容的覆盖Override VS追加Appending"></a>文件内容的覆盖Override VS追加Appending</h1><p>当你创建了一个指向已存在文件的FileOutputStream，你可以选择覆盖整个文件，或者在文件末尾追加内容。通过使用不同的构造函数可以实现不同的目的。</p>
+<p>其中一个构造函数取文件名作为参数，会覆盖任何此文件名指向的文件。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">OutputStream output = <span class="keyword">new</span> FileOutputStream(<span class="string">"c:\\data\\output-text.txt"</span>);</div></pre></td></tr></table></figure>
+<p>另外一个构造函数取2个参数：文件名和一个布尔值，布尔值表明你是否需要覆盖文件。这是构造函数的例子：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">OutputStream output = <span class="keyword">new</span> FileOutputStream(<span class="string">"c:\\data\\output-text.txt"</span>, <span class="keyword">true</span>); <span class="comment">//appends to file</span></div><div class="line">OutputStream output = <span class="keyword">new</span> FileOutputStream(<span class="string">"c:\\data\\output-text.txt"</span>, <span class="keyword">false</span>); <span class="comment">//overwrites file</span></div></pre></td></tr></table></figure>
+<h1 id="写入字节数组"><a href="#写入字节数组" class="headerlink" title="写入字节数组"></a>写入字节数组</h1><p>既然FileOutputStream是OutputStream的子类，所以你也可以往FileOutputStream中写入字节数组，而不需要每次都只写入一个字节。可以参考我的OutputStream教程查阅更多关于写入字节数组的信息。</p>
+<h1 id="flush"><a href="#flush" class="headerlink" title="flush()"></a>flush()</h1><p>当你往FileOutputStream里写数据的时候，这些数据有可能会缓存在内存中。在之后的某个时间，比如，每次都只有X份数据可写，或者FileOutputStream关闭的时候，才会真正地写入磁盘。当FileOutputStream没被关闭，而你又想确保写入到FileOutputStream中的数据写入到磁盘中，可以调用flush()方法，该方法可以保证所有写入到FileOutputStream的数据全部写入到磁盘中。</p>
+<blockquote>
+<p>转载自<a href="http://ifeve.com/" target="_blank" rel="external">并发编程网 – ifeve.com</a> 本文链接地址: <a href="http://ifeve.com/java-io-fileoutputstream/" target="_blank" rel="external">Java IO: FileOutputStream</a></p>
+</blockquote>
+
+          
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+                <a class="post-title-link" href="/2015/01/15/java-io-15-fileinputstream/" itemprop="url">
+                  15 - Java IO FileInputStream
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">Posted on</span>
+            <time itemprop="dateCreated" datetime="2015-01-15T17:36:55+08:00" content="2015-01-15">
+              2015-01-15
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/java-io/" itemprop="url" rel="index">
+                    <span itemprop="name">java io</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <blockquote>
+<p><a href="http://tutorials.jenkov.com/java-io/fileinputstream.html" target="_blank" rel="external">原文链接</a> 作者: Jakob Jenkov 译者: 李璟(jlee381344197@gmail.com)</p>
+</blockquote>
+<p>FileInputStream可以以字节流的形式读取文件内容。FileInputStream是InputStream的子类，这意味着你可以把FileInputStream当做InputStream使用(FileInputStream与InputStream的行为类似)。</p>
+<p>这是一个FileInputStream的例子：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">InputStream input = <span class="keyword">new</span> FileInputStream(<span class="string">"c:\\data\\input-text.txt"</span>);</div><div class="line"><span class="keyword">int</span> data = input.read();<span class="keyword">while</span>(data != -<span class="number">1</span>) &#123;</div><div class="line">    <span class="comment">//do something with data...</span></div><div class="line">    doSomethingWithData(data);</div><div class="line">    data = input.read();</div><div class="line">&#125;</div><div class="line">input.close();</div></pre></td></tr></table></figure>
+<p>请注意，为了清晰，这里忽略了必要的异常处理。想了解更多异常处理的信息，请参考<a href="">Java IO异常处理</a>。</p>
+<p>FileInputStream的read()方法返回读取到的包含一个字节内容的int变量(译者注：0~255)。如果read()方法返回-1，意味着程序已经读到了流的末尾，此时流内已经没有多余的数据可供读取了，你可以关闭流。-1是一个int类型，不是byte类型，这是不一样的。</p>
+<p>FileInputStream也有其他的构造函数，允许你通过不同的方式读取文件。请参考官方文档查阅更多信息。</p>
+<p>其中一个FileInputStream构造函数取一个File对象替代String对象作为参数。这里是一个使用该构造函数的例子：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">File file = <span class="keyword">new</span> File(<span class="string">"c:\\data\\input-text.txt"</span>);</div><div class="line">InputStream input = <span class="keyword">new</span> FileInputStream(file);</div></pre></td></tr></table></figure>
+<p>至于你该采用参数是String对象还是File对象的构造函数，取决于你当前是否已经拥有一个File对象，也取决于你是否要在打开FileOutputStream之前通过File对象执行某些检查(比如检查文件是否存在)。</p>
+<blockquote>
+<p>转载自<a href="http://ifeve.com/" target="_blank" rel="external">并发编程网 – ifeve.com</a> 本文链接地址: <a href="http://ifeve.com/java-io-fileinputstream/" target="_blank" rel="external">Java IO: FileInputStream</a></p>
+</blockquote>
+
+          
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+                <a class="post-title-link" href="/2015/01/14/java-io-14-outputstream/" itemprop="url">
+                  14 - Java IO OutputStream
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">Posted on</span>
+            <time itemprop="dateCreated" datetime="2015-01-14T17:36:55+08:00" content="2015-01-14">
+              2015-01-14
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/java-io/" itemprop="url" rel="index">
+                    <span itemprop="name">java io</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <blockquote>
+<p><a href="http://tutorials.jenkov.com/java-io/outputstream.html" target="_blank" rel="external">原文链接</a> 作者: Jakob Jenkov 译者: 李璟(jlee381344197@gmail.com)</p>
+</blockquote>
+<p>OutputStream类是Java IO API中所有输出流的基类。子类包括BufferedOutputStream，FileOutputStream等等。参考Java IO概述这一小节底部的表格，可以浏览完整的子类的列表。</p>
+<h1 id="输出流和目标媒介"><a href="#输出流和目标媒介" class="headerlink" title="输出流和目标媒介"></a>输出流和目标媒介</h1><p>输出流往往和某些数据的目标媒介相关联，比如文件，网络连接，管道等。更多细节请参考Java IO概述。当写入到输出流的数据逐渐输出完毕时，目标媒介是所有数据的归属地。</p>
+<h1 id="Write-byte"><a href="#Write-byte" class="headerlink" title="Write(byte)"></a>Write(byte)</h1><p>write(byte)方法用于把单个字节写入到输出流中。OutputStream的write(byte)方法将一个包含了待写入数据的int变量作为参数进行写入。只有int类型的第一个字节会被写入，其余位会被忽略。(译者注：写入低8位，忽略高24位)。</p>
+<p>OutputStream的子类可能会包含write()方法的替代方法。比如，DataOutputStream允许你利用writeBoolean()，writeDouble()等方法将基本类型int，long，float，double，boolean等变量写入。</p>
+<p>这是一个OutputStream的write()方法例子：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">OutputStream output = <span class="keyword">new</span> FileOutputStream(<span class="string">"c:\\data\\output-text.txt"</span>);</div><div class="line"><span class="keyword">while</span>(hasMoreData()) &#123;</div><div class="line">    <span class="keyword">int</span> data = getMoreData();</div><div class="line">    output.write(data);</div><div class="line">&#125;</div><div class="line">output.close();</div></pre></td></tr></table></figure>
+<p>这个例子首先创建了待写入的FileOutputStream。在进入while循环之后，循环的判断条件是hasMoreData()方法的返回值。hasMoreData()方法的实现不予展示，请把这个函数理解为：当有剩余可写数据时，返回true，否则返回false。</p>
+<p>请注意，为了清晰，这里忽略了必要的异常处理。想了解更多异常处理的信息，请参考<a href="http://tutorials.jenkov.com/java-io/io-exception-handling.html" target="_blank" rel="external">Java IO异常处理</a>。</p>
+<h1 id="write-byte"><a href="#write-byte" class="headerlink" title="write(byte[])"></a>write(byte[])</h1><p>OutputStream同样包含了将字节数据中全部或者部分数据写入到输出流中的方法，分别是write(byte[])和write(byte[], int offset, int length)。</p>
+<p>write(byte[])把字节数组中所有数据写入到输出流中。</p>
+<p>write(byte[], int offset, int length)把字节数据中从offset位置开始，length个字节的数据写入到输出流。</p>
+<h1 id="flush"><a href="#flush" class="headerlink" title="flush()"></a>flush()</h1><p>OutputStream的flush()方法将所有写入到OutputStream的数据冲刷到相应的目标媒介中。比如，如果输出流是FileOutputStream，那么写入到其中的数据可能并没有真正写入到磁盘中。即使所有数据都写入到了FileOutputStream，这些数据还是有可能保留在内存的缓冲区中。通过调用flush()方法，可以把缓冲区内的数据刷新到磁盘(或者网络，以及其他任何形式的目标媒介)中。</p>
+<h1 id="close"><a href="#close" class="headerlink" title="close()"></a>close()</h1><p>当你结束数据写入时，需要关闭OutputStream。通过调用close()可以达到这一点。因为OutputStream的各种write()方法可能会抛出IO异常，所以你需要把调用close()的关闭操作方在finally块中执行。这是一个OutputStream调用close()的例子：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div></pre></td><td class="code"><pre><div class="line">OutputStream output = <span class="keyword">null</span>;</div><div class="line"><span class="keyword">try</span>&#123;</div><div class="line">    output = <span class="keyword">new</span> FileOutputStream(<span class="string">"c:\\data\\output-text.txt"</span>);</div><div class="line">    <span class="keyword">while</span>(hasMoreData()) &#123;</div><div class="line">        <span class="keyword">int</span> data = getMoreData();</div><div class="line">        output.write(data);</div><div class="line">    &#125;</div><div class="line">&#125; <span class="keyword">finally</span> &#123;</div><div class="line">    <span class="keyword">if</span>(output != <span class="keyword">null</span>) &#123;</div><div class="line">        output.close();</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>这个例子在finally块中调用close()方法。虽然这种方式可以确保OutputStream关闭，但却不是一个完美的异常处理方案。我在<a href="http://tutorials.jenkov.com/java-io/io-exception-handling.html" target="_blank" rel="external">Java IO异常处理</a>这文章中更加详细地探讨了IO的异常处理。</p>
+<blockquote>
+<p>转载自<a href="http://ifeve.com/" target="_blank" rel="external">并发编程网 – ifeve.com</a> 本文链接地址: <a href="http://ifeve.com/java-io-outputstream/" target="_blank" rel="external">Java IO: OutputStream</a></p>
 </blockquote>
 
           
@@ -847,7 +1454,7 @@
 
   
   <nav class="pagination">
-    <a class="extend prev" rel="prev" href="/page/2/"><i class="fa fa-angle-left"></i></a><a class="page-number" href="/">1</a><a class="page-number" href="/page/2/">2</a><span class="page-number current">3</span>
+    <a class="extend prev" rel="prev" href="/page/2/"><i class="fa fa-angle-left"></i></a><a class="page-number" href="/">1</a><a class="page-number" href="/page/2/">2</a><span class="page-number current">3</span><a class="page-number" href="/page/4/">4</a><a class="page-number" href="/page/5/">5</a><a class="extend next" rel="next" href="/page/4/"><i class="fa fa-angle-right"></i></a>
   </nav>
 
 
@@ -888,7 +1495,7 @@
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">25</span>
+              <span class="site-state-item-count">43</span>
               <span class="site-state-item-name">posts</span>
             </a>
           </div>

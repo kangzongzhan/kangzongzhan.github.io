@@ -203,8 +203,8 @@
             
               
                 
-                <a class="post-title-link" href="/2015/01/15/java-io-fileinputstream/" itemprop="url">
-                  15 - Java IO FileInputStream
+                <a class="post-title-link" href="/2016/08/24/ThreadLocal/" itemprop="url">
+                  ThreadLocal的实现
                 </a>
               
             
@@ -217,8 +217,341 @@
               <i class="fa fa-calendar-o"></i>
             </span>
             <span class="post-meta-item-text">Posted on</span>
-            <time itemprop="dateCreated" datetime="2015-01-15T17:36:55+08:00" content="2015-01-15">
-              2015-01-15
+            <time itemprop="dateCreated" datetime="2016-08-24T20:11:50+08:00" content="2016-08-24">
+              2016-08-24
+            </time>
+          </span>
+
+          
+
+          
+            
+          
+
+          
+
+          
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h1 id="1-ThreadLocal的使用"><a href="#1-ThreadLocal的使用" class="headerlink" title="1. ThreadLocal的使用"></a>1. ThreadLocal的使用</h1><p>ThreadLocal类可以让你创建的变量只被同一个线程进行读和写操作。因此，尽管有两个线程同时执行一段相同的代码，而且这段代码又有一个指向同一个ThreadLocal变量的引用，但是这两个线程依然不能看到彼此的ThreadLocal变量域。<br>ThreadLocal的使用方法也特别简单：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">ThreadLocal&lt;String&gt; strThreadLocal = <span class="keyword">new</span> ThreadLocal&lt;String&gt;(); <span class="comment">// 声明ThreadLocal对象</span></div><div class="line">strThreadLocal.set(<span class="string">"My thread id is:"</span> + Thread.currentThread().getId() ); <span class="comment">// 存储</span></div><div class="line">String str = strThreadLocal.get(); <span class="comment">// 获取</span></div></pre></td></tr></table></figure>
+<p>通过ThreadLocal<t>可以很方便的让线程拥有自己的”私有对象”。下面来看看它是怎么为线程创造出来的这个”私有对象”。整个实现主要涉及到Thread，ThreadLocalMap以及ThreadLcal, 他们的具体分工如下：</t></p>
+<p>Thread：”私有对象”，即泛型对象T实际存储位置。<br>ThreadLocalMap：程序中可以有多个ThreadLocal<t>对象，这就意味着，Thread对象中要存储多个对象T，ThreadLocalMap就是对象T在Thread中存储的数据结构<br>ThreadLocal：线程中获取”私有对象”的中介。</t></p>
+<h1 id="2-ThreadLocal"><a href="#2-ThreadLocal" class="headerlink" title="2. ThreadLocal"></a>2. ThreadLocal</h1><h2 id="2-1-set-get-的实现"><a href="#2-1-set-get-的实现" class="headerlink" title="2.1 set() get()的实现"></a>2.1 set() get()的实现</h2><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">set</span><span class="params">(T value)</span> </span>&#123;</div><div class="line">    Thread t = Thread.currentThread(); <span class="comment">// 获取当前线程</span></div><div class="line">    ThreadLocalMap map = getMap(t); <span class="comment">// 拿到当前线程中的ThreadLocalMap对象</span></div><div class="line">    <span class="keyword">if</span> (map != <span class="keyword">null</span>)</div><div class="line">        map.set(<span class="keyword">this</span>, value); <span class="comment">// 如果ThreadLocalMap已经存在，则以该ThreadLocal对象为Key存储。</span></div><div class="line">    <span class="keyword">else</span></div><div class="line">        createMap(t, value); <span class="comment">// 如果ThreadLocalMap还未创建，创建并存储</span></div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">public</span> T <span class="title">get</span><span class="params">()</span> </span>&#123;</div><div class="line">    Thread t = Thread.currentThread();</div><div class="line">    ThreadLocalMap map = getMap(t);</div><div class="line">    <span class="keyword">if</span> (map != <span class="keyword">null</span>) &#123;</div><div class="line">        ThreadLocalMap.Entry e = map.getEntry(<span class="keyword">this</span>); <span class="comment">// 获取Map的Entry</span></div><div class="line">        <span class="keyword">if</span> (e != <span class="keyword">null</span>)</div><div class="line">            <span class="keyword">return</span> (T)e.value; <span class="comment">// 获取存储的对象</span></div><div class="line">    &#125;</div><div class="line">    <span class="keyword">return</span> setInitialValue(); <span class="comment">// 返回默认值。通过复写initialValue方法设置默认值。</span></div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>可以看出set get方法就是往ThreadLocalMap存与取。</p>
+<h1 id="3-ThreadLocalMap"><a href="#3-ThreadLocalMap" class="headerlink" title="3. ThreadLocalMap"></a>3. ThreadLocalMap</h1><p>ThreadLocalMap可以说是一个自定义的HashMap。那么为什么不直接用HashMap作为存储结构呢？因为会出现内存泄露。<br>因为对象的存储位置是Thread这个对象中，一旦对象使用的生命周期小于Thread的生命周期就会导致，对象无法被GC回收，内存泄露。</p>
+<h2 id="使用弱引用作为Map的Entry"><a href="#使用弱引用作为Map的Entry" class="headerlink" title="使用弱引用作为Map的Entry"></a>使用弱引用作为Map的Entry</h2><p>为了防止内存泄露，Entry采用了很巧妙的一种办法，让Entry实现为ThreadLocal的弱引用，已ThreadLocal对象为Key，内部包裹一个Value对象。<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">static</span> <span class="class"><span class="keyword">class</span> <span class="title">Entry</span> <span class="keyword">extends</span> <span class="title">WeakReference</span>&lt;<span class="title">ThreadLocal</span>&gt; </span>&#123;</div><div class="line">    <span class="comment">/** The value associated with this ThreadLocal. */</span></div><div class="line">    Object value;</div><div class="line"></div><div class="line">    Entry(ThreadLocal k, Object v) &#123;</div><div class="line">        <span class="keyword">super</span>(k);</div><div class="line">        value = v;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>这样当除了ThreadLocalMap以外如果没有其他引用到ThreadLocal对象的话，那么在GC发生的时候，弱引用Entry所指向的ThreadLocal对象就会被回收。<br>而且以Entry.get()得到ThreadLocal对象作为Key， Entry.value作为当前线程，对应该key的ThreadLocal的线程“私有对象”。</p>
+<h2 id="3-1-hashcode的计算"><a href="#3-1-hashcode的计算" class="headerlink" title="3.1 hashcode的计算"></a>3.1 hashcode的计算</h2><p>hash算法的宗旨就是尽量的将较多的key均匀分布在有限的槽中。在ThreadLocalMap中的key是ThreadLocal，自然hashcode的计算就落到的ThreadLocal身上。<br>结合考虑ThreadLocal使用的常见场景，ThreadLocal对象都会被连续的添加到每个线程的ThreadLocalMap中，所以设计者采用了一种“自增”的实现方法。自增的起始值是0x61c88647。也就是说第一个被new出来的ThreadLocal对象的hashcode为0x61c88647，第二被new出来的ThreadLocal对象的hashcode就是0x61c88648，以此类推。而且这种实现方法在那些并不常见的场景中效果也是很好的。</p>
+<h2 id="3-2-一维存储结构"><a href="#3-2-一维存储结构" class="headerlink" title="3.2 一维存储结构"></a>3.2 一维存储结构</h2><p>注意到Entry的实现与HashMap中不同，没有Entry.next，所以其无法实现HashMap的那种二维存储，只能是一维存储结构。<br>那么在发生hash冲突的时候，解决办法也就是简单的后移。贴上ThreadLocalMap 的set 与 get 方法</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">set</span><span class="params">(ThreadLocal key, Object value)</span> </span>&#123;</div><div class="line"></div><div class="line">    <span class="comment">// We don't use a fast path as with get() because it is at</span></div><div class="line">    <span class="comment">// least as common to use set() to create new entries as</span></div><div class="line">    <span class="comment">// it is to replace existing ones, in which case, a fast</span></div><div class="line">    <span class="comment">// path would fail more often than not.</span></div><div class="line"></div><div class="line">    Entry[] tab = table;</div><div class="line">    <span class="keyword">int</span> len = tab.length;</div><div class="line">    <span class="keyword">int</span> i = key.threadLocalHashCode &amp; (len-<span class="number">1</span>); <span class="comment">// hashcode 与 数组长度结合初步计算出存储位置</span></div><div class="line"></div><div class="line">    <span class="keyword">for</span> (Entry e = tab[i];</div><div class="line">         e != <span class="keyword">null</span>;</div><div class="line">         e = tab[i = nextIndex(i, len)]) &#123; <span class="comment">// 查看该位置是否已经存储了Entry</span></div><div class="line">        ThreadLocal k = e.get();</div><div class="line"></div><div class="line">        <span class="keyword">if</span> (k == key) &#123; <span class="comment">// 如果该位置存放的key value与要设的一直，直接return</span></div><div class="line">            e.value = value;</div><div class="line">            <span class="keyword">return</span>;</div><div class="line">        &#125;</div><div class="line"></div><div class="line">        <span class="keyword">if</span> (k == <span class="keyword">null</span>) &#123; <span class="comment">// 如果该位置存放的ThreadLocal已经被回收，替换它</span></div><div class="line">            replaceStaleEntry(key, value, i);</div><div class="line">            <span class="keyword">return</span>;</div><div class="line">        &#125;</div><div class="line">                             <span class="comment">// 不是以上情况，就查看下一个位置是否能够存储 </span></div><div class="line">    &#125;</div><div class="line"></div><div class="line">    tab[i] = <span class="keyword">new</span> Entry(key, value); <span class="comment">// 找到合适位置存储</span></div><div class="line">    <span class="keyword">int</span> sz = ++size;</div><div class="line">    <span class="keyword">if</span> (!cleanSomeSlots(i, sz) &amp;&amp; sz &gt;= threshold) <span class="comment">// 是否要扩充</span></div><div class="line">        rehash();</div><div class="line">&#125;</div><div class="line"></div><div class="line"></div><div class="line"><span class="function"><span class="keyword">private</span> Entry <span class="title">getEntry</span><span class="params">(ThreadLocal key)</span> </span>&#123;</div><div class="line">    <span class="keyword">int</span> i = key.threadLocalHashCode &amp; (table.length - <span class="number">1</span>);</div><div class="line">    Entry e = table[i];</div><div class="line">    <span class="keyword">if</span> (e != <span class="keyword">null</span> &amp;&amp; e.get() == key) <span class="comment">//当前Entry不为空， 且key相等说明命中</span></div><div class="line">        <span class="keyword">return</span> e;</div><div class="line">    <span class="keyword">else</span></div><div class="line">        <span class="keyword">return</span> getEntryAfterMiss(key, i, e); <span class="comment">//没有命中继续再找</span></div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">private</span> Entry <span class="title">getEntryAfterMiss</span><span class="params">(ThreadLocal key, <span class="keyword">int</span> i, Entry e)</span> </span>&#123;</div><div class="line">    Entry[] tab = table;</div><div class="line">    <span class="keyword">int</span> len = tab.length;</div><div class="line"></div><div class="line">    <span class="keyword">while</span> (e != <span class="keyword">null</span>) &#123;</div><div class="line">        ThreadLocal k = e.get();</div><div class="line">        <span class="keyword">if</span> (k == key) <span class="comment">// 命中返回</span></div><div class="line">            <span class="keyword">return</span> e;</div><div class="line">        <span class="keyword">if</span> (k == <span class="keyword">null</span>) <span class="comment">// ThreadLocal已经被回收，将当前Slot消去</span></div><div class="line">            expungeStaleEntry(i);</div><div class="line">        <span class="keyword">else</span></div><div class="line">            i = nextIndex(i, len); <span class="comment">// 没有命中，挪到下一个</span></div><div class="line">        e = tab[i];</div><div class="line">    &#125;</div><div class="line">    <span class="keyword">return</span> <span class="keyword">null</span>;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<h1 id="4-Thread"><a href="#4-Thread" class="headerlink" title="4. Thread"></a>4. Thread</h1><p>Thread是ThreadLocalMap的载体，结合其实际作用，不难想象。也没有太多好说的。</p>
+
+          
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+                <a class="post-title-link" href="/2016/08/24/Handler-Looper-MessageQueue/" itemprop="url">
+                  Android的消息机制
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">Posted on</span>
+            <time itemprop="dateCreated" datetime="2016-08-24T19:50:00+08:00" content="2016-08-24">
+              2016-08-24
+            </time>
+          </span>
+
+          
+
+          
+            
+          
+
+          
+
+          
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p>Android消息机制主要涉及三个类Looper、MessageQueue和Handler，另外还需要有ThreadLocal的知识基础。<br>首先介绍一下三个类的作用：</p>
+<p>MessageQueue：消息队列，用于存储待执行的消息Message。<br>Looper：消息循环者，负责从MessageQueue中取出消息，交给响应的Handler执行。<br>Handler:发送消息到MessageQueue，执行Looper从MessageQueue中取出的消息。</p>
+<h1 id="消息机制初始化"><a href="#消息机制初始化" class="headerlink" title="消息机制初始化"></a>消息机制初始化</h1><p>在一个线程中怎样才能够使用消息机制呢？只需要在线程中之下下面两行代码：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">Looper.perpare();</div><div class="line">Looper.loop();</div></pre></td></tr></table></figure>
+<p>简单的两个代码到底做了什么事情，就让一个线程可以使用消息机制了呢？看一下源码分析一下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">prepare</span><span class="params">(<span class="keyword">boolean</span> quitAllowed)</span> </span>&#123;</div><div class="line">    <span class="keyword">if</span> (sThreadLocal.get() != <span class="keyword">null</span>) &#123;</div><div class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> RuntimeException(<span class="string">"Only one Looper may be created per thread"</span>);</div><div class="line">    &#125;</div><div class="line">    sThreadLocal.set(<span class="keyword">new</span> Looper(quitAllowed));</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>首先看ThreadLocal中是不是已经有一个Looper对象了，如果有就说明该线程已经初始化过消息机制了。<br>如果没有Looper对象就新建一个放到ThreadLocal中。来看一下Looper的构造方法</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">private</span> <span class="title">Looper</span><span class="params">(<span class="keyword">boolean</span> quitAllowed)</span> </span>&#123;</div><div class="line">    mQueue = <span class="keyword">new</span> MessageQueue(quitAllowed);</div><div class="line">    mRun = <span class="keyword">true</span>;</div><div class="line">    mThread = Thread.currentThread();</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>构造方法中新建一个MessageQueue，把mRun标志为true，mThread指向当前线程。<br>Looper.loop()方法也是特别简单，死循环的取消息队列里的消息来执行。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">loop</span><span class="params">()</span> </span>&#123;</div><div class="line">    <span class="keyword">final</span> Looper me = myLooper();</div><div class="line">    <span class="keyword">final</span> MessageQueue queue = me.mQueue;</div><div class="line">    <span class="keyword">for</span> (;;) &#123;</div><div class="line">        Message msg = queue.next(); <span class="comment">// 如果消息队列为空，就会阻塞</span></div><div class="line">        msg.target.dispatchMessage(msg);</div><div class="line">        msg.recycle();</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<h1 id="消息的发送与执行"><a href="#消息的发送与执行" class="headerlink" title="消息的发送与执行"></a>消息的发送与执行</h1><h2 id="发送消息"><a href="#发送消息" class="headerlink" title="发送消息"></a>发送消息</h2><p>消息具体分为what消息与runable消息。<br>what消息发送方法Handler.sendXXX()， runable消息发送方法Handler.postXXX()。<br>Handler提供了这么多发送消息的调用方法其实只是为了开发者在不同情景下方便调用，其实他们最终都是通过Handler.sendMessageAtTime(Message msg, long uptimeMillis)实现的。<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">sendMessageAtTime</span><span class="params">(Message msg, <span class="keyword">long</span> uptimeMillis)</span> </span>&#123;</div><div class="line">    MessageQueue queue = mQueue;</div><div class="line">    <span class="keyword">if</span> (queue == <span class="keyword">null</span>) &#123;</div><div class="line">        RuntimeException e = <span class="keyword">new</span> RuntimeException(</div><div class="line">                <span class="keyword">this</span> + <span class="string">" sendMessageAtTime() called with no mQueue"</span>);</div><div class="line">        Log.w(<span class="string">"Looper"</span>, e.getMessage(), e);</div><div class="line">        <span class="keyword">return</span> <span class="keyword">false</span>;</div><div class="line">    &#125;</div><div class="line">    <span class="keyword">return</span> enqueueMessage(queue, msg, uptimeMillis);</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">boolean</span> <span class="title">enqueueMessage</span><span class="params">(MessageQueue queue, Message msg, <span class="keyword">long</span> uptimeMillis)</span> </span>&#123;</div><div class="line">    msg.target = <span class="keyword">this</span>; <span class="comment">// 将handler应用交给msg</span></div><div class="line">    <span class="keyword">if</span> (mAsynchronous) &#123;</div><div class="line">        msg.setAsynchronous(<span class="keyword">true</span>);</div><div class="line">    &#125;</div><div class="line">    <span class="keyword">return</span> queue.enqueueMessage(msg, uptimeMillis); <span class="comment">// 将msg添加到消息队列</span></div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>至此，消息发送完成，就是这么简单。<br>需要注意的一点是在将Message添加到MessageQueue之间，Handler将自己的引用交给了Message<code>msg.target = this</code>，这是为了下面执行消息的时候使用。</p>
+<h2 id="执行消息"><a href="#执行消息" class="headerlink" title="执行消息"></a>执行消息</h2><p>消息的执行的第一步就是从消息队列里将消息取出，这件事起是在上面的Looper.loop()中执行的。<br>看上面代码，消息取出来之后调用了这一句，<code>msg.target.dispatchMessage(msg)</code>，细看一下dispatchMessage这个方法也特别简单。<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">dispatchMessage</span><span class="params">(Message msg)</span> </span>&#123;</div><div class="line">    <span class="keyword">if</span> (msg.callback != <span class="keyword">null</span>) &#123; <span class="comment">// callback不为空，说明是runable消息，通过handleCallback方法执行</span></div><div class="line">        handleCallback(msg);    <span class="comment">// 执行 msg.callback.run()</span></div><div class="line">    &#125; <span class="keyword">else</span> &#123;					<span class="comment">// 否则为what消息</span></div><div class="line">        <span class="keyword">if</span> (mCallback != <span class="keyword">null</span>) &#123; <span class="comment">// 如果有mCallback，则由其处理</span></div><div class="line">            <span class="keyword">if</span> (mCallback.handleMessage(msg)) &#123;</div><div class="line">                <span class="keyword">return</span>;</div><div class="line">            &#125;</div><div class="line">        &#125;</div><div class="line">        handleMessage(msg); <span class="comment">// 如果没有mCallback，handleMessage方法处理</span></div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>消息的执行也不复杂<br>如果是runable消息，直接调用run方法<br>如果是what消息有两种方法可以处理：1，指定Callback创建Handler 2，重写handleMessage方法<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div></pre></td><td class="code"><pre><div class="line">Handler.Callback callback = <span class="keyword">new</span> Handler.Callback()&#123;</div><div class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">handleMessage</span><span class="params">(Message msg)</span></span>&#123;</div><div class="line">		<span class="keyword">switch</span>(msg.what)&#123;</div><div class="line">		<span class="keyword">case</span> X:</div><div class="line">			dosomething...</div><div class="line">			<span class="keyword">break</span>;</div><div class="line">		<span class="keyword">default</span>:</div><div class="line">			<span class="keyword">break</span>;</div><div class="line">		&#125;</div><div class="line">		<span class="keyword">return</span> <span class="keyword">true</span>; <span class="comment">// 返回true消费message， Handler自身的handleMessage不会被执行</span></div><div class="line">		<span class="comment">//return false; //返回false不消费message，Handler自身的handleMessage会被执行</span></div><div class="line">	&#125;</div><div class="line">&#125;</div><div class="line">Handler handler = <span class="keyword">new</span> Handler(callback, ...);</div></pre></td></tr></table></figure></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div></pre></td><td class="code"><pre><div class="line">Handler handler = <span class="keyword">new</span> Handler()&#123;</div><div class="line">	<span class="meta">@override</span></div><div class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">handleMessage</span><span class="params">(Message msg)</span></span>&#123;</div><div class="line">		<span class="keyword">switch</span>(msg.what)&#123;</div><div class="line">		<span class="keyword">case</span> X:</div><div class="line">			dosomething...</div><div class="line">			<span class="keyword">break</span>;</div><div class="line">		<span class="keyword">default</span>:</div><div class="line">			<span class="keyword">break</span>;</div><div class="line">		&#125;</div><div class="line">	&#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<h2 id="Tips"><a href="#Tips" class="headerlink" title="Tips"></a>Tips</h2><ol>
+<li>在一个具有消息机制的线程中，Looper和MessageQueue是唯一的，Handler可以有多个，可以被同一进程下的任意线程调用（线程间通信），这些Handler都是往同一个MessageQueue里存取消息，也统一由Looper取出消息，依次交回Looper所在线程处理。</li>
+<li>每个Handler都对应唯一的Looper，消息都是发送到这个Looper内的MessageQueue</li>
+<li>new Handler() 以当前线程中的Looper创建Handler</li>
+<li>new Handler(Looper looper) 指定Looper创建Handler</li>
+</ol>
+<h1 id="Message的回收与重用"><a href="#Message的回收与重用" class="headerlink" title="Message的回收与重用"></a>Message的回收与重用</h1><p>Android应用层完全就运行于这套消息机制中，整个机制源源不断的流通着Message。如果说每次需要Message的时候都通过构造方法创建一个，用完之后再由GC回收掉，这也太浪费。Message设计了一套回收重用机制。<br>提到重用肯定就想到了池这个概念，一般池的实现都是通过静态集合实现的，而Message的这套池结构也采用的一种栈式池结构。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line"><span class="class"><span class="keyword">class</span> <span class="title">Message</span></span>&#123;</div><div class="line">	Message next; <span class="comment">// 指向一下个可重用msg</span></div><div class="line"></div><div class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> Object sPoolSync = <span class="keyword">new</span> Object(); <span class="comment">//池操作对象锁</span></div><div class="line">    <span class="keyword">private</span> <span class="keyword">static</span> Message sPool; <span class="comment">// 池变量，指向栈式池的头</span></div><div class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">int</span> sPoolSize = <span class="number">0</span>; <span class="comment">// 当前池的大小</span></div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">recycle</span><span class="params">()</span></span>; <span class="comment">//msg使用完之后，清空msg信息，入池</span></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">obtain</span><span class="params">()</span></span>; <span class="comment">//从池中提取一个msg</span></div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>recycle的实现：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">recycle</span><span class="params">()</span> </span>&#123;</div><div class="line">    clearForRecycle(); <span class="comment">// 清空msg信息</span></div><div class="line"></div><div class="line">    <span class="keyword">synchronized</span> (sPoolSync) &#123;</div><div class="line">        <span class="keyword">if</span> (sPoolSize &lt; MAX_POOL_SIZE) &#123; <span class="comment">// 如果栈池不满，入栈</span></div><div class="line">            next = sPool;</div><div class="line">            sPool = <span class="keyword">this</span>;</div><div class="line">            sPoolSize++;</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>obtain的实现：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> Message <span class="title">obtain</span><span class="params">()</span> </span>&#123;</div><div class="line">    <span class="keyword">synchronized</span> (sPoolSync) &#123;</div><div class="line">        <span class="keyword">if</span> (sPool != <span class="keyword">null</span>) &#123; <span class="comment">// 如果栈池不空，出栈</span></div><div class="line">            Message m = sPool;</div><div class="line">            sPool = m.next;</div><div class="line">            m.next = <span class="keyword">null</span>;</div><div class="line">            sPoolSize--;</div><div class="line">            <span class="keyword">return</span> m;</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line">    <span class="keyword">return</span> <span class="keyword">new</span> Message(); <span class="comment">// 栈池空，new一个</span></div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>池为空的情况下连续回收msg1，msg2<br><img src="pic01.jpg" alt=""></p>
+<p>连续obtain两个Message<br><img src="pic02.jpg" alt=""></p>
+
+          
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+                <a class="post-title-link" href="/2016/01/01/how-java-io-works/" itemprop="url">
+                  Java I/O 在底层是如何工作的？
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">Posted on</span>
+            <time itemprop="dateCreated" datetime="2016-01-01T23:39:53+08:00" content="2016-01-01">
+              2016-01-01
+            </time>
+          </span>
+
+          
+
+          
+            
+          
+
+          
+
+          
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <blockquote>
+<p>原文：<a href="http://howtodoinjava.com/core-java/io/how-java-io-works-internally-at-lower-level/" target="_blank" rel="external">http://howtodoinjava.com/core-java/io/how-java-io-works-internally-at-lower-level/</a></p>
+</blockquote>
+<p>这篇文章主要讨论I/O操作在底层使如何工作的。主要介绍Java层的I/O操作是如何映射到机器层的，已经在我们的应用运行的时候硬件都做了那些事情。这里我假定大家在读这篇文章的时候已经熟悉了进本的I/O操作，比如使用Java I/O 的API来读写文件，因为本文不会涉及这些内容。</p>
+<p>文章目录</p>
+<ul>
+<li><a href="#缓冲区处理与内核空间、用户空间">缓冲区处理与内核空间、用户空间</a></li>
+<li><a href="#虚拟内存">虚拟内存</a></li>
+<li><a href="#内存分页">内存分页</a></li>
+<li><a href="#面向文件/块的I/O">面向文件/块的I/O</a></li>
+<li><a href="#文件锁">文件锁</a></li>
+<li><a href="#面向流的I/O">面向流的I/O</a></li>
+</ul>
+<h1 id="缓冲区处理与内核空间、用户空间"><a href="#缓冲区处理与内核空间、用户空间" class="headerlink" title="缓冲区处理与内核空间、用户空间"></a>缓冲区处理与内核空间、用户空间</h1><p>缓冲区与缓冲区的操作是所以I/O的基础。<strong>“输入/输入”这个词的意义无非就是将数据移入与移出缓冲区。</strong>要时刻牢记这一点。通常，进程通过操作系统执行I/O操作，写操作就是将缓冲区内的数据清空，读操作是用数据填充缓冲区。这就是对I/O宏观上的总结。操作系统控制的机器在执行这些数据传输的时候可能相当的负责，但从概念上来说却是很简单的，接下来本文中将讨论其中的一小部分。</p>
+<p><img src="data-buffering-at-os-level.png" alt="data buffering at os level"></p>
+<p>上面这张图展示了数据块是如何一步步的从硬盘读入到用户进程的内存中的。首先，用户进程通过<code>read()</code>系统调用请求数据来填充到它的缓冲区，内核收到这个系统调用，会向硬盘控制器发出一个读取硬盘数据的指令。硬盘控制器可以通过DMA可以直接往内核内存缓冲区写数据，不需要主CPU的任何协助。一旦硬盘控制器将内核内存缓冲区填满之后，内核就将数据冲内核这个临时缓冲区Copy到特定的内存缓冲区。</p>
+<p>需要值得注意的一点是，内核会尝试缓存或者提前拉取数据，这样用户进程请求的数据可能已经存在在内核空间里面了。如果请求的数据已经在内核空间，那么只需要将数据从内核空间Copy到用户空间，如果没有，用户进程将被挂起，内核负责将数据从硬盘读入到内核空间。</p>
+<h1 id="虚拟内存"><a href="#虚拟内存" class="headerlink" title="虚拟内存"></a>虚拟内存</h1><p>之前你可能已经听过<code>虚拟内存</code>这个词很多次了，</p>
+<p>现代所有的操作系统都使用了虚拟内存。虚拟内存意味着，操作系统使用的是人工的虚拟的内存地址而不是真实的物理内存地址。使用虚拟内存有两大好处：</p>
+<ul>
+<li>多个虚拟内存地址可以指向物理内存的同一位置</li>
+<li>虚拟内存空间可以大于实际物理内存可用空间</li>
+</ul>
+<p>上面一节中提到的将数据从内核空间Copy到用户空间看起来像是无用功，为什么不直接告诉硬盘控制器直接将数据发送到用户空间？通过虚拟内存可以实现这一点，具体实现是使用了上面的第一条好处。</p>
+<p>将内核空间地址映射为用户空间使用的虚拟地址对应的物理地址，DMA（只能操作实际的物理内存地址）就可以只往内存中填充一个缓冲区，实现同时对于内核和用户空间都是可见的。</p>
+<p><img src="virtual-memory-architechture.png" alt="virtual memory architechture"></p>
+<p>这样的话就减少了一次内核空间与用户空间内存之间的拷贝，但有个前提条件是内核和用户缓冲区的内存页是对齐的。缓冲区的大小也必须是磁盘控制器使用的块的大小的整数倍。操作系统将内存空间划分为许多固定大小的页。这些页的大小是磁盘块大小的整数倍，通常是块大小的2的幂次方倍。一般内存页大小为1024byte，2048byte或者4096byte。虚拟内存页与物理内存页大小通常是一致的。</p>
+<h1 id="内存分页"><a href="#内存分页" class="headerlink" title="内存分页"></a>内存分页</h1><p>为了实现虚拟内存的第二个好处（地址空间大于实际物理内存），必须对内存进行分页处理（通常指的是内存交换）。为了能够使物理内存有足够的空间作为虚拟内存使用，一些虚拟内存的页必须放到磁盘上存储起来。</p>
+<h1 id="面向文件-块的I-O"><a href="#面向文件-块的I-O" class="headerlink" title="面向文件/块的I/O"></a>面向文件/块的I/O</h1><h1 id="文件锁"><a href="#文件锁" class="headerlink" title="文件锁"></a>文件锁</h1><h1 id="面向流的I-O"><a href="#面向流的I-O" class="headerlink" title="面向流的I/O"></a>面向流的I/O</h1>
+          
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+                <a class="post-title-link" href="/2015/01/30/java-io-30-other-2/" itemprop="url">
+                  30 - Java IO 其他字符流(下)
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">Posted on</span>
+            <time itemprop="dateCreated" datetime="2015-01-30T17:36:55+08:00" content="2015-01-30">
+              2015-01-30
             </time>
           </span>
 
@@ -266,19 +599,43 @@
         
           
             <blockquote>
-<p><a href="http://tutorials.jenkov.com/java-io/fileinputstream.html" target="_blank" rel="external">原文链接</a> 作者: Jakob Jenkov 译者: 李璟(jlee381344197@gmail.com)</p>
+<p>作者: Jakob Jenkov 译者: 李璟(jlee381344197@gmail.com)</p>
 </blockquote>
-<p>FileInputStream可以以字节流的形式读取文件内容。FileInputStream是InputStream的子类，这意味着你可以把FileInputStream当做InputStream使用(FileInputStream与InputStream的行为类似)。</p>
-<p>这是一个FileInputStream的例子：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">InputStream input = <span class="keyword">new</span> FileInputStream(<span class="string">"c:\\data\\input-text.txt"</span>);</div><div class="line"><span class="keyword">int</span> data = input.read();<span class="keyword">while</span>(data != -<span class="number">1</span>) &#123;</div><div class="line">    <span class="comment">//do something with data...</span></div><div class="line">    doSomethingWithData(data);</div><div class="line">    data = input.read();</div><div class="line">&#125;</div><div class="line">input.close();</div></pre></td></tr></table></figure>
-<p>请注意，为了清晰，这里忽略了必要的异常处理。想了解更多异常处理的信息，请参考<a href="">Java IO异常处理</a>。</p>
-<p>FileInputStream的read()方法返回读取到的包含一个字节内容的int变量(译者注：0~255)。如果read()方法返回-1，意味着程序已经读到了流的末尾，此时流内已经没有多余的数据可供读取了，你可以关闭流。-1是一个int类型，不是byte类型，这是不一样的。</p>
-<p>FileInputStream也有其他的构造函数，允许你通过不同的方式读取文件。请参考官方文档查阅更多信息。</p>
-<p>其中一个FileInputStream构造函数取一个File对象替代String对象作为参数。这里是一个使用该构造函数的例子：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">File file = <span class="keyword">new</span> File(<span class="string">"c:\\data\\input-text.txt"</span>);</div><div class="line">InputStream input = <span class="keyword">new</span> FileInputStream(file);</div></pre></td></tr></table></figure>
-<p>至于你该采用参数是String对象还是File对象的构造函数，取决于你当前是否已经拥有一个File对象，也取决于你是否要在打开FileOutputStream之前通过File对象执行某些检查(比如检查文件是否存在)。</p>
+<p>本小节会简要概括Java IO中的PushbackReader，LineNumberReader，StreamTokenizer，PrintWriter，StringReader，StringWriter。</p>
+<h1 id="PushbackReader"><a href="#PushbackReader" class="headerlink" title="PushbackReader"></a>PushbackReader</h1><p><a href="http://tutorials.jenkov.com/java-io/pushbackreader.html" target="_blank" rel="external">原文链接</a></p>
+<p>PushbackReader与PushbackInputStream类似，唯一不同的是PushbackReader处理字符，PushbackInputStream处理字节。代码如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">PushbackReader reader = <span class="keyword">new</span> PushbackReader(<span class="keyword">new</span> FileReader(<span class="string">"c:\\data\\input.txt"</span>));</div><div class="line"><span class="keyword">int</span> data = reader.read();</div><div class="line">reader.unread(data);</div></pre></td></tr></table></figure>
+<p>同样可以设置缓冲区大小，代码如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">PushbackReader reader = <span class="keyword">new</span> PushbackReader(<span class="keyword">new</span> FileReader(<span class="string">"c:\\data\\input.txt"</span>), <span class="number">8</span>);</div></pre></td></tr></table></figure>
+<h1 id="LineNumberReader"><a href="#LineNumberReader" class="headerlink" title="LineNumberReader"></a>LineNumberReader</h1><p><a href="http://tutorials.jenkov.com/java-io/linenumberreader.html" target="_blank" rel="external">原文链接</a></p>
+<p>LineNumberReader是记录了已读取数据行号的BufferedReader。默认情况下，行号从0开始，当LineNumberReader读取到行终止符时，行号会递增(译者注：换行\n，回车\r，或者换行回车\n\r都是行终止符)。</p>
+<p>你可以通过getLineNumber()方法获取当前行号，通过setLineNumber()方法设置当前行数(译者注：setLineNumber()仅仅改变LineNumberReader内的记录行号的变量值，不会改变当前流的读取位置。流的读取依然是顺序进行，意味着你不能通过setLineNumber()实现流的跳跃读取)。代码如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">LineNumberReader reader = <span class="keyword">new</span> LineNumberReader(<span class="keyword">new</span> FileReader(<span class="string">"c:\\data\\input.txt"</span>));</div><div class="line"><span class="keyword">int</span> data = reader.read();</div><div class="line"><span class="keyword">while</span>(data != -<span class="number">1</span>)&#123;</div><div class="line">    <span class="keyword">char</span> dataChar = (<span class="keyword">char</span>) data;</div><div class="line">    data = reader.read();</div><div class="line">    <span class="keyword">int</span> lineNumber = reader.getLineNumber();</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>如果解析的文本有错误，LineNumberReader可以很方便地定位问题。当你把错误报告给用户时，如果能够同时把出错的行号提供给用户，用户就能迅速发现并且解决问题。</p>
+<h1 id="StreamTokenizer"><a href="#StreamTokenizer" class="headerlink" title="StreamTokenizer"></a>StreamTokenizer</h1><p><a href="http://tutorials.jenkov.com/java-io/streamtokenizer.html" target="_blank" rel="external">原文链接</a></p>
+<p>StreamTokenizer(译者注：请注意不是StringTokenizer)可以把输入流(译者注：InputStream和Reader。通过InputStream构造StreamTokenizer的构造函数已经在JDK1.1版本过时，推荐将InputStream转化成Reader，再利用此Reader构造StringTokenizer)分解成一系列符号。比如，句子”Mary had a little lamb”的每个单词都是一个单独的符号。</p>
+<p>当你解析文件或者计算机语言时，为了进一步的处理，需要将解析的数据分解成符号。通常这个过程也称作分词。</p>
+<p>通过循环调用nextToken()可以遍历底层输入流的所有符号。在每次调用nextToken()之后，StreamTokenizer有一些变量可以帮助我们获取读取到的符号的类型和值。这些变量是：</p>
+<p>ttype 读取到的符号的类型(字符，数字，或者行结尾符)</p>
+<p>sval 如果读取到的符号是字符串类型，该变量的值就是读取到的字符串的值</p>
+<p>nval 如果读取到的符号是数字类型，该变量的值就是读取到的数字的值</p>
+<p>代码如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line">StreamTokenizer tokenizer = <span class="keyword">new</span> StreamTokenizer(<span class="keyword">new</span> StringReader(<span class="string">"Mary had 1 little lamb..."</span>));</div><div class="line"><span class="keyword">while</span>(tokenizer.nextToken() != StreamTokenizer.TT_EOF)&#123;</div><div class="line">    <span class="keyword">if</span>(tokenizer.ttype == StreamTokenizer.TT_WORD) &#123;</div><div class="line">        System.out.println(tokenizer.sval);</div><div class="line">    &#125; <span class="keyword">else</span> <span class="keyword">if</span>(tokenizer.ttype == StreamTokenizer.TT_NUMBER) &#123;</div><div class="line">        System.out.println(tokenizer.nval);</div><div class="line">    &#125; <span class="keyword">else</span> <span class="keyword">if</span>(tokenizer.ttype == StreamTokenizer.TT_EOL) &#123;</div><div class="line">        System.out.println();</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>译者注：TT_EOF表示流末尾，TT_EOL表示行末尾。</p>
+<p>StreamTokenizer可以识别标示符，数字，引用的字符串，和多种注释类型。你也可以指定何种字符解释成空格、注释的开始以及结束等。在StreamTokenizer开始解析之前，所有的功能都可以进行配置。请查阅官方文档获取更多信息。</p>
+<h1 id="PrintWriter"><a href="#PrintWriter" class="headerlink" title="PrintWriter"></a>PrintWriter</h1><p><a href="http://tutorials.jenkov.com/java-io/printwriter.html" target="_blank" rel="external">原文链接</a></p>
+<p>与<a href="/2015/01/29/java-io-29-other-1/#PrintStream">PrintStream</a>类似，PrintWriter可以把格式化后的数据写入到底层writer中。由于内容相似，不再赘述。</p>
+<p>值得一提的是，PrintWriter有更多种构造函数供使用者选择，除了可以输出到文件、Writer以外，还可以输出到OutputStream中(译者注：PrintStream只能把数据输出到文件和OutputStream)。</p>
+<h1 id="StringReader"><a href="#StringReader" class="headerlink" title="StringReader"></a>StringReader</h1><p><a href="http://tutorials.jenkov.com/java-io/stringreader.html" target="_blank" rel="external">原文链接</a></p>
+<p>StringReader能够将原始字符串转换成Reader，代码如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">Reader reader = <span class="keyword">new</span> StringReader(<span class="string">"input string..."</span>);</div><div class="line"><span class="keyword">int</span> data = reader.read();</div><div class="line"><span class="keyword">while</span>(data != -<span class="number">1</span>) &#123;</div><div class="line">    <span class="comment">//do something with data...</span></div><div class="line">    doSomethingWithData(data);</div><div class="line">    data = reader.read();</div><div class="line">&#125;</div><div class="line">reader.close();</div></pre></td></tr></table></figure>
+<h1 id="StringWriter"><a href="#StringWriter" class="headerlink" title="StringWriter"></a>StringWriter</h1><p><a href="http://tutorials.jenkov.com/java-io:-stringwriter.html" target="_blank" rel="external">原文链接</a></p>
+<p>StringWriter能够以字符串的形式从Writer中获取写入到其中数据，代码如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">StringWriter writer = <span class="keyword">new</span> StringWriter();</div><div class="line"><span class="comment">//write characters to writer.</span></div><div class="line">String data = writer.toString();</div><div class="line">StringBuffer dataBuffer = writer.getBuffer();</div></pre></td></tr></table></figure>
+<p>toString()方法能够获取StringWriter中的字符串数据。</p>
+<p>getBuffer()方法能够获取StringWriter内部构造字符串时所使用的StringBuffer对象。</p>
 <blockquote>
-<p>转载自<a href="http://ifeve.com/" target="_blank" rel="external">并发编程网 – ifeve.com</a> 本文链接地址: <a href="http://ifeve.com/java-io-fileinputstream/" target="_blank" rel="external">Java IO: FileInputStream</a></p>
+<p>转载自<a href="http://ifeve.com/" target="_blank" rel="external">并发编程网 – ifeve.com</a> 本文链接地址: <a href="http://ifeve.com/java-io-other/" target="_blank" rel="external">Java IO: 其他字符流(下)</a></p>
 </blockquote>
 
           
@@ -325,8 +682,8 @@
             
               
                 
-                <a class="post-title-link" href="/2015/01/14/java-io-outputstream/" itemprop="url">
-                  14 - Java IO OutputStream
+                <a class="post-title-link" href="/2015/01/29/java-io-29-other-1/" itemprop="url">
+                  29 - Java IO 其他字节流(上)
                 </a>
               
             
@@ -339,8 +696,8 @@
               <i class="fa fa-calendar-o"></i>
             </span>
             <span class="post-meta-item-text">Posted on</span>
-            <time itemprop="dateCreated" datetime="2015-01-14T17:36:55+08:00" content="2015-01-14">
-              2015-01-14
+            <time itemprop="dateCreated" datetime="2015-01-29T17:36:55+08:00" content="2015-01-29">
+              2015-01-29
             </time>
           </span>
 
@@ -388,25 +745,27 @@
         
           
             <blockquote>
-<p><a href="http://tutorials.jenkov.com/java-io/outputstream.html" target="_blank" rel="external">原文链接</a> 作者: Jakob Jenkov 译者: 李璟(jlee381344197@gmail.com)</p>
+<p>作者: Jakob Jenkov 译者: 李璟(jlee381344197@gmail.com)</p>
 </blockquote>
-<p>OutputStream类是Java IO API中所有输出流的基类。子类包括BufferedOutputStream，FileOutputStream等等。参考Java IO概述这一小节底部的表格，可以浏览完整的子类的列表。</p>
-<h1 id="输出流和目标媒介"><a href="#输出流和目标媒介" class="headerlink" title="输出流和目标媒介"></a>输出流和目标媒介</h1><p>输出流往往和某些数据的目标媒介相关联，比如文件，网络连接，管道等。更多细节请参考Java IO概述。当写入到输出流的数据逐渐输出完毕时，目标媒介是所有数据的归属地。</p>
-<h1 id="Write-byte"><a href="#Write-byte" class="headerlink" title="Write(byte)"></a>Write(byte)</h1><p>write(byte)方法用于把单个字节写入到输出流中。OutputStream的write(byte)方法将一个包含了待写入数据的int变量作为参数进行写入。只有int类型的第一个字节会被写入，其余位会被忽略。(译者注：写入低8位，忽略高24位)。</p>
-<p>OutputStream的子类可能会包含write()方法的替代方法。比如，DataOutputStream允许你利用writeBoolean()，writeDouble()等方法将基本类型int，long，float，double，boolean等变量写入。</p>
-<p>这是一个OutputStream的write()方法例子：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">OutputStream output = <span class="keyword">new</span> FileOutputStream(<span class="string">"c:\\data\\output-text.txt"</span>);</div><div class="line"><span class="keyword">while</span>(hasMoreData()) &#123;</div><div class="line">    <span class="keyword">int</span> data = getMoreData();</div><div class="line">    output.write(data);</div><div class="line">&#125;</div><div class="line">output.close();</div></pre></td></tr></table></figure>
-<p>这个例子首先创建了待写入的FileOutputStream。在进入while循环之后，循环的判断条件是hasMoreData()方法的返回值。hasMoreData()方法的实现不予展示，请把这个函数理解为：当有剩余可写数据时，返回true，否则返回false。</p>
-<p>请注意，为了清晰，这里忽略了必要的异常处理。想了解更多异常处理的信息，请参考<a href="http://tutorials.jenkov.com/java-io/io-exception-handling.html" target="_blank" rel="external">Java IO异常处理</a>。</p>
-<h1 id="write-byte"><a href="#write-byte" class="headerlink" title="write(byte[])"></a>write(byte[])</h1><p>OutputStream同样包含了将字节数据中全部或者部分数据写入到输出流中的方法，分别是write(byte[])和write(byte[], int offset, int length)。</p>
-<p>write(byte[])把字节数组中所有数据写入到输出流中。</p>
-<p>write(byte[], int offset, int length)把字节数据中从offset位置开始，length个字节的数据写入到输出流。</p>
-<h1 id="flush"><a href="#flush" class="headerlink" title="flush()"></a>flush()</h1><p>OutputStream的flush()方法将所有写入到OutputStream的数据冲刷到相应的目标媒介中。比如，如果输出流是FileOutputStream，那么写入到其中的数据可能并没有真正写入到磁盘中。即使所有数据都写入到了FileOutputStream，这些数据还是有可能保留在内存的缓冲区中。通过调用flush()方法，可以把缓冲区内的数据刷新到磁盘(或者网络，以及其他任何形式的目标媒介)中。</p>
-<h1 id="close"><a href="#close" class="headerlink" title="close()"></a>close()</h1><p>当你结束数据写入时，需要关闭OutputStream。通过调用close()可以达到这一点。因为OutputStream的各种write()方法可能会抛出IO异常，所以你需要把调用close()的关闭操作方在finally块中执行。这是一个OutputStream调用close()的例子：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div></pre></td><td class="code"><pre><div class="line">OutputStream output = <span class="keyword">null</span>;</div><div class="line"><span class="keyword">try</span>&#123;</div><div class="line">    output = <span class="keyword">new</span> FileOutputStream(<span class="string">"c:\\data\\output-text.txt"</span>);</div><div class="line">    <span class="keyword">while</span>(hasMoreData()) &#123;</div><div class="line">        <span class="keyword">int</span> data = getMoreData();</div><div class="line">        output.write(data);</div><div class="line">    &#125;</div><div class="line">&#125; <span class="keyword">finally</span> &#123;</div><div class="line">    <span class="keyword">if</span>(output != <span class="keyword">null</span>) &#123;</div><div class="line">        output.close();</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<p>这个例子在finally块中调用close()方法。虽然这种方式可以确保OutputStream关闭，但却不是一个完美的异常处理方案。我在<a href="http://tutorials.jenkov.com/java-io/io-exception-handling.html" target="_blank" rel="external">Java IO异常处理</a>这文章中更加详细地探讨了IO的异常处理。</p>
+<p>本小节会简要概括Java IO中的PushbackInputStream，SequenceInputStream和PrintStream。其中，最常用的是PrintStream，System.out和System.err都是PrintStream类型的变量，请查看<a href="/2015/01/07/java-io-07-system-in-out-error/">Java IO System.in, System.out, System.err</a>浏览更多关于System.out和System.err的信息。</p>
+<h1 id="PushbackInputStream"><a href="#PushbackInputStream" class="headerlink" title="PushbackInputStream"></a>PushbackInputStream</h1><p><a href="http://tutorials.jenkov.com/java-io/pushbackinputstream.html" target="_blank" rel="external">原文链接</a></p>
+<p>PushbackInputStream用于解析InputStream内的数据。有时候你需要提前知道接下来将要读取到的字节内容，才能判断用何种方式进行数据解析。PushBackInputStream允许你这么做，你可以把读取到的字节重新推回到InputStream中，以便再次通过read()读取。代码如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">PushbackInputStream input = <span class="keyword">new</span> PushbackInputStream(<span class="keyword">new</span> FileInputStream(<span class="string">"c:\\data\\input.txt"</span>));</div><div class="line"><span class="keyword">int</span> data = input.read();</div><div class="line">input.unread(data);</div></pre></td></tr></table></figure>
+<p>可以通过PushBackInputStream的构造函数设置推回缓冲区的大小，代码如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">PushbackInputStream input = <span class="keyword">new</span> PushbackInputStream(<span class="keyword">new</span> FileInputStream(<span class="string">"c:\\data\\input.txt"</span>), <span class="number">8</span>);</div></pre></td></tr></table></figure>
+<p>这个例子设置了8个字节的缓冲区，意味着你最多可以重新读取8个字节的数据。</p>
+<h1 id="SequenceInputStream"><a href="#SequenceInputStream" class="headerlink" title="SequenceInputStream"></a>SequenceInputStream</h1><p><a href="http://tutorials.jenkov.com/java-io/sequenceinputstream.html" target="_blank" rel="external">原文链接</a></p>
+<p>SequenceInputStream把一个或者多个InputStream整合起来，形成一个逻辑连贯的输入流。当读取SequenceInputStream时，会先从第一个输入流中读取，完成之后再从第二个输入流读取，以此推类。代码如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">InputStream input1 = <span class="keyword">new</span> FileInputStream(<span class="string">"c:\\data\\file1.txt"</span>);</div><div class="line">InputStream input2 = <span class="keyword">new</span> FileInputStream(<span class="string">"c:\\data\\file2.txt"</span>);</div><div class="line">InputStream combined = <span class="keyword">new</span> SequenceInputStream(input1, input2);</div></pre></td></tr></table></figure>
+<p>通过SequenceInputStream，例子中的2个InputStream使用起来就如同只有一个InputStream一样(译者注：SequenceInputStream的read()方法会在读取到当前流末尾时，关闭流，并把当前流指向逻辑链中的下一个流，最后返回新的当前流的read()值)。</p>
+<h1 id="PrintStream"><a href="#PrintStream" class="headerlink" title="PrintStream"></a>PrintStream</h1><p><a href="http://tutorials.jenkov.com/java-io/printstream.html" target="_blank" rel="external">原文链接</a></p>
+<p>PrintStream允许你把格式化数据写入到底层OutputStream中。比如，写入格式化成文本的int，long以及其他原始数据类型到输出流中，而非它们的字节数据。代码如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">PrintStream output = <span class="keyword">new</span> PrintStream(outputStream);</div><div class="line">output.print(<span class="keyword">true</span>);</div><div class="line">output.print((<span class="keyword">int</span>) <span class="number">123</span>);</div><div class="line">output.print((<span class="keyword">float</span>) <span class="number">123.456</span>);</div><div class="line">output.printf(Locale.UK, <span class="string">"Text + data: %1$"</span>, <span class="number">123</span>);</div><div class="line">output.close();</div></pre></td></tr></table></figure>
+<p>PrintStream包含2个强大的函数，分别是format()和printf()(这两个函数几乎做了一样的事情，但是C程序员会更熟悉printf())。</p>
+<p>译者注：其中一个printf()函数实现如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">public</span> PrintStream <span class="title">printf</span><span class="params">(String format, Object ... args)</span> </span>&#123;</div><div class="line">    <span class="keyword">return</span> format(format, args);</div><div class="line">&#125;</div></pre></td></tr></table></figure>
 <blockquote>
-<p>转载自<a href="http://ifeve.com/" target="_blank" rel="external">并发编程网 – ifeve.com</a> 本文链接地址: <a href="http://ifeve.com/java-io-outputstream/" target="_blank" rel="external">Java IO: OutputStream</a></p>
+<p>转载自<a href="http://ifeve.com/" target="_blank" rel="external">并发编程网 – ifeve.com</a> 本文链接地址: <a href="http://ifeve.com/java-io-other-1/" target="_blank" rel="external">Java IO: 其他字节流(上)</a></p>
 </blockquote>
 
           
@@ -453,8 +812,8 @@
             
               
                 
-                <a class="post-title-link" href="/2015/01/13/java-io-inputstream/" itemprop="url">
-                  13 - Java IO InputStream
+                <a class="post-title-link" href="/2015/01/28/java-io-28-piped-char-reader-writer/" itemprop="url">
+                  28 - Java IO 字符流的Piped和CharArray
                 </a>
               
             
@@ -467,8 +826,8 @@
               <i class="fa fa-calendar-o"></i>
             </span>
             <span class="post-meta-item-text">Posted on</span>
-            <time itemprop="dateCreated" datetime="2015-01-13T17:36:55+08:00" content="2015-01-13">
-              2015-01-13
+            <time itemprop="dateCreated" datetime="2015-01-28T17:36:55+08:00" content="2015-01-28">
+              2015-01-28
             </time>
           </span>
 
@@ -516,40 +875,423 @@
         
           
             <blockquote>
-<p><a href="Java IO: InputStream">原文链接</a> 作者: Jakob Jenkov 译者: 李璟(jlee381344197@gmail.com)</p>
+<p>作者: Jakob Jenkov 译者: 李璟(jlee381344197@gmail.com)</p>
 </blockquote>
-<p>InputStream类是Java IO API中所有输入流的基类。InputStream子类包括FileInputStream，BufferedInputStream，PushbackInputStream等等。参考Java IO概述这一小节底部的表格，可以浏览完整的InputStream子类的列表。</p>
-<h1 id="Java-InputStream例子"><a href="#Java-InputStream例子" class="headerlink" title="Java InputStream例子"></a>Java InputStream例子</h1><p>InputStream用于读取基于字节的数据，一次读取一个字节，这是一个InputStream的例子：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">InputStream inputstream = <span class="keyword">new</span> FileInputStream(<span class="string">"c:\\data\\input-text.txt"</span>);</div><div class="line"><span class="keyword">int</span> data = inputstream.read();</div><div class="line"><span class="keyword">while</span>(data != -<span class="number">1</span>) &#123; </div><div class="line">    <span class="comment">//do something with data...  </span></div><div class="line">    doSomethingWithData(data);   </div><div class="line">    data = inputstream.read();</div><div class="line">&#125;</div><div class="line">inputstream.close();</div></pre></td></tr></table></figure>
-<p>这个例子创建了FileInputStream实例。FileInputStream是InputStream的子类，所以可以把FileInputStream实例赋值给InputStream变量。</p>
+<p>本章节将简要介绍管道与字符数组相关的reader和writer，主要涉及PipedReader、PipedWriter、CharArrayReader、CharArrayWriter。</p>
+<h1 id="PipedReader"><a href="#PipedReader" class="headerlink" title="PipedReader"></a>PipedReader</h1><p><a href="http://tutorials.jenkov.com/java-io/pipedreader.html" target="_blank" rel="external">原文链接</a></p>
+<p>PipedReader能够从管道中读取字符流。与PipedInputStream类似，不同的是PipedReader读取的是字符而非字节。换句话说，PipedReader用于读取管道中的文本。代码如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">Reader reader = <span class="keyword">new</span> PipedReader(pipedWriter);</div><div class="line"><span class="keyword">int</span> data = reader.read();</div><div class="line"><span class="keyword">while</span>(data != -<span class="number">1</span>) &#123;</div><div class="line">    <span class="comment">//do something with data...</span></div><div class="line">    doSomethingWithData(data);</div><div class="line">    data = reader.read();</div><div class="line">&#125;</div><div class="line">reader.close();</div></pre></td></tr></table></figure>
+<p>注意：为了清晰，代码忽略了一些必要的异常处理。想了解更多异常处理的信息，请参考<a href="/2015/01/12/java-io-12-exception/">Java IO异常处理</a>。</p>
+<p>read()方法返回一个包含了读取到的字符内容的int类型变量(译者注：0~65535)。如果方法返回-1，表明PipedReader中已经没有剩余可读取字符，此时可以关闭PipedReader。-1是一个int类型，不是byte或者char类型，这是不一样的。</p>
+<p>正如你所看到的例子那样，一个PipedReader需要与一个PipedWriter相关联，当这两种流联系起来时，就形成了一条管道。要想更多地了解Java IO中的管道，请参考<a href="/2015/01/04/java-io-04-pipes/">Java IO管道</a>。</p>
+<h1 id="PipedWriter"><a href="#PipedWriter" class="headerlink" title="PipedWriter"></a>PipedWriter</h1><p><a href="http://tutorials.jenkov.com/java-io/pipedwriter.html" target="_blank" rel="external">原文链接</a></p>
+<p>PipedWriter能够往管道中写入字符流。与PipedOutputStream类似，不同的是PipedWriter处理的是字符而非字节，PipedWriter用于写入文本数据。代码如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">PipedWriter writer = <span class="keyword">new</span> PipedWriter(pipedReader);</div><div class="line"><span class="keyword">while</span>(moreData()) &#123;</div><div class="line">    <span class="keyword">int</span> data = getMoreData();</div><div class="line">    writer.write(data);</div><div class="line">&#125;</div><div class="line">writer.close();</div></pre></td></tr></table></figure>
+<p>PipedWriter的write()方法取一个包含了待写入字节的int类型变量作为参数进行写入，同时也有采用字符串、字符数组作为参数的write()方法。</p>
+<h1 id="CharArrayReader"><a href="#CharArrayReader" class="headerlink" title="CharArrayReader"></a>CharArrayReader</h1><p><a href="http://tutorials.jenkov.com/java-io/chararrayreader.html" target="_blank" rel="external">原文链接</a></p>
+<p>CharArrayReader能够让你从字符数组中读取字符流。代码如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">char</span>[] chars = ... <span class="comment">//get char array from somewhere.</span></div><div class="line">Reader reader = <span class="keyword">new</span> CharArrayReader(chars);</div><div class="line"><span class="keyword">int</span> data = reader.read();</div><div class="line"><span class="keyword">while</span>(data != -<span class="number">1</span>) &#123;</div><div class="line">    <span class="comment">//do something with data</span></div><div class="line">    data = reader.read();</div><div class="line">&#125;</div><div class="line">reader.close();</div></pre></td></tr></table></figure>
+<p>如果数据的存储媒介是字符数组，CharArrayReader可以很方便的读取到你想要的数据。CharArrayReader会包含一个字符数组，然后将字符数组转换成字符流。(译者注：CharArrayReader有2个构造函数，一个是CharArrayReader(char[] buf)，将整个字符数组创建成一个字符流。另外一个是CharArrayReader(char[] buf, int offset, int length)，把buf从offset开始，length个字符创建成一个字符流。更多细节请参考<a href="http://docs.oracle.com/javase/7/docs/api/" target="_blank" rel="external">Java官方文档</a>)</p>
+<h1 id="CharArrayWriter"><a href="#CharArrayWriter" class="headerlink" title="CharArrayWriter"></a>CharArrayWriter</h1><p><a href="http://tutorials.jenkov.com/java-io/chararraywriter.html" target="_blank" rel="external">原文链接</a></p>
+<p>CharArrayWriter能够把字符写入到字符输出流writer中，并且能够将写入的字符转换成字符数组。代码如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">CharArrayWriter writer = <span class="keyword">new</span> CharArrayWriter();</div><div class="line"><span class="comment">//write characters to writer.</span></div><div class="line"><span class="keyword">char</span>[] chars = writer.toCharArray();</div></pre></td></tr></table></figure>
+<p>当你需要以字符数组的形式访问写入到writer中的字符流数据时，CharArrayWriter是个不错的选择。</p>
+<blockquote>
+<p>转载自<a href="http://ifeve.com/" target="_blank" rel="external">并发编程网 – ifeve.com</a> 本文链接地址: <a href="http://ifeve.com/java-io-%E5%AD%97%E7%AC%A6%E6%B5%81%E7%9A%84piped%E5%92%8Cchararray/" target="_blank" rel="external">Java IO: 字符流的Piped和CharArray</a></p>
+</blockquote>
+
+          
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+                <a class="post-title-link" href="/2015/01/27/java-io-27-char-buffered-filter/" itemprop="url">
+                  27 - Java IO 字符流的Buffered和Filter
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">Posted on</span>
+            <time itemprop="dateCreated" datetime="2015-01-27T17:36:55+08:00" content="2015-01-27">
+              2015-01-27
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/java-io/" itemprop="url" rel="index">
+                    <span itemprop="name">java io</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <blockquote>
+<p>作者: Jakob Jenkov  译者: 李璟(jlee381344197@gmail.com)</p>
+</blockquote>
+<p>本章节将简要介绍缓冲与过滤相关的reader和writer，主要涉及BufferedReader、BufferedWriter、FilterReader、FilterWriter。</p>
+<h1 id="BufferedReader"><a href="#BufferedReader" class="headerlink" title="BufferedReader"></a>BufferedReader</h1><p><a href="http://tutorials.jenkov.com/java-io/bufferedreader.html" target="_blank" rel="external">原文链接</a></p>
+<p>BufferedReader能为字符输入流提供缓冲区，可以提高许多IO处理的速度。你可以一次读取一大块的数据，而不需要每次从网络或者磁盘中一次读取一个字节。特别是在访问大量磁盘数据时，缓冲通常会让IO快上许多。</p>
+<p>BufferedReader和BufferedInputStream的主要区别在于，BufferedReader操作字符，而BufferedInputStream操作原始字节。只需要把Reader包装到BufferedReader中，就可以为Reader添加缓冲区(译者注：默认缓冲区大小为8192字节，即8KB)。代码如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">Reader input = <span class="keyword">new</span> BufferedReader(<span class="keyword">new</span> FileReader(<span class="string">"c:\\data\\input-file.txt"</span>));</div></pre></td></tr></table></figure>
+<p>你也可以通过传递构造函数的第二个参数，指定缓冲区大小，代码如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">Reader input = <span class="keyword">new</span> BufferedReader(<span class="keyword">new</span> FileReader(<span class="string">"c:\\data\\input-file.txt"</span>), <span class="number">8</span> * <span class="number">1024</span>);</div></pre></td></tr></table></figure>
+<p>这个例子设置了8KB的缓冲区。最好把缓冲区大小设置成1024字节的整数倍，这样能更高效地利用内置缓冲区的磁盘。</p>
+<p>除了能够为输入流提供缓冲区以外，其余方面BufferedReader基本与Reader类似。BufferedReader还有一个额外readLine()方法，可以方便地一次性读取一整行字符。</p>
+<h1 id="BufferedWriter"><a href="#BufferedWriter" class="headerlink" title="BufferedWriter"></a>BufferedWriter</h1><p><a href="http://tutorials.jenkov.com/java-io/bufferedwriter.html" target="_blank" rel="external">原文链接</a></p>
+<p>与BufferedReader类似，BufferedWriter可以为输出流提供缓冲区。可以构造一个使用默认大小缓冲区的BufferedWriter(译者注：默认缓冲区大小8 * 1024B)，代码如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">Writer writer = <span class="keyword">new</span> BufferedWriter(<span class="keyword">new</span> FileWriter(<span class="string">"c:\\data\\output-file.txt"</span>));</div></pre></td></tr></table></figure>
+<p>也可以手动设置缓冲区大小，代码如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">Writer writer = <span class="keyword">new</span> BufferedWriter(<span class="keyword">new</span> FileWriter(<span class="string">"c:\\data\\output-file.txt"</span>), <span class="number">8</span> * <span class="number">1024</span>);</div></pre></td></tr></table></figure>
+<p>为了更好地使用内置缓冲区的磁盘，同样建议把缓冲区大小设置成1024的整数倍。除了能够为输出流提供缓冲区以外，其余方面BufferedWriter基本与Writer类似。类似地，BufferedWriter也提供了writeLine()方法，能够把一行字符写入到底层的字符输出流中。值得注意是，你需要手动flush()方法确保写入到此输出流的数据真正写入到磁盘或者网络中。</p>
+<h1 id="FilterReader"><a href="#FilterReader" class="headerlink" title="FilterReader"></a>FilterReader</h1><p><a href="http://tutorials.jenkov.com/java-io/filterreader.html" target="_blank" rel="external">原文链接</a></p>
+<p>与FilterInputStream类似，FilterReader是实现自定义过滤输入字符流的基类，基本上它仅仅只是简单覆盖了Reader中的所有方法。</p>
+<p>就我自己而言，我没发现这个类明显的用途。除了构造函数取一个Reader变量作为参数之外，我没看到FilterReader任何对Reader新增或者修改的地方。如果你选择继承FilterReader实现自定义的类，同样也可以直接继承自Reader从而避免额外的类层级结构。</p>
+<h1 id="FilterWriter"><a href="#FilterWriter" class="headerlink" title="FilterWriter"></a>FilterWriter</h1><p><a href="http://tutorials.jenkov.com/java-io/filterwriter.html" target="_blank" rel="external">原文链接</a></p>
+<p>内容同FilterReader，不再赘述。</p>
+<blockquote>
+<p>转载自<a href="http://ifeve.com/" target="_blank" rel="external">并发编程网 – ifeve.com</a> 本文链接地址: <a href="http://ifeve.com/java-io-char-buffered-filter/" target="_blank" rel="external">Java IO: 字符流的Buffered和Filter</a></p>
+</blockquote>
+
+          
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+                <a class="post-title-link" href="/2015/01/26/java-io-26-filereader-and-filewriter/" itemprop="url">
+                  26 - Java IO FileReader和FileWriter
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">Posted on</span>
+            <time itemprop="dateCreated" datetime="2015-01-26T17:36:55+08:00" content="2015-01-26">
+              2015-01-26
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/java-io/" itemprop="url" rel="index">
+                    <span itemprop="name">java io</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <blockquote>
+<p>作者: Jakob Jenkov 译者: 李璟(jlee381344197@gmail.com)</p>
+</blockquote>
+<p>本章节将简要介绍FileReader和FileWriter。与FileInputStream和FileOutputStream类似，FileReader与FileWriter用于处理文件内容。</p>
+<h1 id="FileReader"><a href="#FileReader" class="headerlink" title="FileReader"></a>FileReader</h1><p><a href="http://tutorials.jenkov.com/java-io/filereader.html" target="_blank" rel="external">原文链接</a></p>
+<p>FileReader能够以字符流的形式读取文件内容。除了读取的单位不同之外(译者注：FileReader读取字符，FileInputStream读取字节)，FileReader与FileInputStream并无太大差异，也就是说，FileReader用于读取文本。根据不同的编码方案，一个字符可能会相当于一个或者多个字节。代码如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">Reader reader = <span class="keyword">new</span> FileReader(<span class="string">"c:\\data\\input-text.txt"</span>);</div><div class="line"><span class="keyword">int</span> data = reader.read();</div><div class="line"><span class="keyword">while</span>(data != -<span class="number">1</span>) &#123;</div><div class="line">    <span class="comment">//do something with data...</span></div><div class="line">    doSomethingWithData(data);</div><div class="line">    data = reader.read();</div><div class="line">&#125;</div><div class="line">reader.close();</div></pre></td></tr></table></figure>
+<p>注意：为了清晰，代码忽略了一些必要的异常处理。想了解更多异常处理的信息，请参考<a href="/2015/01/12/java-io-12-exception/">Java IO异常处理</a>。</p>
+<p>read()方法返回一个包含了读取到的字符内容的int类型变量(译者注：0~65535)。如果方法返回-1，表明FileReader中已经没有剩余可读取字符，此时可以关闭FileReader。-1是一个int类型，不是byte或者char类型，这是不一样的。</p>
+<p>FileReader拥有其他可选的构造函数，能够让你使用不同的方式读取文件，更多内容请查看官方文档。</p>
+<p>FileReader会假设你想使用你所使用的JVM的版本的默认编码处理字节流，但是这通常不是你想要的，你可以手动设置编码方案。</p>
+<p>如果你想明确指定一种编码方案，利用InputStreamReader配合FileInputStream来替代FileReader(译者注：FileReader没有可以指定编码的构造函数)。InputStreamReader可以让你设置编码处理从底层文件中读取的字节。</p>
+<h1 id="FileWriter"><a href="#FileWriter" class="headerlink" title="FileWriter"></a>FileWriter</h1><p><a href="http://tutorials.jenkov.com/java-io/filewriter.html" target="_blank" rel="external">原文链接</a></p>
+<p>FileWriter能够把数据以字符流的形式写入文件。同样是处理文件，FileWriter处理字符，FileOutputStream处理字节。根据不同的编码方案，一个字符可能会相当于一个或者多个字节。代码如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">Writer writer = <span class="keyword">new</span> FileWriter(<span class="string">"c:\\data\\output.txt"</span>);</div><div class="line"><span class="keyword">while</span>(moreData) &#123;</div><div class="line">    String data = getMoreData();</div><div class="line">    write.write(data);</div><div class="line">&#125;</div><div class="line">writer.close();</div></pre></td></tr></table></figure>
+<p>处理文件都会碰到的一个问题是，当前写入的数据是覆盖原文件内容还是追加到文件末尾。当你创建一个FileWriter之后，你可以通过使用不同构造函数实现你的不同目的。</p>
+<p>以下的构造函数取文件名作为参数，将会新写入的内容将会覆盖该文件：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">Writer writer = <span class="keyword">new</span> FileWriter(<span class="string">"c:\\data\\output.txt"</span>);</div></pre></td></tr></table></figure>
+<p>以下的构造函数取文件名和一个布尔变量作为参数，布尔值表明你是想追加还是覆盖该文件。例子如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">Writer writer = <span class="keyword">new</span> FileWriter(<span class="string">"c:\\data\\output.txt"</span>, <span class="keyword">true</span>); <span class="comment">//appends to file</span></div><div class="line">Writer writer = <span class="keyword">new</span> FileWriter(<span class="string">"c:\\data\\output.txt"</span>, <span class="keyword">false</span>); <span class="comment">//overwrites file</span></div></pre></td></tr></table></figure>
+<p>同样，FileWriter不能指定编码，可以通过OutputStreamWriter配合FileOutputStream替代FileWriter。</p>
+<blockquote>
+<p>转载自<a href="http://ifeve.com/" target="_blank" rel="external">并发编程网 – ifeve.com</a> 本文链接地址: <a href="http://ifeve.com/java-io-filereader%E5%92%8Cfilewriter/" target="_blank" rel="external">Java IO: FileReader和FileWriter</a></p>
+</blockquote>
+
+          
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+                <a class="post-title-link" href="/2015/01/25/java-io-25-inputstreamreader-and-outputstreamwriter/" itemprop="url">
+                  25 - Java IO InputStreamReader和OutputStreamWriter
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">Posted on</span>
+            <time itemprop="dateCreated" datetime="2015-01-25T17:36:55+08:00" content="2015-01-25">
+              2015-01-25
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/java-io/" itemprop="url" rel="index">
+                    <span itemprop="name">java io</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <blockquote>
+<p>作者: Jakob Jenkov 译者: 李璟(jlee381344197@gmail.com)</p>
+</blockquote>
+<p>本章节将简要介绍InputStreamReader和OutputStreamWriter。细心的读者可能会发现，在之前的文章中，IO中的类要么以Stream结尾，要么以Reader或者Writer结尾，那这两个同时以字节流和字符流的类名后缀结尾的类是什么用途呢？简单来说，这两个类把字节流转换成字符流，中间做了数据的转换，类似适配器模式的思想。</p>
+<h1 id="InputStreamReader"><a href="#InputStreamReader" class="headerlink" title="InputStreamReader"></a>InputStreamReader</h1><p><a href="http://tutorials.jenkov.com/java-io/inputstreamreader.html" target="_blank" rel="external">原文链接</a></p>
+<p>InputStreamReader会包含一个InputStream，从而可以将该输入字节流转换成字符流，代码例子：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">InputStream inputStream = <span class="keyword">new</span> FileInputStream(<span class="string">"c:\\data\\input.txt"</span>);</div><div class="line">Reader reader = <span class="keyword">new</span> InputStreamReader(inputStream);</div><div class="line"><span class="keyword">int</span> data = reader.read();</div><div class="line"><span class="keyword">while</span>(data != -<span class="number">1</span>)&#123;</div><div class="line">    <span class="keyword">char</span> theChar = (<span class="keyword">char</span>) data;</div><div class="line">    data = reader.read();</div><div class="line">&#125;</div><div class="line">reader.close();</div></pre></td></tr></table></figure>
 <p>注意：为了清晰，代码忽略了一些必要的异常处理。想了解更多异常处理的信息，请参考Java IO异常处理。</p>
-<p>从Java7开始，你可以使用“try-with-resource”结构确保InputStream在结束使用之后关闭，链接指向了一篇关于“try-with-resource”是如何工作的文章，这里只是一个简单的例子：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">try</span>( InputStream inputstream = <span class="keyword">new</span> FileInputStream(<span class="string">"file.txt"</span>) ) &#123;</div><div class="line">    <span class="keyword">int</span> data = inputstream.read();</div><div class="line">    <span class="keyword">while</span>(data != -<span class="number">1</span>)&#123;</div><div class="line">        System.out.print((<span class="keyword">char</span>) data);</div><div class="line">        data = inputstream.read();</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<p>当执行线程退出try语句块的时候，InputStream变量会被关闭。</p>
-<h1 id="read"><a href="#read" class="headerlink" title="read()"></a>read()</h1><p>read()方法返回从InputStream流内读取到的一个字节内容(译者注：0~255)，例子如下：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">int</span> data = inputstream.read();</div></pre></td></tr></table></figure>
-<p>你可以把返回的int类型转化成char类型：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">char</span> aChar = (<span class="keyword">char</span>) data;</div></pre></td></tr></table></figure>
-<p>InputStream的子类可能会包含read()方法的替代方法。比如，DataInputStream允许你利用readBoolean()，readDouble()等方法读取Java基本类型变量int，long，float，double和boolean。</p>
-<h1 id="流末尾"><a href="#流末尾" class="headerlink" title="流末尾"></a>流末尾</h1><p>如果read()方法返回-1，意味着程序已经读到了流的末尾，此时流内已经没有多余的数据可供读取了。-1是一个int类型，不是byte或者char类型，这是不一样的。</p>
-<p>当达到流末尾时，你就可以关闭流了。</p>
-<h1 id="read-byte"><a href="#read-byte" class="headerlink" title="read(byte[])"></a>read(byte[])</h1><p>InputStream包含了2个从InputStream中读取数据并将数据存储到缓冲数组中的read()方法，他们分别是：</p>
-<ul>
-<li>int read(byte[])</li>
-<li>int read(byte, int offset, int length)</li>
-</ul>
-<p>一次性读取一个字节数组的方式，比一次性读取一个字节的方式快的多，所以，尽可能使用这两个方法代替read()方法。</p>
-<p>read(byte[])方法会尝试读取与给定字节数组容量一样大的字节数，返回值说明了已经读取过的字节数。如果InputStream内可读的数据不足以填满字节数组，那么数组剩余的部分将包含本次读取之前的数据。记得检查有多少数据实际被写入到了字节数组中。</p>
-<p>read(byte, int offset, int length)方法同样将数据读取到字节数组中，不同的是，该方法从数组的offset位置开始，并且最多将length个字节写入到数组中。同样地，read(byte, int offset, int length)方法返回一个int变量，告诉你已经有多少字节已经被写入到字节数组中，所以请记得在读取数据前检查上一次调用read(byte, int offset, int length)的返回值。</p>
-<p>这两个方法都会在读取到达到流末尾时返回-1。</p>
-<p>这是一个使用InputStream的read(byte[])的例子：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">InputStream inputstream = <span class="keyword">new</span> FileInputStream(<span class="string">"c:\\data\\input-text.txt"</span>);</div><div class="line"><span class="keyword">byte</span>[] data = <span class="keyword">new</span> <span class="keyword">byte</span>[<span class="number">1024</span>];</div><div class="line"><span class="keyword">int</span> bytesRead = inputstream.read(data);</div><div class="line"><span class="keyword">while</span>(bytesRead != -<span class="number">1</span>) &#123;</div><div class="line">    doSomethingWithData(data, bytesRead);</div><div class="line">    bytesRead = inputstream.read(data);</div><div class="line">&#125;</div><div class="line">inputstream.close();</div></pre></td></tr></table></figure>
-<p>在代码中，首先创建了一个字节数组。然后声明一个叫做bytesRead的存储每次调用read(byte[])返回值的int变量，并且将第一次调用read(byte[])得到的返回值赋值给它。</p>
-<p>在while循环内部，把字节数组和已读取字节数作为参数传递给doSomethingWithData方法然后执行调用。在循环的末尾，再次将数据写入到字节数组中。</p>
-<p>你不需要想象出read(byte, int offset, int length)替代read(byte[])的场景，几乎可以在使用read(byte, int offset, int length)的任何地方使用read(byte[])。</p>
-<h1 id="输入流和数据源"><a href="#输入流和数据源" class="headerlink" title="输入流和数据源"></a>输入流和数据源</h1><p>一个输入流往往会和数据源联系起来，比如文件，网络连接，管道等，更多细节已经在Java IO概述文章中介绍过了。</p>
+<p>read()方法返回一个包含了读取到的字符内容的int类型变量(译者注：0~65535)。代码如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">int</span> data = reader.read();</div></pre></td></tr></table></figure>
+<p>你可以把返回的int值转换成char变量，就像这样：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">char</span> aChar = (<span class="keyword">char</span>) data; <span class="comment">//译者注：这里不会造成数据丢失，因为返回的int类型变量data只有低16位有数据，高16位没有数据</span></div></pre></td></tr></table></figure>
+<p>如果方法返回-1，表明Reader中已经没有剩余可读取字符，此时可以关闭Reader。-1是一个int类型，不是byte或者char类型，这是不一样的。</p>
+<p>InputStreamReader同样拥有其他可选的构造函数，能够让你指定将底层字节流解释成何种编码的字符流。例子如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">InputStream inputStream = <span class="keyword">new</span> FileInputStream(<span class="string">"c:\\data\\input.txt"</span>);</div><div class="line">Reader reader = <span class="keyword">new</span> InputStreamReader(inputStream, <span class="string">"UTF-8"</span>);</div></pre></td></tr></table></figure>
+<p>注意构造函数的第二个参数，此时该InputStreamReader会将输入的字节流转换成UTF8字符流。</p>
+<h1 id="OutputStreamWriter"><a href="#OutputStreamWriter" class="headerlink" title="OutputStreamWriter"></a>OutputStreamWriter</h1><p><a href="http://tutorials.jenkov.com/java-io/outputstreamwriter.html" target="_blank" rel="external">原文链接</a></p>
+<p>OutputStreamWriter会包含一个OutputStream，从而可以将该输出字节流转换成字符流，代码如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">OutputStream outputStream = <span class="keyword">new</span> FileOutputStream(<span class="string">"c:\\data\\output.txt"</span>);</div><div class="line">Writer writer = <span class="keyword">new</span> OutputStreamWriter(outputStream);</div><div class="line">writer.write(<span class="string">"Hello World"</span>);</div><div class="line">writer.close();</div></pre></td></tr></table></figure>
+<p>OutputStreamWriter同样拥有将输出字节流转换成指定编码的字符流的构造函数。</p>
 <blockquote>
-<p>转载自<a href="http://ifeve.com/" target="_blank" rel="external">并发编程网 – ifeve.com</a> 本文链接地址: <a href="http://ifeve.com/java-io-inputstream/" target="_blank" rel="external">Java IO: InputStream</a></p>
+<p>转载自<a href="http://ifeve.com/" target="_blank" rel="external">并发编程网 – ifeve.com</a> 本文链接地址: <a href="http://ifeve.com/java-io-inputstreamreader%E5%92%8Coutputstreamwriter/" target="_blank" rel="external">Java IO: InputStreamReader和OutputStreamWriter</a></p>
 </blockquote>
 
           
@@ -596,8 +1338,8 @@
             
               
                 
-                <a class="post-title-link" href="/2015/01/12/java-io-exception/" itemprop="url">
-                  12 - Java IO 异常处理
+                <a class="post-title-link" href="/2015/01/24/java-io-24-reader-and-writer/" itemprop="url">
+                  24 - Java IO Reader和Writer
                 </a>
               
             
@@ -610,8 +1352,8 @@
               <i class="fa fa-calendar-o"></i>
             </span>
             <span class="post-meta-item-text">Posted on</span>
-            <time itemprop="dateCreated" datetime="2015-01-12T17:36:55+08:00" content="2015-01-12">
-              2015-01-12
+            <time itemprop="dateCreated" datetime="2015-01-24T17:36:55+08:00" content="2015-01-24">
+              2015-01-24
             </time>
           </span>
 
@@ -659,773 +1401,20 @@
         
           
             <blockquote>
-<p><a href="http://tutorials.jenkov.com/java-io/io-exception-handling.html" target="_blank" rel="external">原文链接</a> 作者：Jakob Jenkov 译者： 李璟(jlee381344197@gmail.com)</p>
+<p>作者: Jakob Jenkov 译者: 李璟(jlee381344197@gmail.com)</p>
 </blockquote>
-<p>流与Reader和Writer在结束使用的时候，需要正确地关闭它们。通过调用close()方法可以达到这一点。不过这需要一些思考。请看下边的代码：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">InputStream input = <span class="keyword">new</span> FileInputStream(<span class="string">"c:\\data\\input-text.txt"</span>);</div><div class="line"><span class="keyword">int</span> data = input.read();</div><div class="line"><span class="keyword">while</span>(data != -<span class="number">1</span>) &#123;</div><div class="line">    <span class="comment">//do something with data...  </span></div><div class="line">    doSomethingWithData(data);</div><div class="line">    data = input.read();</div><div class="line">&#125;</div><div class="line">input.close();</div></pre></td></tr></table></figure>
-<p>第一眼看这段代码时，可能觉得没什么问题。可是如果在调用doSomethingWithData()方法时出现了异常，会发生什么呢？没错，这个InputStream对象就不会被关闭。</p>
-<p>为了避免异常造成流无法被关闭，我们可以把代码重写成这样:</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div></pre></td><td class="code"><pre><div class="line">InputStream input = <span class="keyword">null</span>;</div><div class="line"><span class="keyword">try</span>&#123;</div><div class="line">    input = <span class="keyword">new</span> FileInputStream(<span class="string">"c:\\data\\input-text.txt"</span>);</div><div class="line">    <span class="keyword">int</span> data = input.read();</div><div class="line">    <span class="keyword">while</span>(data != -<span class="number">1</span>) &#123;</div><div class="line">        <span class="comment">//do something with data...</span></div><div class="line">        doSomethingWithData(data);</div><div class="line">        data = input.read();</div><div class="line">&#125;</div><div class="line">&#125;<span class="keyword">catch</span>(IOException e)&#123;</div><div class="line">    <span class="comment">//do something with e... log, perhaps rethrow etc.</span></div><div class="line">&#125; <span class="keyword">finally</span> &#123;</div><div class="line">    <span class="keyword">if</span>(input != <span class="keyword">null</span>)</div><div class="line">        input.close();</div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<p>注意到这里把InputStream的关闭代码放到了finally块中，无论在try-catch块中发生了什么，finally内的代码始终会被执行，所以这个InputStream总是会被关闭。</p>
-<p>但是如果close()方法抛出了异常，告诉你流已经被关闭过了呢？为了解决这个难题，你也需要把close()方法写在try-catch内部，就像这样：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">&#125; <span class="keyword">finally</span> &#123;</div><div class="line">    <span class="keyword">try</span>&#123;</div><div class="line">        <span class="keyword">if</span>(input != <span class="keyword">null</span>)</div><div class="line">            input.close();</div><div class="line">    &#125; <span class="keyword">catch</span>(IOException e)&#123;</div><div class="line">        <span class="comment">//do something, or ignore.</span></div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<p>这段解决了InputStream(或者OutputStream)流关闭的问题的代码，确实是有一些不优雅，尽管能够正确处理异常。如果你的代码中重复地遍布了这段丑陋的异常处理代码，这不是很好的一个解决方案。如果一个匆忙的家伙贪图方便忽略了异常处理呢？</p>
-<p>此外，想象一下某个异常最先从doSomethingWithData方法内抛出。第一个catch会捕获到异常，然后在finally里程序会尝试关闭InputStream。但是如果还有异常从close()方法内抛出呢？这两个异常中得哪个异常应当往调用栈上传播呢？</p>
-<p>幸运的是，有一个办法能够解决这个问题。这个解决方案称作“异常处理模板”。创建一个正确关闭流的模板，能够在代码中做到一次编写，重复使用，既优雅又简单。详情参见<a href="http://tutorials.jenkov.com/java-exception-handling/exception-handling-templates.html" target="_blank" rel="external">Java异常处理模板</a>。</p>
-<h1 id="Java7中IO的异常处理"><a href="#Java7中IO的异常处理" class="headerlink" title="Java7中IO的异常处理"></a>Java7中IO的异常处理</h1><p>从Java7开始，一种新的被称作“try-with-resource”的异常处理机制被引入进来。这种机制旨在解决针对InputStream和OutputStream这类在使用完毕之后需要关闭的资源的异常处理。可以浏览<a href="http://tutorials.jenkov.com/java-exception-handling/try-with-resources.html" target="_blank" rel="external">Try with Resource in Java 7</a>获得更多信息。</p>
+<h1 id="Reader"><a href="#Reader" class="headerlink" title="Reader"></a>Reader</h1><p><a href="http://tutorials.jenkov.com/java-io/reader.html" target="_blank" rel="external">原文链接</a></p>
+<p>Reader是Java IO中所有Reader的基类。Reader与InputStream类似，不同点在于，Reader基于字符而非基于字节。换句话说，Reader用于读取文本，而InputStream用于读取原始字节。</p>
+<p>请记住，Java内部使用UTF8编码表示字符串。输入流中一个字节可能并不等同于一个UTF8字符。如果你从输入流中以字节为单位读取UTF8编码的文本，并且尝试将读取到的字节转换成字符，你可能会得不到预期的结果。</p>
+<p>read()方法返回一个包含了读取到的字符内容的int类型变量(译者注：0~65535)。如果方法返回-1，表明Reader中已经没有剩余可读取字符，此时可以关闭Reader。-1是一个int类型，不是byte或者char类型，这是不一样的。</p>
+<p>你通常会使用Reader的子类，而不会直接使用Reader。Reader的子类包括InputStreamReader，CharArrayReader，FileReader等等。可以查看<a href="/2015/01/02/java-io-02-summary/">Java IO概述</a>浏览完整的Reader表格。</p>
+<p>Reader通常与文件、字符数组、网络等数据源相关联，<a href="/2015/01/02/java-io-02-summary/">Java IO概述</a>中同样说明了这一点。</p>
+<h1 id="Writer"><a href="#Writer" class="headerlink" title="Writer"></a>Writer</h1><p><a href="http://tutorials.jenkov.com/java-io/writer.html" target="_blank" rel="external">原文链接</a></p>
+<p>Writer是Java IO中所有Writer的基类。与Reader和InputStream的关系类似，Writer基于字符而非基于字节，Writer用于写入文本，OutputStream用于写入字节。</p>
+<p>同样，你最好使用Writer的子类，不需要直接使用Writer，因为子类的实现更加明确，更能表现你的意图。常用子类包括OutputStreamWriter，CharArrayWriter，FileWriter等。</p>
+<p>Writer的write(int c)方法，会将传入参数的低16位写入到Writer中，忽略高16位的数据。</p>
 <blockquote>
-<p>转载自<a href="http://ifeve.com/" target="_blank" rel="external">并发编程网 – ifeve.com</a> 本文链接地址: <a href="http://ifeve.com/java-io-exception/" target="_blank" rel="external">Java IO: 异常处理</a></p>
-</blockquote>
-
-          
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2015/01/11/java-io-concurrent-io/" itemprop="url">
-                  11 - Java IO 并发IO
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            <span class="post-meta-item-icon">
-              <i class="fa fa-calendar-o"></i>
-            </span>
-            <span class="post-meta-item-text">Posted on</span>
-            <time itemprop="dateCreated" datetime="2015-01-11T17:36:55+08:00" content="2015-01-11">
-              2015-01-11
-            </time>
-          </span>
-
-          
-            <span class="post-category" >
-              &nbsp; | &nbsp;
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/java-io/" itemprop="url" rel="index">
-                    <span itemprop="name">java io</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-
-          
-          
-
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <blockquote>
-<p><a href="http://tutorials.jenkov.com/java-io/concurrent-io.html" target="_blank" rel="external">原文链接</a> 作者: Jakob Jenkov 译者: 李璟</p>
-</blockquote>
-<p>有时候你可能需要并发地处理输入和输出。换句话说，你可能有超过一个线程处理输入和产生输出。比如，你有一个程序需要处理磁盘上的大量文件，这个任务可以通过并发操作提高性能。又比如，你有一个web服务器或者聊天服务器，接收许多连接和请求，这些任务都可以通过并发获得性能的提升。</p>
-<p>如果你需要并发处理IO，这里有几个问题可能需要注意一下：</p>
-<p>在同一时刻不能有多个线程同时从InputStream或者Reader中读取数据，也不能同时往OutputStream或者Writer里写数据。你没有办法保证每个线程读取多少数据，以及多个线程写数据时的顺序。</p>
-<p>如果线程之间能够保证操作的顺序，它们可以使用同一个stream、reader、writer。比如，你有一个线程判断当前的输入流来自哪种类型的请求，然后将流数据传递给其他合适的线程做后续处理。当有序存取流、reader、writer时，这种做法是可行的。请注意，在线程之间传递流数据的代码应当是同步的。</p>
-<p>注意：在Java NIO中，你可以让一个线程读写多个“channel”。比如，你有很多网络连接处于开启状态，但是每个连接中都只有少量数据，类似于聊天服务器，可以让一个线程监视多个频道(连接)。Java NIO是另一个话题了，会后续教程中介绍。</p>
-<blockquote>
-<p>转载自<a href="http://ifeve.com/" target="_blank" rel="external">并发编程网 – ifeve.com</a> 本文链接地址: <a href="http://ifeve.com/java-io-concurrent-io/" target="_blank" rel="external">Java IO: 并发IO</a></p>
-</blockquote>
-
-          
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2015/01/10/java-io-reader-and-writer/" itemprop="url">
-                  10 - Java IO Reader and Writer
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            <span class="post-meta-item-icon">
-              <i class="fa fa-calendar-o"></i>
-            </span>
-            <span class="post-meta-item-text">Posted on</span>
-            <time itemprop="dateCreated" datetime="2015-01-10T17:36:55+08:00" content="2015-01-10">
-              2015-01-10
-            </time>
-          </span>
-
-          
-            <span class="post-category" >
-              &nbsp; | &nbsp;
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/java-io/" itemprop="url" rel="index">
-                    <span itemprop="name">java io</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-
-          
-          
-
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <blockquote>
-<p><a href="http://tutorials.jenkov.com/java-io/readers-writers.html" target="_blank" rel="external">原文链接</a> 作者: Jakob Jenkov  译者: 李璟(jlee381344197@gmail.com)</p>
-</blockquote>
-<p>Java IO的Reader和Writer除了基于字符之外，其他方面都与InputStream和OutputStream非常类似。他们被用于读写文本。InputStream和OutputStream是基于字节的，还记得吗？</p>
-<h1 id="Reader"><a href="#Reader" class="headerlink" title="Reader"></a>Reader</h1><p>Reader类是Java IO中所有Reader的基类。子类包括BufferedReader，PushbackReader，InputStreamReader，StringReader和其他Reader。</p>
-<p>这是一个简单的Java IO Reader的例子：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">Reader reader = <span class="keyword">new</span> FileReader(<span class="string">"c:\\data\\myfile.txt"</span>);</div><div class="line"><span class="keyword">int</span> data = reader.read();</div><div class="line"><span class="keyword">while</span>(data != -<span class="number">1</span>)&#123;</div><div class="line">    <span class="keyword">char</span> dataChar = (<span class="keyword">char</span>) data;</div><div class="line">    data = reader.read();</div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<p>请注意，InputStream的read()方法返回一个字节，意味着这个返回值的范围在0到255之间(当达到流末尾时，返回-1)，Reader的read()方法返回一个字符，意味着这个返回值的范围在0到65535之间(当达到流末尾时，同样返回-1)。这并不意味着Reade只会从数据源中一次读取2个字节，Reader会根据文本的编码，一次读取一个或者多个字节。</p>
-<p>你通常会使用Reader的子类，而不会直接使用Reader。Reader的子类包括InputStreamReader，CharArrayReader，FileReader等等。可以查看<a href="http://localhost:4000/2015/01/02/java-io-summary/">Java IO概述</a>浏览完整的Reader表格。</p>
-<h1 id="整合Reader与InputStream"><a href="#整合Reader与InputStream" class="headerlink" title="整合Reader与InputStream"></a>整合Reader与InputStream</h1><p>一个Reader可以和一个InputStream相结合。如果你有一个InputStream输入流，并且想从其中读取字符，可以把这个InputStream包装到InputStreamReader中。把InputStream传递到InputStreamReader的构造函数中：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">Reader reader = <span class="keyword">new</span> InputStreamReader(inputStream);</div></pre></td></tr></table></figure>
-<p>在构造函数中可以指定解码方式。更多内容请参阅<a href="">InputStreamReader</a>。</p>
-<h1 id="Writer"><a href="#Writer" class="headerlink" title="Writer"></a>Writer</h1><p>Writer类是Java IO中所有Writer的基类。子类包括BufferedWriter和PrintWriter等等。这是一个Java IO Writer的例子：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">Writer writer = <span class="keyword">new</span> FileWriter(<span class="string">"c:\\data\\file-output.txt"</span>); </div><div class="line">writer.write(<span class="string">"Hello World Writer"</span>); </div><div class="line">writer.close();</div></pre></td></tr></table></figure>
-<p>同样，你最好使用Writer的子类，不需要直接使用Writer，因为子类的实现更加明确，更能表现你的意图。常用子类包括OutputStreamWriter，CharArrayWriter，FileWriter等。Writer的write(int c)方法，会将传入参数的低16位写入到Writer中，忽略高16位的数据。</p>
-<h1 id="整合Writer和OutputStream"><a href="#整合Writer和OutputStream" class="headerlink" title="整合Writer和OutputStream"></a>整合Writer和OutputStream</h1><p>与Reader和InputStream类似，一个Writer可以和一个OutputStream相结合。把OutputStream包装到OutputStreamWriter中，所有写入到OutputStreamWriter的字符都将会传递给OutputStream。这是一个OutputStreamWriter的例子：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">Writer writer = <span class="keyword">new</span> OutputStreamWriter(outputStream);</div></pre></td></tr></table></figure>
-<h1 id="整合Reader和Writer"><a href="#整合Reader和Writer" class="headerlink" title="整合Reader和Writer"></a>整合Reader和Writer</h1><p>和字节流一样，Reader和Writer可以相互结合实现更多更有趣的IO，工作原理和把Reader与InputStream或者Writer与OutputStream相结合类似。举个栗子，可以通过将Reader包装到BufferedReader、Writer包装到BufferedWriter中实现缓冲。以下是例子：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">Reader reader = <span class="keyword">new</span> BufferedReader(<span class="keyword">new</span> FileReader(...));</div><div class="line">Writer writer = <span class="keyword">new</span> BufferedWriter(<span class="keyword">new</span> FileWriter(...));</div></pre></td></tr></table></figure>
-<blockquote>
-<p>转载自<a href="http://ifeve.com/" target="_blank" rel="external">并发编程网 – ifeve.com</a> 本文链接地址: <a href="http://ifeve.com/java-io-reader-and-writer/" target="_blank" rel="external">Java IO: Reader And Writer</a></p>
-</blockquote>
-
-          
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2015/01/09/java-io-input-parse/" itemprop="url">
-                  09 - Java IO 输入解析
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            <span class="post-meta-item-icon">
-              <i class="fa fa-calendar-o"></i>
-            </span>
-            <span class="post-meta-item-text">Posted on</span>
-            <time itemprop="dateCreated" datetime="2015-01-09T17:36:55+08:00" content="2015-01-09">
-              2015-01-09
-            </time>
-          </span>
-
-          
-            <span class="post-category" >
-              &nbsp; | &nbsp;
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/java-io/" itemprop="url" rel="index">
-                    <span itemprop="name">java io</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-
-          
-          
-
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <blockquote>
-<p> <a href="http://tutorials.jenkov.com/java-io/input-parsing.html" target="_blank" rel="external">原文链接</a> 作者: Jakob Jenkov 译者: KangZongZhan</p>
-</blockquote>
-<p>Java IO API中的一些类是被设计用来解析输入的。 这些类有：</p>
-<ul>
-<li>PusbackInputStream</li>
-<li>PusbackReader</li>
-<li>StreamTokenizer</li>
-<li>PushbackReader</li>
-<li>LineNumberReader</li>
-</ul>
-<p>这篇文章的目的不是详细教你如何解析数据，而是带你快速认识一下关于数据解析方面都有那几个类。</p>
-<p>当你需要解析数据的时候，最后你都会使用上面列表中的一个或几个类来实现自己的一个类。过去我在写Butterfly Container Script的时候就这样做过。我的解析器的核心部分使用的是<code>PushbackInputStream</code>，因为有些时候我需要读取之前的一两个字符来决定当前字符的含义。</p>
-<p>我的一篇文章介绍了我一个实际的实例，使用’PushbackReader’来<a href="http://tutorials.jenkov.com/java-howto/replace-strings-in-streams-arrays-files.html" target="_blank" rel="external">替换流、字节字符数组、文件中的字符串</a>。这个实例创建了一个’TokenReplacingReader’，它能够替换从底层的Reader中读取的格式如${记号}的记号。用户使用<code>TokenReplacingReader</code>的时候根本就不知道发生了字符串的替换。</p>
-
-          
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2015/01/08/java-io-stream/" itemprop="url">
-                  08 - Java IO 流
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            <span class="post-meta-item-icon">
-              <i class="fa fa-calendar-o"></i>
-            </span>
-            <span class="post-meta-item-text">Posted on</span>
-            <time itemprop="dateCreated" datetime="2015-01-08T17:36:55+08:00" content="2015-01-08">
-              2015-01-08
-            </time>
-          </span>
-
-          
-            <span class="post-category" >
-              &nbsp; | &nbsp;
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/java-io/" itemprop="url" rel="index">
-                    <span itemprop="name">java io</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-
-          
-          
-
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <blockquote>
-<p><a href="http://tutorials.jenkov.com/java-io/streams.html" target="_blank" rel="external">原文链接</a> 作者: Jakob Jenkov 译者: 李璟(jlee381344197@gmail.com)</p>
-</blockquote>
-<p>Java IO流是既可以从中读取，也可以写入到其中的数据流。正如这个系列教程之前提到过的，流通常会与数据源、数据流向目的地相关联，比如文件、网络等等。</p>
-<p>流和数组不一样，不能通过索引读写数据。在流中，你也不能像数组那样前后移动读取数据，除非使用RandomAccessFile 处理文件。流仅仅只是一个连续的数据流。</p>
-<p>某些类似PushbackInputStream 流的实现允许你将数据重新推回到流中，以便重新读取。然而你只能把有限的数据推回流中，并且你不能像操作数组那样随意读取数据。流中的数据只能够顺序访问。</p>
-<p>Java IO流通常是基于字节或者基于字符的。字节流通常以“stream”命名，比如InputStream和OutputStream。除了DataInputStream 和DataOutputStream 还能够读写int, long, float和double类型的值以外，其他流在一个操作时间内只能读取或者写入一个原始字节。</p>
-<p>字符流通常以“Reader”或者“Writer”命名。字符流能够读写字符(比如Latin1或者Unicode字符)。可以浏览Java Readers and Writers获取更多关于字符流输入输出的信息。</p>
-<h1 id="InputStream"><a href="#InputStream" class="headerlink" title="InputStream"></a>InputStream</h1><p>java.io.InputStream类是所有Java IO输入流的基类。如果你正在开发一个从流中读取数据的组件，请尝试用InputStream替代任何它的子类(比如FileInputStream)进行开发。这么做能够让你的代码兼容任何类型而非某种确定类型的输入流。</p>
-<p>然而仅仅依靠InputStream并不总是可行。如果你需要将读过的数据推回到流中，你必须使用PushbackInputStream，这意味着你的流变量只能是这个类型，否则在代码中就不能调用PushbackInputStream的unread()方法。</p>
-<p>通常使用输入流中的read()方法读取数据。read()方法返回一个整数，代表了读取到的字节的内容(译者注：0 ~ 255)。当达到流末尾没有更多数据可以读取的时候，read()方法返回-1。</p>
-<p>这是一个简单的示例：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">InputStream input = <span class="keyword">new</span> FileInputStream(<span class="string">"c:\\data\\input-file.txt"</span>);</div><div class="line"><span class="keyword">int</span> data = input.read(); </div><div class="line"><span class="keyword">while</span>(data != -<span class="number">1</span>)&#123;</div><div class="line">        data = input.read();</div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<h1 id="OutputStream"><a href="#OutputStream" class="headerlink" title="OutputStream"></a>OutputStream</h1><p>java.io.OutputStream是Java IO中所有输出流的基类。如果你正在开发一个能够将数据写入流中的组件，请尝试使用OutputStream替代它的所有子类。</p>
-<p>这是一个简单的示例：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">OutputStream output = <span class="keyword">new</span> FileOutputStream(<span class="string">"c:\\data\\output-file.txt"</span>);</div><div class="line">output.write(<span class="string">"Hello World"</span>.getBytes());</div><div class="line">output.close();</div></pre></td></tr></table></figure>
-<h1 id="组合流"><a href="#组合流" class="headerlink" title="组合流"></a>组合流</h1><p>你可以将流整合起来以便实现更高级的输入和输出操作。比如，一次读取一个字节是很慢的，所以可以从磁盘中一次读取一大块数据，然后从读到的数据块中获取字节。为了实现缓冲，可以把InputStream包装到BufferedInputStream中。代码示例：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">InputStream input = <span class="keyword">new</span> BufferedInputStream(<span class="keyword">new</span> FileInputStream(<span class="string">"c:\\data\\input-file.txt"</span>));</div></pre></td></tr></table></figure>
-<p>缓冲同样可以应用到OutputStream中。你可以实现将大块数据批量地写入到磁盘(或者相应的流)中，这个功能由BufferedOutputStream实现。</p>
-<p>缓冲只是通过流整合实现的其中一个效果。你可以把InputStream包装到PushbackInputStream中，之后可以将读取过的数据推回到流中重新读取，在解析过程中有时候这样做很方便。或者，你可以将两个InputStream整合成一个SequenceInputStream。</p>
-<p>将不同的流整合到一个链中，可以实现更多种高级操作。通过编写包装了标准流的类，可以实现你想要的效果和过滤器。</p>
-<p>原创文章，转载请注明： 转载自并发编程网 – ifeve.com本文链接地址: Java IO: 流</p>
-<blockquote>
-<p>转载自<a href="http://ifeve.com/" target="_blank" rel="external">并发编程网 – ifeve.com</a> 本文链接地址: <a href="http://ifeve.com/java-io-%E6%B5%81/" target="_blank" rel="external">Java IO: 流</a></p>
-</blockquote>
-
-          
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2015/01/07/java-io-system-in-out-error/" itemprop="url">
-                  07 - Java IO System.in, System.out, System.err
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            <span class="post-meta-item-icon">
-              <i class="fa fa-calendar-o"></i>
-            </span>
-            <span class="post-meta-item-text">Posted on</span>
-            <time itemprop="dateCreated" datetime="2015-01-07T17:36:55+08:00" content="2015-01-07">
-              2015-01-07
-            </time>
-          </span>
-
-          
-            <span class="post-category" >
-              &nbsp; | &nbsp;
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/java-io/" itemprop="url" rel="index">
-                    <span itemprop="name">java io</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-
-          
-          
-
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <blockquote>
-<p><a href="http://tutorials.jenkov.com/java-io/system-in-out-error.html" target="_blank" rel="external">原文链接</a> 作者: Jakob Jenkov 译者: 李璟(jlee381344197@gmail.com)</p>
-</blockquote>
-<p>System.in, System.out, System.err这3个流同样是常见的数据来源和数据流目的地。使用最多的可能是在控制台程序里利用System.out将输出打印到控制台上。</p>
-<p>JVM启动的时候通过Java运行时初始化这3个流，所以你不需要初始化它们(尽管你可以在运行时替换掉它们)。</p>
-<h1 id="System-in"><a href="#System-in" class="headerlink" title="System.in"></a>System.in</h1><p>System.in是一个典型的连接控制台程序和键盘输入的InputStream流。通常当数据通过命令行参数或者配置文件传递给命令行Java程序的时候，System.in并不是很常用。图形界面程序通过界面传递参数给程序，这是一块单独的Java IO输入机制。</p>
-<h1 id="System-out"><a href="#System-out" class="headerlink" title="System.out"></a>System.out</h1><p>System.out是一个PrintStream流。System.out一般会把你写到其中的数据输出到控制台上。System.out通常仅用在类似命令行工具的控制台程序上。System.out也经常用于打印程序的调试信息(尽管它可能并不是获取程序调试信息的最佳方式)。</p>
-<h1 id="System-err"><a href="#System-err" class="headerlink" title="System.err"></a>System.err</h1><p>System.err是一个PrintStream流。System.err与System.out的运行方式类似，但它更多的是用于打印错误文本。一些类似Eclipse的程序，为了让错误信息更加显眼，会将错误信息以红色文本的形式通过System.err输出到控制台上。</p>
-<h1 id="System-out和System-err的简单例子："><a href="#System-out和System-err的简单例子：" class="headerlink" title="System.out和System.err的简单例子："></a>System.out和System.err的简单例子：</h1><p>这是一个System.out和System.err结合使用的简单示例：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">try</span> &#123;</div><div class="line">    InputStream input = <span class="keyword">new</span> FileInputStream(<span class="string">"c:\\data\\..."</span>);</div><div class="line">    System.out.println(<span class="string">"File opened..."</span>);</div><div class="line">&#125; <span class="keyword">catch</span> (IOException e) &#123;</div><div class="line">    System.err.println(<span class="string">"File opening failed:"</span>);</div><div class="line">    e.printStackTrace();</div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<h1 id="替换系统流"><a href="#替换系统流" class="headerlink" title="替换系统流"></a>替换系统流</h1><p>尽管System.in, System.out, System.err这3个流是java.lang.System类中的静态成员(译者注：这3个变量均为final static常量)，并且已经预先在JVM启动的时候初始化完成，你依然可以更改它们。只需要把一个新的InputStream设置给System.in或者一个新的OutputStream设置给System.out或者System.err，之后的数据都将会在新的流中进行读取、写入。</p>
-<p>可以使用System.setIn(), System.setOut(), System.setErr()方法设置新的系统流(译者注：这三个方法均为静态方法，内部调用了本地native方法重新设置系统流)。例子如下：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">OutputStream output = <span class="keyword">new</span> FileOutputStream(<span class="string">"c:\\data\\system.out.txt"</span>);</div><div class="line">PrintStream printOut = <span class="keyword">new</span> PrintStream(output);</div><div class="line">System.setOut(printOut);</div></pre></td></tr></table></figure>
-<p>现在所有的System.out都将重定向到”c:\data\system.out.txt”文件中。请记住，务必在JVM关闭之前冲刷System.out(译者注：调用flush())，确保System.out把数据输出到了文件中。</p>
-<blockquote>
-<p>转载自<a href="http://ifeve.com/" target="_blank" rel="external">并发编程网 – ifeve.com</a> 本文链接地址: <a href="http://ifeve.com/java-io-system-in-system-out-system-err/" target="_blank" rel="external">Java IO: System.in, System.out, System.err</a></p>
-</blockquote>
-
-          
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2015/01/06/java-io-arrays/" itemprop="url">
-                  06 - Java IO 字节和字符数组
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            <span class="post-meta-item-icon">
-              <i class="fa fa-calendar-o"></i>
-            </span>
-            <span class="post-meta-item-text">Posted on</span>
-            <time itemprop="dateCreated" datetime="2015-01-06T17:36:55+08:00" content="2015-01-06">
-              2015-01-06
-            </time>
-          </span>
-
-          
-            <span class="post-category" >
-              &nbsp; | &nbsp;
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/java-io/" itemprop="url" rel="index">
-                    <span itemprop="name">java io</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-
-          
-          
-
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <blockquote>
-<p><a href="http://tutorials.jenkov.com/java-io/arrays.html" target="_blank" rel="external">原文链接</a>  作者： Jakob Jenkov   译者：homesick</p>
-</blockquote>
-<p>内容列表</p>
-<ul>
-<li>从InputStream或者Reader中读入数组</li>
-<li>从OutputStream或者Writer中写数组</li>
-</ul>
-<p>在java中常用字节和字符数组在应用中临时存储数据。而这些数组又是通常的数据读取来源或者写入目的地。如果你需要在程序运行时需要大量读取文件里的内容，那么你也可以把一个文件加载到数组中。当然你可以通过直接指定索引来读取这些数组。但如果设计成为从InputStream或者Reader，而不是从数组中读取某些数据的话，你会用什么组件呢？</p>
-<h1 id="从-InputStream-或-Reader中读取数组"><a href="#从-InputStream-或-Reader中读取数组" class="headerlink" title="从 InputStream 或 Reader中读取数组"></a>从 InputStream 或 Reader中读取数组</h1><p>用ByteArrayInputStream或者CharArrayReader封装字节或者字符数组从数组中读取数据。通过这种方式字节和字符就可以以数组的形式读出了。</p>
-<p>样例如下：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">byte</span>[] bytes = <span class="keyword">new</span> <span class="keyword">byte</span>[<span class="number">1024</span>];</div><div class="line"><span class="comment">//把数据写入字节数组...</span></div><div class="line">InputStream input = <span class="keyword">new</span> ByteArrayInputStream(bytes);</div><div class="line"><span class="comment">//读取第一个字节</span></div><div class="line"><span class="keyword">int</span> data = input.read(); </div><div class="line"><span class="keyword">while</span>(data != -<span class="number">1</span>) &#123;</div><div class="line"><span class="comment">//操作数据</span></div><div class="line"></div><div class="line"><span class="comment">//读下一个字节</span></div><div class="line">data = input.read();</div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<p>以同样的方式也可以用于读取字符数组，只要把字符数组封装在CharArrayReader上就行了。</p>
-<h1 id="通过-OutputStream-或者-Writer写数组"><a href="#通过-OutputStream-或者-Writer写数组" class="headerlink" title="通过 OutputStream 或者 Writer写数组"></a>通过 OutputStream 或者 Writer写数组</h1><p>同样，也可以把数据写到ByteArrayOutputStream或者CharArrayWriter中。你只需要创建ByteArrayOutputStream或者CharArrayWriter，把数据写入，就像写其它的流一样。当所有的数据都写进去了以后，只要调用toByteArray()或者toCharArray，所有写入的数据就会以数组的形式返回。</p>
-<p>样例如下：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">OutputStream output = <span class="keyword">new</span> ByteArrayOutputStream();</div><div class="line">output.write(<span class="string">"This text is converted to bytes"</span>.toBytes(<span class="string">"UTF-8"</span>));</div><div class="line"><span class="keyword">byte</span>[] bytes = output.toByteArray();</div></pre></td></tr></table></figure>
-<p>写字符数组也和此例子类似。只要把字符数组封装在CharArrayWriter上就可以了。</p>
-<blockquote>
-<p>转载自<a href="http://ifeve.com/" target="_blank" rel="external">并发编程网 – ifeve.com</a> 本文链接地址: <a href="http://ifeve.com/java-io-array/" target="_blank" rel="external">Java IO: 字节和字符数组</a></p>
+<p>转载自<a href="http://ifeve.com/" target="_blank" rel="external">并发编程网 – ifeve.com</a> 本文链接地址: <a href="http://ifeve.com/java-io-reader%E5%92%8Cwriter/" target="_blank" rel="external">Java IO: Reader和Writer</a></p>
 </blockquote>
 
           
@@ -1455,7 +1444,7 @@
 
   
   <nav class="pagination">
-    <a class="extend prev" rel="prev" href="/"><i class="fa fa-angle-left"></i></a><a class="page-number" href="/">1</a><span class="page-number current">2</span><a class="page-number" href="/page/3/">3</a><a class="extend next" rel="next" href="/page/3/"><i class="fa fa-angle-right"></i></a>
+    <a class="extend prev" rel="prev" href="/"><i class="fa fa-angle-left"></i></a><a class="page-number" href="/">1</a><span class="page-number current">2</span><a class="page-number" href="/page/3/">3</a><span class="space">&hellip;</span><a class="page-number" href="/page/5/">5</a><a class="extend next" rel="next" href="/page/3/"><i class="fa fa-angle-right"></i></a>
   </nav>
 
 
@@ -1496,7 +1485,7 @@
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">25</span>
+              <span class="site-state-item-count">43</span>
               <span class="site-state-item-name">posts</span>
             </a>
           </div>
