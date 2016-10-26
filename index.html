@@ -291,6 +291,115 @@
             
               
                 
+                <a class="post-title-link" href="/2016/10/17/choreographer-03-request-exec-callback/" itemprop="url">
+                  Choreographer - 03 - 请求执行回调
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">Posted on</span>
+            <time itemprop="dateCreated" datetime="2016-10-17T15:38:57+08:00" content="2016-10-17">
+              2016-10-17
+            </time>
+          </span>
+
+          
+
+          
+            
+          
+
+          
+
+          
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p>请求回调执行，请求-对应的方法是Choreographer.scheduleFrameLocked, 执行-对应的方法Choreographer.doFrame</p>
+<p>通过上一节我们知道，无论是消费INPUT、动画开始还是View的invalidate、requestLayout、requestFocus这些方法都会最终调用scheduleFrameLocked方法请求执行回调刷新屏幕。</p>
+<p>既然手机有固定的频率，那么屏幕内容的刷新肯定不是跟随我们随意调用scheduleFrameLocked执行的，scheduleFrameLocked方法具体分成两种实现：使用以及不使用垂直同步</p>
+<p>变量USE_VSYNC标记是否要使用垂直同步，这个值是从系统配置中读取的。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="keyword">boolean</span> USE_VSYNC = SystemProperties.getBoolean(</div><div class="line">        <span class="string">"debug.choreographer.vsync"</span>, <span class="keyword">true</span>);</div></pre></td></tr></table></figure>
+<p>scheduleFrameLocked代码：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">scheduleFrameLocked</span><span class="params">(<span class="keyword">long</span> now)</span> </span>&#123;</div><div class="line">    <span class="keyword">if</span> (!mFrameScheduled) &#123;</div><div class="line">        mFrameScheduled = <span class="keyword">true</span>; <span class="comment">// 在doFrame执行后会置为false</span></div><div class="line">        						<span class="comment">// 因此多次调用只有第一次会真的请求执行doFrame</span></div><div class="line">        <span class="keyword">if</span> (USE_VSYNC) &#123;	<span class="comment">//使用垂直同步</span></div><div class="line">            <span class="keyword">if</span> (DEBUG) &#123;</div><div class="line">                Log.d(TAG, <span class="string">"Scheduling next frame on vsync."</span>);</div><div class="line">            &#125;</div><div class="line"></div><div class="line">            <span class="comment">// If running on the Looper thread, then schedule the vsync immediately,</span></div><div class="line">            <span class="comment">// otherwise post a message to schedule the vsync from the UI thread</span></div><div class="line">            <span class="comment">// as soon as possible.</span></div><div class="line">            <span class="keyword">if</span> (isRunningOnLooperThreadLocked()) &#123;</div><div class="line">                scheduleVsyncLocked();</div><div class="line">            &#125; <span class="keyword">else</span> &#123;</div><div class="line">                Message msg = mHandler.obtainMessage(MSG_DO_SCHEDULE_VSYNC);</div><div class="line">                msg.setAsynchronous(<span class="keyword">true</span>);</div><div class="line">                mHandler.sendMessageAtFrontOfQueue(msg);</div><div class="line">            &#125;</div><div class="line">        &#125; <span class="keyword">else</span> &#123; <span class="comment">// 不使用垂直同步</span></div><div class="line">            <span class="keyword">final</span> <span class="keyword">long</span> nextFrameTime = Math.max(</div><div class="line">                    mLastFrameTimeNanos / NANOS_PER_MS + sFrameDelay, now);</div><div class="line">            <span class="keyword">if</span> (DEBUG) &#123;</div><div class="line">                Log.d(TAG, <span class="string">"Scheduling next frame in "</span> + (nextFrameTime - now) + <span class="string">" ms."</span>);</div><div class="line">            &#125;</div><div class="line">            Message msg = mHandler.obtainMessage(MSG_DO_FRAME);</div><div class="line">            msg.setAsynchronous(<span class="keyword">true</span>);</div><div class="line">            mHandler.sendMessageAtTime(msg, nextFrameTime);</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<h1 id="不使用垂直同步"><a href="#不使用垂直同步" class="headerlink" title="不使用垂直同步"></a>不使用垂直同步</h1><p>在不使用垂直同步的情况下，两帧之间有最小事件间隔<code>sFrameDelay</code>， 默认为10ms。因此，理论上在不使用垂直同步的情况下最大的屏幕最大的刷新频率为100HZ。</p>
+<p>首先是根据上一帧执行的时间结合sFrameDelay与系统当前时间对比计算出下一帧执行时间。<br>然后使用消息机制，发送定时消息到主线程来执行doFrame。</p>
+<h1 id="使用垂直同步"><a href="#使用垂直同步" class="headerlink" title="使用垂直同步"></a>使用垂直同步</h1><p>垂直同步(下记V-Sync)是加在两帧之间。它指示着前一帧的结束，和新一帧的开始。这也就意味着每秒内最多有60个V-Sync，每一次V-Sync到来的时候，如果需要重新绘制，就执行绘制流程刷新屏幕。</p>
+<p>V-Sync由底层SurfaceFlinger产生，但其不自主均匀的每秒钟产生60个，是在需要刷新的时候去请求SurfaceFlinger产生V-Sync。负责与SurfaceFlinger交互的是DisplayEventReceiver，其中涉及的主要方法是：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div></pre></td><td class="code"><pre><div class="line"><span class="comment">/**</span></div><div class="line"> * Schedules a single vertical sync pulse to be delivered when the next</div><div class="line"> * display frame begins.</div><div class="line"> */</div><div class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">scheduleVsync</span><span class="params">()</span> </span>&#123;</div><div class="line">    <span class="keyword">if</span> (mReceiverPtr == <span class="number">0</span>) &#123;</div><div class="line">        Log.w(TAG, <span class="string">"Attempted to schedule a vertical sync pulse but the display event "</span></div><div class="line">                + <span class="string">"receiver has already been disposed."</span>);</div><div class="line">    &#125; <span class="keyword">else</span> &#123;</div><div class="line">        nativeScheduleVsync(mReceiverPtr);</div><div class="line">    &#125;</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="comment">// Called from native code.</span></div><div class="line"><span class="meta">@SuppressWarnings</span>(<span class="string">"unused"</span>)</div><div class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">dispatchVsync</span><span class="params">(<span class="keyword">long</span> timestampNanos, <span class="keyword">int</span> builtInDisplayId, <span class="keyword">int</span> frame)</span> </span>&#123;</div><div class="line">    onVsync(timestampNanos, builtInDisplayId, frame);</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="comment">/**</span></div><div class="line"> * Called when a vertical sync pulse is received.</div><div class="line"> * The recipient should render a frame and then call &#123;<span class="doctag">@link</span> #scheduleVsync&#125;</div><div class="line"> * to schedule the next vertical sync pulse.</div><div class="line"> *</div><div class="line"> * <span class="doctag">@param</span> timestampNanos The timestamp of the pulse, in the &#123;<span class="doctag">@link</span> System#nanoTime()&#125;</div><div class="line"> * timebase.</div><div class="line"> * <span class="doctag">@param</span> builtInDisplayId The surface flinger built-in display id such as</div><div class="line"> * &#123;<span class="doctag">@link</span> SurfaceControl#BUILT_IN_DISPLAY_ID_MAIN&#125;.</div><div class="line"> * <span class="doctag">@param</span> frame The frame number.  Increases by one for each vertical sync interval.</div><div class="line"> */</div><div class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onVsync</span><span class="params">(<span class="keyword">long</span> timestampNanos, <span class="keyword">int</span> builtInDisplayId, <span class="keyword">int</span> frame)</span> </span>&#123;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<ol>
+<li>通过scheduleVsync请求V-Sync</li>
+<li>SurfaceFlinger收到V-Sync请求，在下一次V-Sync的时间点调用dispatchVsync方法</li>
+<li>dispatchVsync紧接着调用onSync方法，onSync内实现具体逻辑</li>
+</ol>
+<p>需要注意的是第1步和第2步并不是连续的，收到V-Sync请求之后需要等到下一次V-Sync开始的时间dispatchVsync方法才会被调用，而且在同一个V-Sync时间内无论请求几次V-Sync，都只会在下一次V-Sync开始的时候收到一次dispatchVsync回调。</p>
+<p><img src="/2016/10/12/choreographer-03-request-exec-callback/v-sync.jpg" alt="v-sync"></p>
+<p>DisplayEventReceiver的具体实现类是FrameDisplayEventReceiver，其内主要实现是：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div></pre></td><td class="code"><pre><div class="line"><span class="meta">@Override</span></div><div class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onVsync</span><span class="params">(<span class="keyword">long</span> timestampNanos, <span class="keyword">int</span> builtInDisplayId, <span class="keyword">int</span> frame)</span> </span>&#123;</div><div class="line">	...</div><div class="line">    <span class="keyword">long</span> now = System.nanoTime();</div><div class="line">    <span class="keyword">if</span> (timestampNanos &gt; now) &#123;</div><div class="line">        Log.w(TAG, <span class="string">"Frame time is "</span> + ((timestampNanos - now) * <span class="number">0.000001f</span>)</div><div class="line">                + <span class="string">" ms in the future!  Check that graphics HAL is generating vsync "</span></div><div class="line">                + <span class="string">"timestamps using the correct timebase."</span>);</div><div class="line">        timestampNanos = now;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="keyword">if</span> (mHavePendingVsync) &#123;</div><div class="line">        Log.w(TAG, <span class="string">"Already have a pending vsync event.  There should only be "</span></div><div class="line">                + <span class="string">"one at a time."</span>);</div><div class="line">    &#125; <span class="keyword">else</span> &#123;</div><div class="line">        mHavePendingVsync = <span class="keyword">true</span>;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="comment">// @@@ 这里是FW垂直同步脉冲生成器的调用</span></div><div class="line">    <span class="comment">// @@@ 不是Loop线程</span></div><div class="line">    <span class="comment">// @@@ 抛到Loop线程执行doFrame</span></div><div class="line">    mTimestampNanos = timestampNanos;</div><div class="line">    mFrame = frame;</div><div class="line">    Message msg = Message.obtain(mHandler, <span class="keyword">this</span>);</div><div class="line">    msg.setAsynchronous(<span class="keyword">true</span>);</div><div class="line">    mHandler.sendMessageAtTime(msg, timestampNanos / NANOS_PER_MS);</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="meta">@Override</span></div><div class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</div><div class="line">    mHavePendingVsync = <span class="keyword">false</span>;</div><div class="line">    doFrame(mTimestampNanos, mFrame); <span class="comment">// doFrame执行</span></div><div class="line">&#125;</div></pre></td></tr></table></figure>
+
+          
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
                 <a class="post-title-link" href="/2016/10/12/choreographer-02-accept-callback/" itemprop="url">
                   Choreographer - 02 - 接收回调
                 </a>
@@ -359,115 +468,6 @@
 <figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">postCallbackDelayedInternal</span><span class="params">(<span class="keyword">int</span> callbackType,</span></span></div><div class="line">        Object action, Object token, <span class="keyword">long</span> delayMillis) &#123;</div><div class="line">    <span class="keyword">if</span> (DEBUG) &#123;</div><div class="line">        Log.d(TAG, <span class="string">"PostCallback: type="</span> + callbackType</div><div class="line">                + <span class="string">", action="</span> + action + <span class="string">", token="</span> + token</div><div class="line">                + <span class="string">", delayMillis="</span> + delayMillis);</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="keyword">synchronized</span> (mLock) &#123;</div><div class="line">        <span class="keyword">final</span> <span class="keyword">long</span> now = SystemClock.uptimeMillis();</div><div class="line">        <span class="keyword">final</span> <span class="keyword">long</span> dueTime = now + delayMillis;</div><div class="line">        mCallbackQueues[callbackType].addCallbackLocked(dueTime, action, token); <span class="comment">// 添加到回调队列</span></div><div class="line"></div><div class="line">        <span class="keyword">if</span> (dueTime &lt;= now) &#123; <span class="comment">// 执行时间到， 马上安排一次回调执行，即渲染一帧</span></div><div class="line">            scheduleFrameLocked(now);</div><div class="line">        &#125; <span class="keyword">else</span> &#123; <span class="comment">// 执行时间未到，使用消息机制定时执行回调</span></div><div class="line">            Message msg = mHandler.obtainMessage(MSG_DO_SCHEDULE_CALLBACK, action);</div><div class="line">            msg.arg1 = callbackType;</div><div class="line">            msg.setAsynchronous(<span class="keyword">true</span>);</div><div class="line">            mHandler.sendMessageAtTime(msg, dueTime);</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
 <p>关于scheduleFrameLocked方法是怎样出发回调执行，以及回调具体是怎样执行的在之后详细介绍。</p>
 <h2 id="addCallbackLocked实现"><a href="#addCallbackLocked实现" class="headerlink" title="addCallbackLocked实现"></a>addCallbackLocked实现</h2><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">addCallbackLocked</span><span class="params">(<span class="keyword">long</span> dueTime, Object action, Object token)</span> </span>&#123;</div><div class="line">    CallbackRecord callback = obtainCallbackLocked(dueTime, action, token); <span class="comment">//生成callback对象</span></div><div class="line">    CallbackRecord entry = mHead;</div><div class="line">    <span class="keyword">if</span> (entry == <span class="keyword">null</span>) &#123;</div><div class="line">        mHead = callback;</div><div class="line">        <span class="keyword">return</span>;</div><div class="line">    &#125;</div><div class="line">    <span class="keyword">if</span> (dueTime &lt; entry.dueTime) &#123;</div><div class="line">        callback.next = entry;</div><div class="line">        mHead = callback;</div><div class="line">        <span class="keyword">return</span>;</div><div class="line">    &#125;</div><div class="line">    <span class="keyword">while</span> (entry.next != <span class="keyword">null</span>) &#123; <span class="comment">// 根据执行时间添加到合适的位置</span></div><div class="line">        <span class="keyword">if</span> (dueTime &lt; entry.next.dueTime) &#123;</div><div class="line">            callback.next = entry.next;</div><div class="line">            <span class="keyword">break</span>;</div><div class="line">        &#125;</div><div class="line">        entry = entry.next;</div><div class="line">    &#125;</div><div class="line">    entry.next = callback;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
-          
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2016/10/12/choreographer-03-request-exec-callback/" itemprop="url">
-                  Choreographer - 03 - 请求执行回调
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            <span class="post-meta-item-icon">
-              <i class="fa fa-calendar-o"></i>
-            </span>
-            <span class="post-meta-item-text">Posted on</span>
-            <time itemprop="dateCreated" datetime="2016-10-12T15:38:57+08:00" content="2016-10-12">
-              2016-10-12
-            </time>
-          </span>
-
-          
-
-          
-            
-          
-
-          
-
-          
-          
-
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <p>请求回调执行，请求-对应的方法是Choreographer.scheduleFrameLocked, 执行-对应的方法Choreographer.doFrame</p>
-<p>通过上一节我们知道，无论是消费INPUT、动画开始还是View的invalidate、requestLayout、requestFocus这些方法都会最终调用scheduleFrameLocked方法请求执行回调刷新屏幕。</p>
-<p>既然手机有固定的频率，那么屏幕内容的刷新肯定不是跟随我们随意调用scheduleFrameLocked执行的，scheduleFrameLocked方法具体分成两种实现：使用以及不使用垂直同步</p>
-<p>变量USE_VSYNC标记是否要使用垂直同步，这个值是从系统配置中读取的。</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="keyword">boolean</span> USE_VSYNC = SystemProperties.getBoolean(</div><div class="line">        <span class="string">"debug.choreographer.vsync"</span>, <span class="keyword">true</span>);</div></pre></td></tr></table></figure>
-<p>scheduleFrameLocked代码：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">scheduleFrameLocked</span><span class="params">(<span class="keyword">long</span> now)</span> </span>&#123;</div><div class="line">    <span class="keyword">if</span> (!mFrameScheduled) &#123;</div><div class="line">        mFrameScheduled = <span class="keyword">true</span>; <span class="comment">// 在doFrame执行后会置为false</span></div><div class="line">        						<span class="comment">// 因此多次调用只有第一次会真的请求执行doFrame</span></div><div class="line">        <span class="keyword">if</span> (USE_VSYNC) &#123;	<span class="comment">//使用垂直同步</span></div><div class="line">            <span class="keyword">if</span> (DEBUG) &#123;</div><div class="line">                Log.d(TAG, <span class="string">"Scheduling next frame on vsync."</span>);</div><div class="line">            &#125;</div><div class="line"></div><div class="line">            <span class="comment">// If running on the Looper thread, then schedule the vsync immediately,</span></div><div class="line">            <span class="comment">// otherwise post a message to schedule the vsync from the UI thread</span></div><div class="line">            <span class="comment">// as soon as possible.</span></div><div class="line">            <span class="keyword">if</span> (isRunningOnLooperThreadLocked()) &#123;</div><div class="line">                scheduleVsyncLocked();</div><div class="line">            &#125; <span class="keyword">else</span> &#123;</div><div class="line">                Message msg = mHandler.obtainMessage(MSG_DO_SCHEDULE_VSYNC);</div><div class="line">                msg.setAsynchronous(<span class="keyword">true</span>);</div><div class="line">                mHandler.sendMessageAtFrontOfQueue(msg);</div><div class="line">            &#125;</div><div class="line">        &#125; <span class="keyword">else</span> &#123; <span class="comment">// 不使用垂直同步</span></div><div class="line">            <span class="keyword">final</span> <span class="keyword">long</span> nextFrameTime = Math.max(</div><div class="line">                    mLastFrameTimeNanos / NANOS_PER_MS + sFrameDelay, now);</div><div class="line">            <span class="keyword">if</span> (DEBUG) &#123;</div><div class="line">                Log.d(TAG, <span class="string">"Scheduling next frame in "</span> + (nextFrameTime - now) + <span class="string">" ms."</span>);</div><div class="line">            &#125;</div><div class="line">            Message msg = mHandler.obtainMessage(MSG_DO_FRAME);</div><div class="line">            msg.setAsynchronous(<span class="keyword">true</span>);</div><div class="line">            mHandler.sendMessageAtTime(msg, nextFrameTime);</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<h1 id="不使用垂直同步"><a href="#不使用垂直同步" class="headerlink" title="不使用垂直同步"></a>不使用垂直同步</h1><p>在不使用垂直同步的情况下，两帧之间有最小事件间隔<code>sFrameDelay</code>， 默认为10ms。因此，理论上在不使用垂直同步的情况下最大的屏幕最大的刷新频率为100HZ。</p>
-<p>首先是根据上一帧执行的时间结合sFrameDelay与系统当前时间对比计算出下一帧执行时间。<br>然后使用消息机制，发送定时消息到主线程来执行doFrame。</p>
-<h1 id="使用垂直同步"><a href="#使用垂直同步" class="headerlink" title="使用垂直同步"></a>使用垂直同步</h1><p>垂直同步(下记V-Sync)是加在两帧之间。它指示着前一帧的结束，和新一帧的开始。这也就意味着每秒内最多有60个V-Sync，每一次V-Sync到来的时候，如果需要重新绘制，就执行绘制流程刷新屏幕。</p>
-<p>V-Sync由底层SurfaceFlinger产生，但其不自主均匀的每秒钟产生60个，是在需要刷新的时候去请求SurfaceFlinger产生V-Sync。负责与SurfaceFlinger交互的是DisplayEventReceiver，其中涉及的主要方法是：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div></pre></td><td class="code"><pre><div class="line"><span class="comment">/**</span></div><div class="line"> * Schedules a single vertical sync pulse to be delivered when the next</div><div class="line"> * display frame begins.</div><div class="line"> */</div><div class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">scheduleVsync</span><span class="params">()</span> </span>&#123;</div><div class="line">    <span class="keyword">if</span> (mReceiverPtr == <span class="number">0</span>) &#123;</div><div class="line">        Log.w(TAG, <span class="string">"Attempted to schedule a vertical sync pulse but the display event "</span></div><div class="line">                + <span class="string">"receiver has already been disposed."</span>);</div><div class="line">    &#125; <span class="keyword">else</span> &#123;</div><div class="line">        nativeScheduleVsync(mReceiverPtr);</div><div class="line">    &#125;</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="comment">// Called from native code.</span></div><div class="line"><span class="meta">@SuppressWarnings</span>(<span class="string">"unused"</span>)</div><div class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">dispatchVsync</span><span class="params">(<span class="keyword">long</span> timestampNanos, <span class="keyword">int</span> builtInDisplayId, <span class="keyword">int</span> frame)</span> </span>&#123;</div><div class="line">    onVsync(timestampNanos, builtInDisplayId, frame);</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="comment">/**</span></div><div class="line"> * Called when a vertical sync pulse is received.</div><div class="line"> * The recipient should render a frame and then call &#123;<span class="doctag">@link</span> #scheduleVsync&#125;</div><div class="line"> * to schedule the next vertical sync pulse.</div><div class="line"> *</div><div class="line"> * <span class="doctag">@param</span> timestampNanos The timestamp of the pulse, in the &#123;<span class="doctag">@link</span> System#nanoTime()&#125;</div><div class="line"> * timebase.</div><div class="line"> * <span class="doctag">@param</span> builtInDisplayId The surface flinger built-in display id such as</div><div class="line"> * &#123;<span class="doctag">@link</span> SurfaceControl#BUILT_IN_DISPLAY_ID_MAIN&#125;.</div><div class="line"> * <span class="doctag">@param</span> frame The frame number.  Increases by one for each vertical sync interval.</div><div class="line"> */</div><div class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onVsync</span><span class="params">(<span class="keyword">long</span> timestampNanos, <span class="keyword">int</span> builtInDisplayId, <span class="keyword">int</span> frame)</span> </span>&#123;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<ol>
-<li>通过scheduleVsync请求V-Sync</li>
-<li>SurfaceFlinger收到V-Sync请求，在下一次V-Sync的时间点调用dispatchVsync方法</li>
-<li>dispatchVsync紧接着调用onSync方法，onSync内实现具体逻辑</li>
-</ol>
-<p>需要注意的是第1步和第2步并不是连续的，收到V-Sync请求之后需要等到下一次V-Sync开始的时间dispatchVsync方法才会被调用，而且在同一个V-Sync时间内无论请求几次V-Sync，都只会在下一次V-Sync开始的时候收到一次dispatchVsync回调。</p>
-<p><img src="/2016/10/12/choreographer-03-request-exec-callback/v-sync.jpg" alt="v-sync"></p>
-<p>DisplayEventReceiver的具体实现类是FrameDisplayEventReceiver，其内主要实现是：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div></pre></td><td class="code"><pre><div class="line"><span class="meta">@Override</span></div><div class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onVsync</span><span class="params">(<span class="keyword">long</span> timestampNanos, <span class="keyword">int</span> builtInDisplayId, <span class="keyword">int</span> frame)</span> </span>&#123;</div><div class="line">	...</div><div class="line">    <span class="keyword">long</span> now = System.nanoTime();</div><div class="line">    <span class="keyword">if</span> (timestampNanos &gt; now) &#123;</div><div class="line">        Log.w(TAG, <span class="string">"Frame time is "</span> + ((timestampNanos - now) * <span class="number">0.000001f</span>)</div><div class="line">                + <span class="string">" ms in the future!  Check that graphics HAL is generating vsync "</span></div><div class="line">                + <span class="string">"timestamps using the correct timebase."</span>);</div><div class="line">        timestampNanos = now;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="keyword">if</span> (mHavePendingVsync) &#123;</div><div class="line">        Log.w(TAG, <span class="string">"Already have a pending vsync event.  There should only be "</span></div><div class="line">                + <span class="string">"one at a time."</span>);</div><div class="line">    &#125; <span class="keyword">else</span> &#123;</div><div class="line">        mHavePendingVsync = <span class="keyword">true</span>;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="comment">// @@@ 这里是FW垂直同步脉冲生成器的调用</span></div><div class="line">    <span class="comment">// @@@ 不是Loop线程</span></div><div class="line">    <span class="comment">// @@@ 抛到Loop线程执行doFrame</span></div><div class="line">    mTimestampNanos = timestampNanos;</div><div class="line">    mFrame = frame;</div><div class="line">    Message msg = Message.obtain(mHandler, <span class="keyword">this</span>);</div><div class="line">    msg.setAsynchronous(<span class="keyword">true</span>);</div><div class="line">    mHandler.sendMessageAtTime(msg, timestampNanos / NANOS_PER_MS);</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="meta">@Override</span></div><div class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</div><div class="line">    mHavePendingVsync = <span class="keyword">false</span>;</div><div class="line">    doFrame(mTimestampNanos, mFrame); <span class="comment">// doFrame执行</span></div><div class="line">&#125;</div></pre></td></tr></table></figure>
-
           
         
       
