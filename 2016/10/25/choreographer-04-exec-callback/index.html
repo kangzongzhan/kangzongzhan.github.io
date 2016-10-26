@@ -57,13 +57,33 @@
 
 
 
+<meta name="description" content="回调的执行的方法是doFrame。而且上一节我们知道，有两种方式请求执行回调。一种是不使用垂直同步的、另外一种使用垂直同步。两种方法最后都将doFrame的执行抛到了Loop线程（一般就是主线程）。
+理想情况在理想的情况下，我们期望Choreographer执行回调，在收到dispatchVSync的时候立即执行doFrame，是这样的：
+
+
+注：使用VSync。sv表示scheduleVSync">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Choreographer - 04 - 执行回调">
 <meta property="og:url" content="http://localhost/2016/10/25/choreographer-04-exec-callback/index.html">
 <meta property="og:site_name" content="Simple">
-<meta property="og:updated_time" content="2016-10-25T09:58:10.755Z">
+<meta property="og:description" content="回调的执行的方法是doFrame。而且上一节我们知道，有两种方式请求执行回调。一种是不使用垂直同步的、另外一种使用垂直同步。两种方法最后都将doFrame的执行抛到了Loop线程（一般就是主线程）。
+理想情况在理想的情况下，我们期望Choreographer执行回调，在收到dispatchVSync的时候立即执行doFrame，是这样的：
+
+
+注：使用VSync。sv表示scheduleVSync">
+<meta property="og:image" content="http://localhost/2016/10/25/choreographer-04-exec-callback/1.jpg">
+<meta property="og:image" content="http://localhost/2016/10/25/choreographer-04-exec-callback/2.jpg">
+<meta property="og:image" content="http://localhost/2016/10/25/choreographer-04-exec-callback/3.jpg">
+<meta property="og:image" content="http://localhost/2016/10/25/choreographer-04-exec-callback/4.jpg">
+<meta property="og:updated_time" content="2016-10-26T09:52:46.327Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Choreographer - 04 - 执行回调">
+<meta name="twitter:description" content="回调的执行的方法是doFrame。而且上一节我们知道，有两种方式请求执行回调。一种是不使用垂直同步的、另外一种使用垂直同步。两种方法最后都将doFrame的执行抛到了Loop线程（一般就是主线程）。
+理想情况在理想的情况下，我们期望Choreographer执行回调，在收到dispatchVSync的时候立即执行doFrame，是这样的：
+
+
+注：使用VSync。sv表示scheduleVSync">
+<meta name="twitter:image" content="http://localhost/2016/10/25/choreographer-04-exec-callback/1.jpg">
 
 
 
@@ -240,7 +260,29 @@
       
 
       
-        
+        <p>回调的执行的方法是doFrame。而且上一节我们知道，有两种方式请求执行回调。一种是不使用垂直同步的、另外一种使用垂直同步。<br>两种方法最后都将doFrame的执行抛到了Loop线程（一般就是主线程）。</p>
+<h1 id="理想情况"><a href="#理想情况" class="headerlink" title="理想情况"></a>理想情况</h1><p>在理想的情况下，我们期望Choreographer执行回调，在收到dispatchVSync的时候立即执行doFrame，是这样的：</p>
+<p><img src="/2016/10/25/choreographer-04-exec-callback/1.jpg" alt="理想情况"></p>
+<blockquote>
+<p>注：使用VSync。sv表示scheduleVSync， dv表示dispatchVSync， df表示doFrame</p>
+</blockquote>
+<h1 id="半理想情况"><a href="#半理想情况" class="headerlink" title="半理想情况"></a>半理想情况</h1><p>然而因为运行在Loop线程，所以doFrame对应的消息必须得等前面消息执行完了才能够执行，既然这样那我们就期望如下吧：</p>
+<p><img src="/2016/10/25/choreographer-04-exec-callback/2.jpg" alt="半理想情况"></p>
+<blockquote>
+<p>注：橙色块表示其他消息。</p>
+</blockquote>
+<h1 id="跳帧"><a href="#跳帧" class="headerlink" title="跳帧"></a>跳帧</h1><p>但是呢，如果doFrame之前的消息执行了很长时间，导致等到执行doFrame这个消息的时候时间已经超过了其应该执行时间很久，如下图：</p>
+<p><img src="/2016/10/25/choreographer-04-exec-callback/3.jpg" alt="跳帧"></p>
+<p>这就出现了我们所说的卡帧跳帧的情况。上图中只跳了一帧。如果doFrame之前的消息执行了特别长的时间，导致跳了超过SKIPPED_FRAME_WARNING_LIMIT（系统配置，默认30帧）帧，我们就会收到如下log：”Skipped xxx frames! The application may be doing too much work on its main thread.”。</p>
+<h1 id="连帧"><a href="#连帧" class="headerlink" title="连帧"></a>连帧</h1><p>我们每一帧doFrame渲染的成果到下一帧到来时才会呈现在屏幕上，那么如果现两个doFrame消息在同一帧内完成怎么办，如下图</p>
+<p><img src="/2016/10/25/choreographer-04-exec-callback/4.jpg" alt="连帧"></p>
+<p>如果发生这种连帧的情况，Choreographer会把后面那次渲染推迟到下一帧执行如上图下方。</p>
+<p>还有另外一种情况也会导致跳帧，就是回调本身的执行时间过久，导致下一帧不能及时执行，情况都差不多，就不细说了。</p>
+<h1 id="doFrame源码"><a href="#doFrame源码" class="headerlink" title="doFrame源码"></a>doFrame源码</h1><p>来看一下doFrame的具体代码：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">void</span> <span class="title">doFrame</span><span class="params">(<span class="keyword">long</span> frameTimeNanos, <span class="keyword">int</span> frame)</span> </span>&#123;</div><div class="line">    <span class="keyword">final</span> <span class="keyword">long</span> startNanos;</div><div class="line">    <span class="keyword">synchronized</span> (mLock) &#123;</div><div class="line">        <span class="keyword">if</span> (!mFrameScheduled) &#123; <span class="comment">// @@@ 确认一下是否有帧被安排了</span></div><div class="line">            <span class="keyword">return</span>; <span class="comment">// no work to do</span></div><div class="line">        &#125;</div><div class="line"></div><div class="line">        startNanos = System.nanoTime();</div><div class="line">        <span class="keyword">final</span> <span class="keyword">long</span> jitterNanos = startNanos - frameTimeNanos;</div><div class="line"></div><div class="line">        <span class="comment">// @@@ 超时时长大于一个周期</span></div><div class="line">        <span class="comment">// @@@ 警告Log跳帧</span></div><div class="line">        <span class="comment">// @@@ 修正frameTimeNaos，使超时在一个周期以内</span></div><div class="line">        <span class="keyword">if</span> (jitterNanos &gt;= mFrameIntervalNanos) &#123;</div><div class="line">            <span class="keyword">final</span> <span class="keyword">long</span> skippedFrames = jitterNanos / mFrameIntervalNanos;</div><div class="line">            <span class="keyword">if</span> (skippedFrames &gt;= SKIPPED_FRAME_WARNING_LIMIT) &#123;</div><div class="line">                Log.i(TAG, <span class="string">"Skipped "</span> + skippedFrames + <span class="string">" frames!  "</span></div><div class="line">                        + <span class="string">"The application may be doing too much work on its main thread."</span>);</div><div class="line">            &#125;</div><div class="line">            <span class="keyword">final</span> <span class="keyword">long</span> lastFrameOffset = jitterNanos % mFrameIntervalNanos;</div><div class="line">            frameTimeNanos = startNanos - lastFrameOffset;</div><div class="line">        &#125;</div><div class="line"></div><div class="line">        <span class="comment">// @@@ 由于跳帧导致上一帧的完成事件大于这一帧安排的时间</span></div><div class="line">        <span class="comment">// @@@ 这一帧现在就不能执行了，这次时间脉冲就没用了</span></div><div class="line">        <span class="comment">// @@@ 所以需要多安排一次时间脉冲</span></div><div class="line">        <span class="keyword">if</span> (frameTimeNanos &lt; mLastFrameTimeNanos) &#123;</div><div class="line">            scheduleVsyncLocked();</div><div class="line">            <span class="keyword">return</span>;</div><div class="line">        &#125;</div><div class="line"></div><div class="line">        mFrameScheduled = <span class="keyword">false</span>;</div><div class="line">        mLastFrameTimeNanos = frameTimeNanos;</div><div class="line">    &#125;</div><div class="line">    <span class="comment">// @@@ 以此执行三种类型的回调</span></div><div class="line">    doCallbacks(Choreographer.CALLBACK_INPUT, frameTimeNanos);</div><div class="line">    doCallbacks(Choreographer.CALLBACK_ANIMATION, frameTimeNanos);</div><div class="line">    doCallbacks(Choreographer.CALLBACK_TRAVERSAL, frameTimeNanos);</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>doFrame方法首先进行了跳帧确认修正时间，其次又确认了一下是否需要重新安排执行改回调，最后才是真正执行三种回调。</p>
+<p>doCallbacks的实现也特简单，CallbackRecord在CallbackQueue中是以链表形式存储的，根据回调类型与当前时间，把到执行时间CallbackRecord链提取出来，挨个执行。代码如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">void</span> <span class="title">doCallbacks</span><span class="params">(<span class="keyword">int</span> callbackType, <span class="keyword">long</span> frameTimeNanos)</span> </span>&#123;</div><div class="line">    CallbackRecord callbacks;</div><div class="line">    <span class="keyword">synchronized</span> (mLock) &#123;</div><div class="line">        <span class="comment">// We use "now" to determine when callbacks become due because it's possible</span></div><div class="line">        <span class="comment">// for earlier processing phases in a frame to post callbacks that should run</span></div><div class="line">        <span class="comment">// in a following phase, such as an input event that causes an animation to start.</span></div><div class="line">        <span class="keyword">final</span> <span class="keyword">long</span> now = SystemClock.uptimeMillis();</div><div class="line">        <span class="comment">// @@@ 根据当前事件提取CallbackRecord链</span></div><div class="line">        callbacks = mCallbackQueues[callbackType].extractDueCallbacksLocked(now); </div><div class="line">        <span class="keyword">if</span> (callbacks == <span class="keyword">null</span>) &#123;</div><div class="line">            <span class="keyword">return</span>;</div><div class="line">        &#125;</div><div class="line">        mCallbacksRunning = <span class="keyword">true</span>;</div><div class="line">    &#125;</div><div class="line">    <span class="keyword">try</span> &#123;</div><div class="line">    	<span class="comment">// @@@ 循环执行CallbackRecord</span></div><div class="line">        <span class="keyword">for</span> (CallbackRecord c = callbacks; c != <span class="keyword">null</span>; c = c.next) &#123;</div><div class="line">            c.run(frameTimeNanos);</div><div class="line">        &#125;</div><div class="line">    &#125; <span class="keyword">finally</span> &#123;</div><div class="line">        <span class="keyword">synchronized</span> (mLock) &#123;</div><div class="line">            mCallbacksRunning = <span class="keyword">false</span>;</div><div class="line">            <span class="comment">// @@@ 回收CallbackRecord</span></div><div class="line">            do &#123;</div><div class="line">                <span class="keyword">final</span> CallbackRecord next = callbacks.next;</div><div class="line">                recycleCallbackLocked(callbacks);</div><div class="line">                callbacks = next;</div><div class="line">            &#125; <span class="keyword">while</span> (callbacks != <span class="keyword">null</span>);</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
       
     </div>
 
@@ -388,7 +430,7 @@
               
             
             
-              <p class="post-toc-empty">This post does not have a Table of Contents</p>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#理想情况"><span class="nav-number">1.</span> <span class="nav-text">理想情况</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#半理想情况"><span class="nav-number">2.</span> <span class="nav-text">半理想情况</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#跳帧"><span class="nav-number">3.</span> <span class="nav-text">跳帧</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#连帧"><span class="nav-number">4.</span> <span class="nav-text">连帧</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#doFrame源码"><span class="nav-number">5.</span> <span class="nav-text">doFrame源码</span></a></li></ol></div>
             
           </div>
           <div class="post-toc-indicator-bottom post-toc-indicator">
